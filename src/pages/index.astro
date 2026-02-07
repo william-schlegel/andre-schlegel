@@ -1,17 +1,72 @@
----
-
----
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comparatif designs - Andre Schlegel</title>
+    <style>
+      :root {
+        --bg: #0f1318;
+        --panel: #171d25;
+        --ink: #f0f2f6;
+        --muted: #96a2b0;
+        --accent: #d9a15f;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Georgia, 'Times New Roman', serif;
+        background: linear-gradient(140deg, #10151d, #0f1318 48%, #1b1f27);
+        color: var(--ink);
+      }
+      main {
+        width: min(1040px, 92vw);
+        margin: 0 auto;
+        min-height: 100vh;
+        padding: 2rem 0;
+      }
+      h1 { margin-top: 0; font-size: clamp(1.8rem, 5vw, 3rem); }
+      p { color: var(--muted); }
+      .grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-top: 1.2rem;
+      }
+      a {
+        display: block;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #2a3342;
+        background: var(--panel);
+        color: var(--ink);
+        text-decoration: none;
+        transition: transform .25s ease, border-color .25s ease;
+      }
+      a:hover { transform: translateY(-3px); border-color: var(--accent); }
+      small { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Propositions de design - Site historique 2de guerre mondiale</h1>
+      <p>Trois versions de page ont ete generees a partir du brief. Chaque page integre des sections narratives, du contenu factice date sur 1939/1942/1944, des images placeholder et une carte MapLibre GL.</p>
+      <div class="grid">
+        <a href="/design-1">
+          <small>Option 1</small>
+          <h2>Archives cinematographiques</h2>
+          <p>Ambiance sombre, progression verticale lumineuse et reveals immersifs.</p>
+        </a>
+        <a href="/design-2">
+          <small>Option 2</small>
+          <h2>Dossier militaire annote</h2>
+          <p>Univers papier, tampons visuels et timeline type rapport classe.</p>
+        </a>
+        <a href="/design-3">
+          <small>Option 3</small>
+          <h2>Memorial cartographique moderne</h2>
+          <p>Interface museale claire, panneaux modules et accents cartographiques.</p>
+        </a>
+      </div>
+    </main>
+  </body>
 </html>

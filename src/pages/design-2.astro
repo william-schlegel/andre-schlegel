@@ -1,0 +1,114 @@
+---
+import ContentShowcase from '../components/ContentShowcase.astro';
+import { loadPresentationContents } from '../lib/content-presentations';
+
+const events = await loadPresentationContents();
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design 2 | Dossier militaire annote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Fraunces:opsz,wght@9..144,400;9..144,700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --paper: #e8dcc3;
+        --paper-dark: #d8c8a6;
+        --ink: #1d1812;
+        --stamp: #8a1b13;
+        --line: #9e8b66;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: 'Fraunces', serif;
+        color: var(--ink);
+        background:
+          linear-gradient(rgba(232,220,195,.9), rgba(232,220,195,.92)),
+          repeating-linear-gradient(0deg, rgba(0,0,0,.03) 0 1px, transparent 1px 5px);
+      }
+      .container { width: min(1100px, 92vw); margin: 0 auto; }
+      .hero {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        align-items: center;
+        padding: 2rem 0;
+      }
+      h1, h2, h3 { margin: 0; }
+      h1 { font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.05; }
+      .typewriter {
+        font-family: 'Special Elite', monospace;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--stamp);
+      }
+      .hero img {
+        width: 100%;
+        border: 8px solid #f2e9d6;
+        outline: 1px solid var(--line);
+        box-shadow: -10px 14px 0 rgba(138,27,19,0.25);
+        transform: rotate(-2deg);
+      }
+      .section { padding: 2rem 0; }
+      .section-showcase {
+        padding: 0;
+      }
+      .year-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .year-card {
+        border: 2px solid var(--line);
+        background: #efe3c9;
+        padding: 1rem;
+      }
+      footer {
+        margin-top: 2rem;
+        padding: 1.5rem 0 2.5rem;
+        border-top: 2px solid var(--line);
+        text-align: center;
+      }
+      @media (max-width: 860px) {
+        .hero { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="hero">
+        <div>
+          <p class="typewriter">Design 2 · Dossier militaire annote</p>
+          <h1>Rapports et carnets de campagne</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum sem ut sem facilisis, vitae feugiat eros lobortis.</p>
+        </div>
+        <img src="https://picsum.photos/900/1200?grayscale&random=12" alt="Portrait placeholder style dossier" loading="lazy" />
+      </section>
+
+      <section class="section section-showcase">
+        <ContentShowcase items={events} variant="design2" />
+      </section>
+
+      <section class="section">
+        <h2>Recapitulatif</h2>
+        <div class="year-grid">
+          {events.map((event) => (
+            <article class="year-card">
+              <h3>{event.date.slice(0, 4)}</h3>
+              <p>{event.date} · {event.title}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        2026 · Site historique · <a href="/">Comparer les designs</a>
+      </footer>
+    </main>
+  </body>
+</html>
