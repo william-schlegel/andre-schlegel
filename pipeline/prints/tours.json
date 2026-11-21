@@ -1,0 +1,13 @@
+[
+  { "id": "premiere-affectation", "from": "pptx:image5.jpg" },
+  { "id": "jeune-pilote", "from": "pptx:image4.png" },
+  { "id": "defile-base-131", "from": "pptx:image6.jpg" },
+  { "id": "base-131-vue-aerienne", "from": "pptx:image7.jpg" },
+  { "id": "insigne-escadrille", "from": "pptx:image8.jpg" },
+  { "id": "bloch-200-au-sol", "from": "pptx:image10.jpg" },
+  { "id": "bloch-200-en-vol", "from": "pptx:image11.jpg" },
+  { "id": "accident-1939", "from": "pptx:image12.jpg" },
+  { "id": "potez-25-poste-observateur", "from": "pptx:image15.jpg" },
+  { "id": "potez-25-andre", "from": "film:146", "box": [0.596, 0.06, 0.375, 0.84] },
+  { "id": "potez-25-aeropostale", "from": "pptx:image16.jpg" }
+]

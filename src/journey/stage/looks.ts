@@ -1,0 +1,45 @@
+/**
+ * The light and air of a Scene. Each Chapter has its own; the stage moves from one to the
+ * next rather than switching (see Light.tsx).
+ */
+export interface Look {
+  /** What lies beyond the table. */
+  backdrop: string;
+  /** The key light: the desk lamp at night, the window by day. */
+  key: { colour: string; strength: number; from: [number, number, number]; spread: number; softness: number };
+  /** The light that fills the shadows. */
+  fill: { sky: string; ground: string; strength: number };
+  /** The table's surface. */
+  surface: 'desk-pad' | 'oak';
+  /** 0: the room is dark around the lamp's pool; 1: full day. */
+  day: number;
+}
+
+export const LOOKS = {
+  /** The lamp is off: only what the night gives. */
+  dark: {
+    backdrop: '#050403',
+    key: { colour: '#ffd7a0', strength: 0, from: [0.25, 1.5, -0.35], spread: 0.62, softness: 0.9 },
+    fill: { sky: '#31405c', ground: '#0a0806', strength: 0.05 },
+    surface: 'desk-pad',
+    day: 0,
+  },
+  /** « Dossier sous la lampe »: a warm pool of light on the desk, the room dark around it. */
+  lamp: {
+    backdrop: '#070504',
+    key: { colour: '#ffe1bc', strength: 15, from: [0.2, 1.55, -0.3], spread: 0.56, softness: 1 },
+    fill: { sky: '#3c4a66', ground: '#120c08', strength: 0.16 },
+    surface: 'desk-pad',
+    day: 0,
+  },
+  /** Tours, 1936-1939: a summer morning, the sun through the office window. */
+  summer: {
+    backdrop: '#191510',
+    key: { colour: '#fff1d6', strength: 15, from: [-1.1, 1.9, -0.9], spread: 0.8, softness: 0.6 },
+    fill: { sky: '#cfdcea', ground: '#6b5b45', strength: 0.95 },
+    surface: 'oak',
+    day: 1,
+  },
+} satisfies Record<string, Look>;
+
+export type LookName = keyof typeof LOOKS;

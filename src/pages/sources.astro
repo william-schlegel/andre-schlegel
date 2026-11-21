@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+
+const links = [
+  {
+    name: 'Yorkshire Air Museum, Elvington',
+    href: 'https://yorkshireairmuseum.org/explore/',
+    note: 'Le musée installé sur l’ancienne base des groupes lourds français.',
+  },
+  {
+    name: 'Halifax 346 et 347 — les équipages du groupe Tunisie',
+    href: 'http://halifax346et347.canalblog.com/archives/equipages_du_groupe_tunisie/index.html',
+    note: 'Le site consacré aux « Groupes Lourds » français de la Royal Air Force.',
+  },
+];
+
+const books = [
+  {
+    title: 'Les Français dans le Bomber Command. Grande-Bretagne, septembre 1943 – octobre 1945',
+    author: 'Guy Fruchart',
+    publisher: 'Éditions Lela Presse, collection Histoire de l’aviation, n° 26',
+  },
+  {
+    title: 'Sarabande nocturne. L’épopée des groupes lourds Guyenne et Tunisie (Squadrons 346 et 347 de la Royal Air Force, 1943-1945)',
+    author: 'Louis Bourgain',
+    publisher: 'Éditions Heimdal',
+  },
+];
+
+const readings = [
+  { title: 'Les Briseurs de barrages', author: 'Paul Brickhill' },
+  { title: 'Le Grand Cirque', author: 'Pierre Clostermann' },
+  { title: 'Feux du ciel', author: 'Pierre Clostermann' },
+];
+
+const credits = [
+  { what: 'L’accident du commandant de la base de Tours, printemps 1939', who: '© Didier Lecoq' },
+  { what: 'Bloch 200 en formation', who: 'Collection Nathalie Baudoin — traditions-air.fr' },
+  { what: 'L’aérodrome de Tours vu d’avion', who: 'U.S. Air Service, « 2d Air Instructional Center, Tours Aerodrome » — Wikimedia Commons, domaine public' },
+];
+---
+
+<Base
+  title="Sources — Commandant André Schlegel"
+  description="Le film d’Éric Lemoine, le dossier familial, les liens et la bibliographie dont est tiré le parcours du commandant André Schlegel."
+  scroll
+>
+  <main class="mx-auto my-[6vh] w-[min(52rem,92vw)] bg-paper px-[clamp(1.5rem,5vw,4.5rem)] py-[clamp(2rem,5vw,4rem)] text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
+    <p class="typed text-[0.72rem] uppercase tracking-[0.24em] text-red-ink">Commandant André Schlegel · 1935 – 1962</p>
+    <h1 class="title-face mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] leading-none">Sources</h1>
+    <p class="mt-5 text-[1.25rem] leading-relaxed">
+      Ce parcours met en scène le récit qu’Éric Lemoine, petit-fils du commandant André Schlegel, a consacré à la carrière
+      militaire et aéronautique de son grand-père. Tout ce qui est dit, et presque tout ce qui est montré, vient de son film
+      et du dossier qu’il a réuni pour le faire.
+    </p>
+    <p class="mt-6">
+      <a href="/" class="typed border border-ink/50 px-4 py-2 text-[0.8rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">‹ Revenir au récit</a>
+    </p>
+
+    <section>
+      <h2>Le film</h2>
+      <p>
+        <em>Carrière militaire et aéronautique du commandant André Schlegel</em>, écrit et dit par Éric Lemoine (55 minutes).
+        La voix que l’on entend ici est la sienne, telle qu’elle est dans le film ; les photographies, les documents et les
+        pages de carnet apparaissent aux moments où il les montre.
+      </p>
+      <p><a href="https://youtu.be/ic-LO8SigKY">Voir le film d’origine</a></p>
+    </section>
+
+    <section>
+      <h2>Le dossier familial</h2>
+      <ul>
+        <li>Les carnets de vol d’André Schlegel : carnet ouvert à Tours le 2 juin 1938, carnet de 1940, carnet de 1947. Les pages montrées sont les reproductions des originaux.</li>
+        <li>Les photographies personnelles et les albums d’André Schlegel.</li>
+        <li>Ses états de service, citations et décorations ; des documents du Service historique des armées et de la Royal Air Force.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Photographies réunies par Éric Lemoine</h2>
+      <p>Certaines images du film viennent d’archives et de sites consacrés à l’histoire de l’aviation. Elles sont montrées ici comme dans le film.</p>
+      <ul>
+        {credits.map((credit) => (
+          <li>
+            {credit.what} : <span class="typed text-[0.9rem]">{credit.who}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Liens</h2>
+      <ul>
+        {links.map((link) => (
+          <li>
+            <a href={link.href} rel="noopener">{link.name}</a>
+            <br />
+            <span class="text-ink-soft">{link.note}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Bibliographie</h2>
+      <ul>
+        {books.map((book) => (
+          <li>
+            {book.author}, <em>{book.title}</em>, {book.publisher}.
+          </li>
+        ))}
+      </ul>
+      <h3>Lectures associées</h3>
+      <ul>
+        {readings.map((book) => (
+          <li>
+            {book.author}, <em>{book.title}</em>.
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Ce qui a été fait pour ce site</h2>
+      <ul>
+        <li>
+          <strong>La carte</strong> est dessinée pour ce récit, à la manière des cartes aéronautiques des années 1930. Les côtes et
+          les frontières viennent de <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (domaine public).
+        </li>
+        <li>
+          <strong>Les maquettes</strong> du Bloch 200 et du Potez 25 sont modelées pour ce site, d’une seule couleur et sans marques,
+          comme les maquettes de reconnaissance qui servaient à apprendre les silhouettes. Les dimensions indiquées sont celles
+          que l’on trouve habituellement publiées pour chaque type.
+        </li>
+        <li><strong>Les sons</strong> de la table (lampe, papier, pages, tampon) sont fabriqués par le site ; ils ne viennent d’aucun enregistrement.</li>
+        <li>
+          <strong>Les caractères</strong> : Old Standard TT, Special Elite et EB Garamond, sous licences libres (SIL Open Font License,
+          Apache License 2.0).
+        </li>
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<style>
+  section {
+    margin-top: 2.6rem;
+    border-top: 1px solid rgb(27 26 23 / 0.2);
+    padding-top: 1.4rem;
+    font-size: 1.14rem;
+    line-height: 1.6;
+  }
+  h2 {
+    font-family: var(--font-title);
+    font-size: 1.7rem;
+    line-height: 1.2;
+    margin: 0 0 0.6rem;
+  }
+  h3 {
+    font-family: var(--font-typed);
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-red-ink);
+    margin: 1.4rem 0 0.4rem;
+  }
+  p {
+    margin: 0.6rem 0;
+  }
+  ul {
+    margin: 0.6rem 0;
+    padding-left: 1.2rem;
+    list-style: '— ';
+  }
+  li {
+    margin: 0.45rem 0;
+  }
+  section a {
+    color: var(--color-red-ink);
+    text-underline-offset: 3px;
+  }
+</style>
