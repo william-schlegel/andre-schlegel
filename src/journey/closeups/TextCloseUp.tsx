@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import type { ChapterContent } from '../content/types';
 import { lastAtOrBefore } from '../engine/cues';
 import { closeCloseUp, getClock, seek } from '../engine/journey';
@@ -9,7 +9,7 @@ import { CloseUpFrame } from './CloseUpFrame';
 export function TextCloseUp({ content }: { content: ChapterContent }) {
   const { chapter, phrases } = content;
   const now = Math.max(0, lastAtOrBefore(phrases, getClock().time, (phrase) => phrase.start));
-  const current = useRef<HTMLButtonElement>(null);
+  const current = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     current.current?.scrollIntoView({ block: 'center' });
@@ -33,16 +33,25 @@ export function TextCloseUp({ content }: { content: ChapterContent }) {
           </header>
           <div className="min-h-0 flex-1 overflow-y-auto px-10 py-6 text-[1.28rem] leading-[1.7]">
             <p>
+              {/* spans, not buttons: a button cannot wrap across lines, and this must read as prose */}
               {phrases.map((phrase, index) => (
-                <button
-                  key={phrase.start}
-                  ref={index === now ? current : undefined}
-                  type="button"
-                  onClick={() => go(phrase.start)}
-                  className={`inline rounded-[2px] text-left transition-colors hover:bg-red-ink/15 ${index === now ? 'bg-lamp/60' : ''}`}
-                >
-                  {phrase.text}{' '}
-                </button>
+                <Fragment key={phrase.start}>
+                  <span
+                    ref={index === now ? current : undefined}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => go(phrase.start)}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      go(phrase.start);
+                    }}
+                    className={`cursor-pointer rounded-[2px] box-decoration-clone transition-colors hover:bg-red-ink/15 focus-visible:bg-red-ink/15 focus-visible:outline-none ${index === now ? 'bg-lamp/60' : ''}`}
+                  >
+                    {phrase.text}
+                  </span>{' '}
+                </Fragment>
               ))}
             </p>
           </div>

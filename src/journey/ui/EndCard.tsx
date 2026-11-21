@@ -25,7 +25,7 @@ export function EndCard({ chapter }: { chapter: ChapterId }) {
 
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-night/55 backdrop-blur-[3px]">
-      <div ref={card} className="invisible w-[min(34rem,90vw)] bg-paper px-10 py-9 text-center text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
+      <div ref={card} className="invisible w-[min(38rem,90vw)] bg-paper px-10 py-9 text-center text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
         {unfinished && next ? (
           <>
             <p className="typed text-[0.7rem] uppercase tracking-[0.24em] text-red-ink">À suivre</p>
@@ -45,13 +45,13 @@ export function EndCard({ chapter }: { chapter: ChapterId }) {
           </>
         )}
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <button type="button" onClick={openChapters} className="typed border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] transition hover:bg-ink hover:text-paper">
+          <button type="button" onClick={openChapters} className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] transition hover:bg-ink hover:text-paper">
             Revoir un chapitre
           </button>
-          <button type="button" onClick={backToIntroduction} className="typed border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] transition hover:bg-ink hover:text-paper">
+          <button type="button" onClick={backToIntroduction} className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] transition hover:bg-ink hover:text-paper">
             Refermer le carnet
           </button>
-          <a href="/sources" className="typed border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">
+          <a href="/sources" className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">
             Sources
           </a>
         </div>
