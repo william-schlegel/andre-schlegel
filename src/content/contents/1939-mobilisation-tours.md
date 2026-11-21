@@ -26,31 +26,34 @@ routes:
       lat: 52.52
 timeline:
   - cue: date
-    at: 0
+    delayMs: 0
   - cue: title
-    at: 100
+    delayMs: 100
   - cue: description
-    at: 300
+    delayMs: 200
   - cue: map
-    at: 500
+    delayMs: 200
   - cue: route
-    at: 800
+    delayMs: 300
     routeIndex: 0
   - cue: image
-    at: 1000
+    delayMs: 200
     imageIndex: 0
     side: left
+    holdMs: 1800
   - cue: image
-    at: 1250
+    delayMs: 250
     imageIndex: 1
     side: right
+    holdMs: 1400
   - cue: route
-    at: 2300
+    delayMs: 1050
     routeIndex: 1
   - cue: image
-    at: 5000
+    delayMs: 2700
     imageIndex: 2
     side: left
+    holdMs: 2200
 ---
 Le carnet mentionne la mise en alerte rapide de la base et la preparation des equipages.
 Les premiers vols de liaison visent a coordonner les mouvements entre Tours et Londres.

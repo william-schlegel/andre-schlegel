@@ -15,10 +15,11 @@ const routeSchema = z.object({
 
 const timelineSchema = z.object({
   cue: z.enum(['date', 'title', 'description', 'map', 'route', 'image']),
-  at: z.number().int().nonnegative(),
+  delayMs: z.number().int().nonnegative(),
   routeIndex: z.number().int().nonnegative().optional(),
   imageIndex: z.number().int().nonnegative().optional(),
-  side: z.enum(['left', 'right']).optional()
+  side: z.enum(['left', 'right']).optional(),
+  holdMs: z.number().int().positive().optional()
 });
 
 const contents = defineCollection({

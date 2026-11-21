@@ -26,29 +26,29 @@ routes:
       lat: 50.8503
 timeline:
   - cue: date
-    at: 0
+    delayMs: 0
   - cue: title
-    at: 120
+    delayMs: 120
   - cue: description
-    at: 340
+    delayMs: 220
   - cue: map
-    at: 580
+    delayMs: 240
   - cue: route
-    at: 900
+    delayMs: 320
     routeIndex: 0
   - cue: image
-    at: 1200
+    delayMs: 300
     imageIndex: 0
     side: right
   - cue: image
-    at: 1600
+    delayMs: 400
     imageIndex: 1
     side: left
   - cue: route
-    at: 2500
+    delayMs: 900
     routeIndex: 1
   - cue: image
-    at: 3200
+    delayMs: 700
     imageIndex: 2
     side: right
 ---

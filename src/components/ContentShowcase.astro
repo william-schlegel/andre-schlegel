@@ -40,9 +40,10 @@ const { items, variant } = Astro.props as Props;
 .showcase-progress {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  gap: 0.8rem;
   position: relative;
+  padding-top: 1rem;
 }
 
 .progress-kicker {
@@ -62,11 +63,12 @@ const { items, variant } = Astro.props as Props;
 
 .progress-meter {
   width: 8px;
-  height: min(46vh, 320px);
+  height: min(24vh, 180px);
   background: var(--progress-track);
   border-radius: 999px;
   position: relative;
   overflow: hidden;
+  margin-top: auto;
 }
 
 .progress-meter span {
@@ -84,6 +86,81 @@ const { items, variant } = Astro.props as Props;
   transform-origin: 50% 50%;
   margin: 5.5rem 0;
   accent-color: var(--progress-accent);
+}
+
+.progress-counter {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.stepper-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stepper-item {
+  position: relative;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid color-mix(in oklab, var(--progress-accent) 40%, var(--stage-inner-border));
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--stage-inner-bg) 84%, white);
+  color: color-mix(in oklab, var(--progress-accent) 82%, #111);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.stepper-item:hover,
+.stepper-item:focus-visible {
+  transform: translateX(2px);
+  border-color: var(--progress-accent);
+  outline: none;
+}
+
+.stepper-item.is-done {
+  background: color-mix(in oklab, var(--progress-accent) 20%, var(--stage-inner-bg));
+}
+
+.stepper-item.is-active {
+  background: color-mix(in oklab, var(--progress-accent) 30%, var(--stage-inner-bg));
+  border-color: var(--progress-accent);
+  color: color-mix(in oklab, var(--progress-accent) 96%, black);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--progress-accent) 22%, transparent);
+}
+
+.stepper-item-label {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepper-tooltip {
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  background: color-mix(in oklab, var(--stage-bg) 92%, black);
+  border: 1px solid var(--stage-inner-border);
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 10;
+}
+
+.stepper-item:hover .stepper-tooltip,
+.stepper-item:focus-visible .stepper-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
 }
 
 .showcase-stage {
@@ -247,6 +324,34 @@ const { items, variant } = Astro.props as Props;
   min-height: 128px;
 }
 
+.thumb-slot {
+  border-radius: 10px;
+  border: 1px dashed var(--stage-inner-border);
+  background: color-mix(in oklab, var(--stage-inner-bg) 78%, transparent);
+  overflow: hidden;
+}
+
+.thumb-slot.is-filled {
+  border-style: solid;
+}
+
+.thumb-slot button {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-slot button:disabled {
+  cursor: default;
+}
+
+.thumb-placeholder {
+  display: block;
+  width: 100%;
+  min-height: 128px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.08));
+}
+
 .media-modal {
   position: fixed;
   inset: 0;
@@ -293,27 +398,24 @@ const { items, variant } = Astro.props as Props;
 
 .hero-image-overlay {
   position: fixed;
-  top: 8vh;
+  inset: 0;
   z-index: 130;
-  width: min(36vw, 520px);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: grid;
+  place-items: center;
   pointer-events: none;
 }
 
-.hero-image-overlay img {
+.hero-image-floating {
   display: block;
-  width: 100%;
-}
-
-.hero-image-overlay.hero-left {
-  left: 3vw;
-}
-
-.hero-image-overlay.hero-right {
-  right: 3vw;
+  width: auto;
+  height: auto;
+  max-width: 60vw;
+  max-height: 60vh;
+  border-radius: 12px;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  object-fit: contain;
+  transform-origin: center center;
 }
 
 .content-showcase.design1 {
@@ -377,6 +479,7 @@ const { items, variant } = Astro.props as Props;
   .progress-meter {
     width: 100%;
     height: 8px;
+    margin-top: 0;
   }
 
   .progress-meter span {
@@ -388,6 +491,22 @@ const { items, variant } = Astro.props as Props;
     width: 100%;
     transform: none;
     margin: 0;
+  }
+
+  .stepper-root {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .stepper-tooltip {
+    left: 50%;
+    top: calc(100% + 0.5rem);
+    transform: translateX(-50%) translateY(-4px);
+  }
+
+  .stepper-item:hover .stepper-tooltip,
+  .stepper-item:focus-visible .stepper-tooltip {
+    transform: translateX(-50%) translateY(0);
   }
 
   .stage-columns {
@@ -403,12 +522,9 @@ const { items, variant } = Astro.props as Props;
     height: 260px;
   }
 
-  .hero-image-overlay {
-    width: min(82vw, 440px);
-    top: 10vh;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
+  .hero-image-floating {
+    max-width: 70vw;
+    max-height: 54vh;
   }
 }
 </style>

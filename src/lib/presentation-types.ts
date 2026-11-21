@@ -21,10 +21,11 @@ export type TimelineCue =
 
 export type TimelineEvent = {
   cue: TimelineCue;
-  at: number;
+  delayMs: number;
   routeIndex?: number;
   imageIndex?: number;
   side?: 'left' | 'right';
+  holdMs?: number;
 };
 
 export type PresentationContent = {

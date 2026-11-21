@@ -1,7 +1,8 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import maplibregl from 'maplibre-gl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PresentationContent } from '../lib/presentation-types';
+import { Stepper } from './ui/stepper';
 
 type ContentShowcaseProps = {
   items: PresentationContent[];
@@ -50,6 +51,11 @@ const PRESETS: Record<ContentShowcaseProps['variant'], Preset> = {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const IMAGE_TIME_SCALE = 5;
+const IMAGE_ENTRY_MS = 1800;
+const IMAGE_TO_THUMB_MS = 1800;
+const MAP_STEP_MS = 900;
+const ROUTE_STEP_MS = 1400;
 
 const fitToAllRoutePoints = (map: maplibregl.Map, routes?: PresentationContent['routes']) => {
   if (!routes?.length) {
@@ -84,26 +90,41 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
   const routeIdsRef = useRef<string[]>([]);
   const runIdRef = useRef(0);
   const timelineTimersRef = useRef<number[]>([]);
+  const autoAdvanceTimerRef = useRef<number | null>(null);
+  const lockAlignedRef = useRef(false);
 
   const [activeContentIndex, setActiveContentIndex] = useState(0);
-  const [isDraggingProgress, setIsDraggingProgress] = useState(false);
-  const [previewContent, setPreviewContent] = useState<number | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const mapReadyRef = useRef(false);
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [isSectionVisible, setIsSectionVisible] = useState(false);
+  const [isPlaybackLocked, setIsPlaybackLocked] = useState(true);
+  const [isSequenceCompleted, setIsSequenceCompleted] = useState(false);
 
   const [showDate, setShowDate] = useState(false);
   const [showTitle, setShowTitle] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [activeRoutes, setActiveRoutes] = useState<number[]>([]);
-  const [thumbnailImages, setThumbnailImages] = useState<number[]>([]);
+  const [imagePhaseByIndex, setImagePhaseByIndex] = useState<Record<number, 'hero' | 'thumb'>>({});
   const [heroImage, setHeroImage] = useState<{ index: number; side: 'left' | 'right' } | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
 
   const preset = PRESETS[variant];
   const currentContent = items[activeContentIndex];
   const progressRatio = items.length <= 1 ? 100 : (activeContentIndex / (items.length - 1)) * 100;
+
+  useEffect(() => {
+    mapReadyRef.current = mapReady;
+  }, [mapReady]);
+
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        window.clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!sectionRef.current) {
@@ -122,35 +143,35 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
     return () => observer.disconnect();
   }, []);
 
-  const commitPreview = () => {
-    const next = clamp(previewContent ?? activeContentIndex, 0, items.length - 1);
-    setIsDraggingProgress(false);
-    setPreviewContent(null);
-    setActiveContentIndex(next);
-  };
-
   useEffect(() => {
-    const onScroll = () => {
-      if (!sectionRef.current || isDraggingProgress) {
+    const onWheel = (event: WheelEvent) => {
+      if (!isSectionVisible || !isPlaybackLocked || !sectionRef.current) {
+        return;
+      }
+      const rect = sectionRef.current.getBoundingClientRect();
+      const isInside = rect.top <= window.innerHeight * 0.25 && rect.bottom >= window.innerHeight * 0.75;
+      if (!isInside) {
+        lockAlignedRef.current = false;
         return;
       }
 
-      const rect = sectionRef.current.getBoundingClientRect();
-      const maxScroll = Math.max(sectionRef.current.offsetHeight - window.innerHeight, 1);
-      const passed = clamp(-rect.top, 0, maxScroll);
-      const ratio = passed / maxScroll;
-      const nextIndex = clamp(Math.round(ratio * (items.length - 1)), 0, items.length - 1);
-
-      if (nextIndex !== activeContentIndex) {
-        setActiveContentIndex(nextIndex);
+      if (!lockAlignedRef.current && Math.abs(rect.top) > 2) {
+        window.scrollTo({ top: window.scrollY + rect.top, behavior: 'auto' });
+        lockAlignedRef.current = true;
       }
+
+      event.preventDefault();
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => window.removeEventListener('wheel', onWheel);
+  }, [isPlaybackLocked, isSectionVisible]);
 
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [activeContentIndex, isDraggingProgress, items.length]);
+  useEffect(() => {
+    if (!isPlaybackLocked) {
+      lockAlignedRef.current = false;
+    }
+  }, [isPlaybackLocked]);
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -162,6 +183,8 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
       const next = clamp(activeContentIndex + direction, 0, items.length - 1);
       if (next !== activeContentIndex) {
         event.preventDefault();
+        setIsPlaybackLocked(true);
+        setIsSequenceCompleted(false);
         setActiveContentIndex(next);
       }
     };
@@ -190,17 +213,17 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
     routeIdsRef.current = [];
   };
 
-  const animateRoute = (routeIndex: number) => {
+  const animateRoute = (routeIndex: number): Promise<void> => {
     const map = mapRef.current;
     if (!map || !mapReady || !currentContent.routes?.[routeIndex]) {
-      return;
+      return Promise.resolve();
     }
 
     const leg = currentContent.routes[routeIndex];
     const sourceId = `route-${activeContentIndex}-${routeIndex}`;
 
     if (map.getSource(sourceId)) {
-      return;
+      return Promise.resolve();
     }
 
     routeIdsRef.current.push(sourceId);
@@ -253,42 +276,51 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
 
     const runId = runIdRef.current;
     const source = map.getSource(sourceId) as maplibregl.GeoJSONSource;
-    const duration = 1400;
+    const duration = ROUTE_STEP_MS;
     const start = performance.now();
 
-    const tick = (time: number) => {
-      if (runId !== runIdRef.current) {
-        return;
-      }
-
-      const t = clamp((time - start) / duration, 0, 1);
-      const lng = lerp(leg.from.lng, leg.to.lng, t);
-      const lat = lerp(leg.from.lat, leg.to.lat, t);
-
-      source.setData({
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [leg.from.lng, leg.from.lat],
-            [lng, lat]
-          ]
+    return new Promise<void>((resolve) => {
+      const tick = (time: number) => {
+        if (runId !== runIdRef.current) {
+          resolve();
+          return;
         }
-      });
 
-      planeMarker.setLngLat([lng, lat]);
+        const t = clamp((time - start) / duration, 0, 1);
+        const lng = lerp(leg.from.lng, leg.to.lng, t);
+        const lat = lerp(leg.from.lat, leg.to.lat, t);
 
-      if (t < 1) {
-        requestAnimationFrame(tick);
-      }
-    };
+        source.setData({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [leg.from.lng, leg.from.lat],
+              [lng, lat]
+            ]
+          }
+        });
 
-    requestAnimationFrame(tick);
+        planeMarker.setLngLat([lng, lat]);
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+          return;
+        }
+
+        resolve();
+      };
+
+      requestAnimationFrame(tick);
+    });
   };
 
   useEffect(() => {
     if (!isSectionVisible) {
+      return;
+    }
+    if (isSequenceCompleted && activeContentIndex === items.length - 1) {
       return;
     }
 
@@ -301,7 +333,7 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
     setShowDescription(false);
     setShowMap(false);
     setActiveRoutes([]);
-    setThumbnailImages([]);
+    setImagePhaseByIndex({});
     setHeroImage(null);
     setElapsedMs(0);
 
@@ -309,54 +341,122 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
       return;
     }
 
-    const timeline = [...currentContent.timeline].sort((a, b) => a.at - b.at);
+    let cancelled = false;
+    let elapsed = 0;
 
-    const elapsedInterval = window.setInterval(() => {
-      setElapsedMs((prev) => {
-        const max = timeline[timeline.length - 1]?.at ?? 0;
-        return prev < max + 1200 ? prev + 50 : prev;
+    if (autoAdvanceTimerRef.current) {
+      window.clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+    setIsPlaybackLocked(true);
+
+    const wait = (ms: number) =>
+      new Promise<void>((resolve) => {
+        const timeoutId = window.setTimeout(() => {
+          elapsed += ms;
+          setElapsedMs(elapsed);
+          resolve();
+        }, ms);
+        timelineTimersRef.current.push(timeoutId);
       });
-    }, 50);
 
-    timeline.forEach((event) => {
-      const timerId = window.setTimeout(() => {
+    const waitForMapReady = async () => {
+      const start = performance.now();
+      while (!cancelled) {
+        if (mapReadyRef.current && mapRef.current) {
+          return true;
+        }
+        if (performance.now() - start > 5000) {
+          return false;
+        }
+        await wait(50);
+      }
+      return false;
+    };
+
+    const runTimeline = async () => {
+      for (const event of currentContent.timeline) {
+        await wait(event.delayMs);
+        if (cancelled) {
+          return;
+        }
+
         if (event.cue === 'date') {
           setShowDate(true);
+          continue;
         }
         if (event.cue === 'title') {
           setShowTitle(true);
+          continue;
         }
         if (event.cue === 'description') {
           setShowDescription(true);
+          continue;
         }
         if (event.cue === 'map') {
           setShowMap(true);
+          await wait(MAP_STEP_MS);
+          continue;
         }
         if (event.cue === 'route') {
           const index = event.routeIndex ?? 0;
           setActiveRoutes((prev) => (prev.includes(index) ? prev : [...prev, index]));
+          const ready = await waitForMapReady();
+          if (cancelled) {
+            return;
+          }
+          if (!ready) {
+            continue;
+          }
+          await animateRoute(index);
+          continue;
         }
         if (event.cue === 'image') {
           const index = event.imageIndex ?? 0;
           const side = event.side ?? (index % 2 === 0 ? 'left' : 'right');
-          setHeroImage({ index, side });
-          window.setTimeout(() => {
-            setThumbnailImages((prev) => (prev.includes(index) ? prev : [...prev, index]));
-            setHeroImage((prev) => (prev?.index === index ? null : prev));
-          }, 1000);
-        }
-      }, event.at);
-      timelineTimersRef.current.push(timerId);
-    });
+          const holdMs = (event.holdMs ?? 1000) * IMAGE_TIME_SCALE;
 
-    timelineTimersRef.current.push(elapsedInterval);
+          setHeroImage({ index, side });
+          setImagePhaseByIndex((prev) => ({ ...prev, [index]: 'hero' }));
+          await wait(IMAGE_ENTRY_MS + holdMs);
+          if (cancelled) {
+            return;
+          }
+          setImagePhaseByIndex((prev) => ({ ...prev, [index]: 'thumb' }));
+          setHeroImage((prev) => (prev?.index === index ? null : prev));
+          await wait(IMAGE_TO_THUMB_MS);
+        }
+      }
+
+      if (cancelled) {
+        return;
+      }
+
+      const hasNext = activeContentIndex < items.length - 1;
+      if (!hasNext) {
+        setIsPlaybackLocked(false);
+        setIsSequenceCompleted(true);
+        return;
+      }
+
+      autoAdvanceTimerRef.current = window.setTimeout(() => {
+        setIsSequenceCompleted(false);
+        setActiveContentIndex((prev) => clamp(prev + 1, 0, items.length - 1));
+      }, 1000);
+    };
+
+    runTimeline();
 
     return () => {
+      cancelled = true;
+      if (autoAdvanceTimerRef.current) {
+        window.clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
       timelineTimersRef.current.forEach((id) => window.clearTimeout(id));
       timelineTimersRef.current = [];
-      window.clearInterval(elapsedInterval);
     };
-  }, [activeContentIndex, currentContent, isSectionVisible]);
+  }, [activeContentIndex, currentContent, isSectionVisible, isSequenceCompleted, items.length]);
 
   useEffect(() => {
     if (!showMap) {
@@ -402,23 +502,17 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
     fitToAllRoutePoints(mapRef.current, currentContent.routes);
   }, [currentContent.routes, mapReady]);
 
-  useEffect(() => {
-    if (!mapReady) {
-      return;
-    }
-
-    activeRoutes.forEach((routeIndex) => animateRoute(routeIndex));
-  }, [activeRoutes, mapReady]);
-
   const timelineWithState = useMemo(() => {
-    return currentContent.timeline
-      .slice()
-      .sort((a, b) => a.at - b.at)
-      .map((event, index) => ({
+    let cursor = 0;
+    return currentContent.timeline.map((event, index) => {
+      cursor += event.delayMs;
+      return {
         ...event,
         index,
-        active: elapsedMs >= event.at
-      }));
+        atMs: cursor,
+        active: elapsedMs >= cursor
+      };
+    });
   }, [currentContent.timeline, elapsedMs]);
 
   if (!currentContent) {
@@ -431,27 +525,34 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
       ref={sectionRef}
       style={{ ['--content-count' as string]: String(items.length), ['--step-count' as string]: String(items.length * 4) }}
     >
-      <div className="showcase-sticky">
-        <div className="showcase-shell">
+      <LayoutGroup id={`content-${activeContentIndex}`}>
+        <div className="showcase-sticky">
+          <div className="showcase-shell">
           <aside className="showcase-progress">
             <p className="progress-kicker">Contenus</p>
             <p className="progress-title">{currentContent.date} · {currentContent.title}</p>
-            <p className="progress-step">Timeline auto</p>
+            <p className="progress-step">Stepper + lecture auto</p>
+            <Stepper
+              steps={items.map((item, index) => ({
+                id: index,
+                label: String(index + 1),
+                tooltip: item.title
+              }))}
+              activeStep={activeContentIndex}
+              onStepClick={(step) => {
+                if (autoAdvanceTimerRef.current) {
+                  window.clearTimeout(autoAdvanceTimerRef.current);
+                  autoAdvanceTimerRef.current = null;
+                }
+                setIsPlaybackLocked(true);
+                setIsSequenceCompleted(false);
+                setActiveContentIndex(step);
+              }}
+            />
+            <p className="progress-counter">{activeContentIndex + 1} / {items.length}</p>
             <div className="progress-meter" role="presentation">
               <span style={{ height: `${progressRatio}%`, width: `${progressRatio}%` }}></span>
             </div>
-            <input
-              className="progress-range"
-              type="range"
-              min={0}
-              max={items.length - 1}
-              value={previewContent ?? activeContentIndex}
-              onPointerDown={() => setIsDraggingProgress(true)}
-              onChange={(event) => setPreviewContent(Number(event.currentTarget.value))}
-              onPointerUp={commitPreview}
-              onTouchEnd={commitPreview}
-              aria-label="Progression des contenus"
-            />
           </aside>
 
           <AnimatePresence mode="wait">
@@ -507,25 +608,27 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
 
                 <motion.article className="stage-card stage-gallery" animate={{ opacity: 1 }} transition={{ duration: 0.35 }}>
                   <h3>Photographies associees</h3>
-                  <p>Image hero puis rangement automatique en thumbnail.</p>
+                  <p>Image hero (90% viewport) puis retour fluide vers le thumbnail.</p>
                   <ul className="thumb-grid">
                     {currentContent.images.map((image, index) => {
-                      const visible = thumbnailImages.includes(index);
+                      const phase = imagePhaseByIndex[index];
+                      const isThumbnail = phase === 'thumb';
                       return (
-                        <motion.li
-                          key={image}
-                          initial={{ opacity: 0, x: preset.thumbOffsetX, y: preset.thumbOffsetY }}
-                          animate={{
-                            opacity: visible ? 1 : 0.05,
-                            x: visible ? 0 : preset.thumbOffsetX,
-                            y: visible ? 0 : preset.thumbOffsetY
-                          }}
-                          transition={{ duration: 0.32 }}
-                        >
-                          <button type="button" onClick={() => setModalImage(image)}>
-                            <img src={image} alt={`Archive ${index + 1}`} loading="lazy" />
+                        <li key={image} className={`thumb-slot ${isThumbnail ? 'is-filled' : ''}`}>
+                          <button type="button" onClick={() => isThumbnail && setModalImage(image)} disabled={!isThumbnail}>
+                            {isThumbnail ? (
+                              <motion.img
+                                layoutId={`media-${activeContentIndex}-${index}`}
+                                src={image}
+                                alt={`Archive ${index + 1}`}
+                                loading="lazy"
+                                transition={{ layout: { duration: IMAGE_TO_THUMB_MS / 1000, ease: [0.22, 1, 0.36, 1] } }}
+                              />
+                            ) : (
+                              <span className="thumb-placeholder"></span>
+                            )}
                           </button>
-                        </motion.li>
+                        </li>
                       );
                     })}
                   </ul>
@@ -536,8 +639,8 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
                 <h3>Timeline du contenu</h3>
                 <ul className="timeline-list">
                   {timelineWithState.map((event) => (
-                    <li key={`${event.cue}-${event.index}-${event.at}`} className={event.active ? 'is-active' : ''}>
-                      <span>{String(event.at).padStart(4, '0')}ms</span>
+                    <li key={`${event.cue}-${event.index}-${event.atMs}`} className={event.active ? 'is-active' : ''}>
+                      <span>+{event.delayMs}ms</span>
                       <strong>{event.cue}</strong>
                       {typeof event.routeIndex === 'number' ? <em>route {event.routeIndex + 1}</em> : null}
                       {typeof event.imageIndex === 'number' ? <em>image {event.imageIndex + 1}</em> : null}
@@ -547,22 +650,31 @@ export default function ContentShowcase({ items, variant }: ContentShowcaseProps
               </article>
             </motion.div>
           </AnimatePresence>
+          </div>
         </div>
-      </div>
-
-      <AnimatePresence>
-        {heroImage && (
-          <motion.div
-            className={`hero-image-overlay hero-${heroImage.side}`}
-            initial={{ opacity: 0, x: heroImage.side === 'left' ? -260 : 260, scale: 0.92 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: heroImage.side === 'left' ? -180 : 180, scale: 0.94 }}
-            transition={{ duration: 0.45 }}
-          >
-            <img src={currentContent.images[heroImage.index]} alt="Apercu animation image" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
+        <AnimatePresence>
+          {heroImage && imagePhaseByIndex[heroImage.index] === 'hero' && (
+            <motion.div className="hero-image-overlay">
+              <motion.img
+                layoutId={`media-${activeContentIndex}-${heroImage.index}`}
+                className="hero-image-floating"
+                src={currentContent.images[heroImage.index]}
+                alt="Apercu animation image"
+                initial={{ opacity: 0, x: heroImage.side === 'left' ? -320 : 320, scale: 0.72 }}
+                animate={{ opacity: 1, x: 0, scale: 1.5 }}
+                exit={{ opacity: 1, scale: 1.5 }}
+                transition={{
+                  x: { duration: IMAGE_ENTRY_MS / 1000, ease: [0.2, 0.75, 0.2, 1] },
+                  scale: { duration: IMAGE_ENTRY_MS / 1000, ease: [0.2, 0.75, 0.2, 1] },
+                  opacity: { duration: 0.35 },
+                  layout: { duration: IMAGE_TO_THUMB_MS / 1000, ease: [0.22, 1, 0.36, 1] }
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </LayoutGroup>
 
       <AnimatePresence>
         {modalImage && (

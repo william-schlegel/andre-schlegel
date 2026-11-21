@@ -36,15 +36,15 @@ const computeStages = (entry: {
 
 const defaultTimeline = (entry: { images: string[]; routes: Array<unknown> }): TimelineEvent[] => {
   const events: TimelineEvent[] = [
-    { cue: 'date', at: 0 },
-    { cue: 'title', at: 120 },
-    { cue: 'description', at: 320 }
+    { cue: 'date', delayMs: 0 },
+    { cue: 'title', delayMs: 120 },
+    { cue: 'description', delayMs: 220 }
   ];
 
   if (entry.routes.length > 0) {
-    events.push({ cue: 'map', at: 520 });
+    events.push({ cue: 'map', delayMs: 200 });
     entry.routes.forEach((_, index) => {
-      events.push({ cue: 'route', at: 900 + index * 1300, routeIndex: index });
+      events.push({ cue: 'route', delayMs: index === 0 ? 220 : 300, routeIndex: index });
     });
   }
 
@@ -52,7 +52,7 @@ const defaultTimeline = (entry: { images: string[]; routes: Array<unknown> }): T
     entry.images.forEach((_, index) => {
       events.push({
         cue: 'image',
-        at: 1100 + index * 400,
+        delayMs: 240,
         imageIndex: index,
         side: index % 2 === 0 ? 'left' : 'right'
       });
@@ -74,10 +74,12 @@ export const loadPresentationContents = async (): Promise<PresentationContent[]>
     description: entry.data.description,
     images: entry.data.images,
     routes: entry.data.routes,
-    timeline: (entry.data.timeline.length > 0 ? entry.data.timeline : defaultTimeline({
-      images: entry.data.images,
-      routes: entry.data.routes
-    })).sort((a, b) => a.at - b.at),
+    timeline: entry.data.timeline.length > 0
+      ? entry.data.timeline
+      : defaultTimeline({
+          images: entry.data.images,
+          routes: entry.data.routes
+        }),
     stages: computeStages({
       images: entry.data.images,
       routes: entry.data.routes,
