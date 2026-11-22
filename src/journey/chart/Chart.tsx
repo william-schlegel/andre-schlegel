@@ -17,8 +17,9 @@ import {
 import type { Frame, Place } from '../content/types';
 import { contactShadowTexture, paperTexture } from '../stage/surfaces';
 import { whenFontsReady } from '../stage/textures';
-import { drawSheet, onSheet, sheetSize, type Land } from './draw';
-import { EVENTS, POSTS, SHEETS, type ChartEvent, type ChartSheet, type EventId, type Post, type PostId, type SheetId } from './places';
+import { onSheet, sheetSize } from './draw';
+import { sheetDrawing } from './drawings';
+import { EVENTS, POSTS, type ChartEvent, type EventId, type Post, type PostId, type SheetId } from './places';
 
 /**
  * How far the Chart is unrolled and how far its marks are inked, from 0 to 1. A Chapter
@@ -29,21 +30,19 @@ export const chartState = { unrolled: 1, inked: 1 };
 const SEGMENTS = 72;
 const ROLL = 0.021; // radius of the rolled part, in metres
 
-const drawn = new Map<SheetId, Promise<Texture>>();
+const textures = new Map<SheetId, Promise<Texture>>();
 
-/** The sheet's drawing, made once (the coastlines are fetched apart from the rest of the site). */
+/** The sheet's drawing as a texture for the table. */
 function sheetTexture(id: SheetId): Promise<Texture> {
-  let texture = drawn.get(id);
+  let texture = textures.get(id);
   if (!texture) {
-    // a sheet that holds continents is drawn from the small-scale outlines
-    const outlines = (SHEETS[id] as ChartSheet).world ? import('../content/generated/chart-monde.json') : import('../content/generated/chart-land.json');
-    texture = Promise.all([outlines, whenFontsReady()]).then(([land]) => {
-      const result = new CanvasTexture(drawSheet(id, land.default as Land[]));
+    texture = sheetDrawing(id).then((drawing) => {
+      const result = new CanvasTexture(drawing);
       result.colorSpace = SRGBColorSpace;
       result.anisotropy = 16;
       return result;
     });
-    drawn.set(id, texture);
+    textures.set(id, texture);
   }
   return texture;
 }

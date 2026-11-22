@@ -130,6 +130,25 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Bamako', at: [-8.0, 12.65], sheet: 'atlantique-sud' },
   { name: 'Niamey', at: [2.11, 13.51], sheet: 'atlantique-sud' },
   { name: 'Natal', at: [-35.2, -5.8], label: 'left', sheet: 'atlantique-sud' },
+  // the whole Chart: a few great towns to find one's way by (the places of the story are marked over it)
+  { name: 'Londres', at: [-0.12, 51.5], label: 'below', sheet: 'ensemble' },
+  { name: 'Dublin', at: [-6.26, 53.35], label: 'left', sheet: 'ensemble' },
+  { name: 'Édimbourg', at: [-3.19, 55.95], label: 'left', sheet: 'ensemble' },
+  { name: 'Amsterdam', at: [4.9, 52.37], label: 'above', sheet: 'ensemble' },
+  { name: 'Berlin', at: [13.4, 52.52], label: 'above', sheet: 'ensemble' },
+  { name: 'Copenhague', at: [12.57, 55.68], label: 'left', sheet: 'ensemble' },
+  { name: 'Munich', at: [11.58, 48.14], label: 'below', sheet: 'ensemble' },
+  { name: 'Brest', at: [-4.49, 48.39], label: 'left', sheet: 'ensemble' },
+  { name: 'Bordeaux', at: [-0.58, 44.84], sheet: 'ensemble' },
+  { name: 'Lyon', at: [4.83, 45.76], sheet: 'ensemble' },
+  { name: 'Marseille', at: [5.37, 43.3], label: 'below', sheet: 'ensemble' },
+  { name: 'Rome', at: [12.5, 41.9], label: 'left', sheet: 'ensemble' },
+  { name: 'Barcelone', at: [2.17, 41.39], label: 'left', sheet: 'ensemble' },
+  { name: 'Madrid', at: [-3.7, 40.42], sheet: 'ensemble' },
+  { name: 'Lisbonne', at: [-9.14, 38.72], label: 'below', sheet: 'ensemble' },
+  { name: 'Séville', at: [-5.98, 37.39], label: 'above', sheet: 'ensemble' },
+  { name: 'Tunis', at: [10.18, 36.8], label: 'below', sheet: 'ensemble' },
+  { name: 'Marrakech', at: [-8.0, 31.63], label: 'above', sheet: 'ensemble' },
 ];
 
 export interface Post {
@@ -477,6 +496,11 @@ export interface ChartSheet {
    * down for it, and neither rivers nor relief.
    */
   world?: boolean;
+  /**
+   * The Chart seen whole, every Chapter's sheet in one: its lines are drawn every five degrees,
+   * and it shows only the towns set down for it (the places of the story are marked over it).
+   */
+  whole?: boolean;
 }
 
 export const SHEETS = {
@@ -638,6 +662,41 @@ export const SHEETS = {
     ],
     cartouche: [8.7, 31.2],
     rose: [6.2, 38.1],
+  },
+  /** The Chart seen whole, from the Moray Firth to the Atlas and from the Atlantic to Saxony: every place of the Narration but those of the flight of 1946. */
+  ensemble: {
+    box: [
+      [-11, 31.8],
+      [16, 58.8],
+    ],
+    parallels: [38, 52],
+    meridian: 2.5,
+    title: 'EUROPE ET AFRIQUE DU NORD',
+    width: 0.6,
+    proportions: 0.8549,
+    subject: [],
+    capital: '',
+    whole: true,
+    countries: [
+      { text: 'FRANCE', at: [2.6, 46.6], size: 30 },
+      { text: 'ESPAGNE', at: [-3.6, 41.6], size: 26 },
+      { text: 'ALLEMAGNE', at: [10.3, 50.2], size: 24 },
+      { text: 'ANGLETERRE', at: [-1.4, 52.75], size: 17 },
+      { text: 'ÉCOSSE', at: [-4.3, 56.75], size: 16 },
+      { text: 'IRLANDE', at: [-8.0, 53.0], size: 16 },
+      { text: 'ITALIE', at: [11.6, 43.6], turn: -40, size: 22 },
+      { text: 'MAROC', at: [-6.6, 32.75], size: 22 },
+      { text: 'ALGÉRIE', at: [2.6, 33.6], size: 28 },
+      { text: 'TUNISIE', at: [9.5, 34.6], turn: 80, size: 16 },
+    ],
+    seas: [
+      { text: 'Océan Atlantique', at: [-8.3, 49.7], size: 20 },
+      { text: 'Mer du Nord', at: [3.3, 55.3], size: 26 },
+      { text: 'Manche', at: [-1.9, 50.0], turn: 14, size: 15 },
+      { text: 'Mer Méditerranée', at: [6.2, 39.6], size: 26 },
+    ],
+    cartouche: [-7.2, 45.75],
+    rose: [3.0, 57.4],
   },
   /** Both shores of the Atlantic, from Paris to the Río de la Plata: the flight of 1946 to Buenos Aires by Dakar and Rio. */
   'atlantique-sud': {

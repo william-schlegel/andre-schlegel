@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { openChapters, openCloseUp } from '../engine/journey';
+import { modelAt } from '../content/shelf';
+import { getClock, leave, openChapters, openCloseUp } from '../engine/journey';
 import { useJourney } from '../engine/store';
 
 function Control({ label, onClick, pressed, children }: { label: string; onClick: () => void; pressed?: boolean; children: ReactNode }) {
@@ -9,7 +10,7 @@ function Control({ label, onClick, pressed, children }: { label: string; onClick
       onClick={onClick}
       aria-pressed={pressed}
       title={label}
-      className={`typed flex items-center gap-2 rounded-sm border px-3 py-[0.4rem] text-[0.72rem] uppercase tracking-[0.14em] backdrop-blur-sm transition ${
+      className={`typed flex items-center gap-2 rounded-sm border px-3 py-[0.4rem] max-md:px-[0.55rem] text-[0.72rem] uppercase tracking-[0.14em] backdrop-blur-sm transition ${
         pressed === false ? 'border-paper/15 bg-night/40 text-paper/40 hover:text-paper/70' : 'border-paper/25 bg-night/50 text-paper/85 hover:border-lamp hover:text-lamp'
       }`}
     >
@@ -18,9 +19,9 @@ function Control({ label, onClick, pressed, children }: { label: string; onClick
   );
 }
 
-/** On a small screen the pictogram stands alone (the word is still read aloud, and shown on hover). */
+/** Where the words would run under the Posting card, the pictogram stands alone (the word is still read aloud, and shown on hover). */
 function Word({ children }: { children: ReactNode }) {
-  return <span className="max-lg:sr-only">{children}</span>;
+  return <span className="max-[1340px]:sr-only">{children}</span>;
 }
 
 /** The few things a visitor can ask for at any moment of a Scene. */
@@ -29,7 +30,7 @@ export function Controls() {
   const sounds = useJourney((state) => state.sounds);
 
   return (
-    <nav className="absolute right-4 top-4 flex items-center gap-2" aria-label="Commandes du parcours">
+    <nav className="absolute right-4 top-4 flex items-center gap-2 max-md:right-3 max-md:gap-[0.3rem]" aria-label="Commandes du parcours">
       <Control label="Aller à un chapitre" onClick={openChapters}>
         <svg width="13" height="11" viewBox="0 0 13 11" aria-hidden="true">
           <path d="M0 1h13M0 5.5h13M0 10h13" stroke="currentColor" strokeWidth="1.4" />
@@ -56,6 +57,18 @@ export function Controls() {
         </svg>
         <Word>Ambiance</Word>
       </Control>
+      <Control label="Voir la carte d’ensemble et tous les lieux du récit" onClick={() => openCloseUp({ kind: 'chart' })}>
+        <svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true">
+          <path d="M.7 2.4 4.9.8l4.2 1.6L13.3.8v8.8l-4.2 1.6-4.2-1.6L.7 11.2zM4.9.8v8.8M9.1 2.4v8.8" stroke="currentColor" strokeWidth="1.1" fill="none" strokeLinejoin="round" />
+        </svg>
+        <Word>Carte</Word>
+      </Control>
+      <Control label="Voir de près tous les avions du récit, sur l’étagère" onClick={() => openCloseUp({ kind: 'shelf', model: modelAt(getClock().time) })}>
+        <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true">
+          <path d="M8 .6c.7 0 1 .9 1 2v1.5l6.3 3v1.3L9 7.2v2.4l1.8 1.1v.8L8 10.9l-2.8.6v-.8L7 9.6V7.2L.7 8.4V7.1L7 4.1V2.6c0-1.1.3-2 1-2z" fill="currentColor" />
+        </svg>
+        <Word>Avions</Word>
+      </Control>
       <Control label="Voir les documents que le film ne montre pas" onClick={() => openCloseUp({ kind: 'bonuses' })}>
         <svg width="14" height="12" viewBox="0 0 14 12" aria-hidden="true">
           <path d="M.7 2.2V11h12.6V3.6H6.4L5 1H1.6z" stroke="currentColor" strokeWidth="1.1" fill="none" strokeLinejoin="round" />
@@ -64,7 +77,8 @@ export function Controls() {
       </Control>
       <a
         href="/sources"
-        className="typed rounded-sm border border-paper/25 bg-night/50 px-3 py-[0.4rem] text-[0.72rem] uppercase tracking-[0.14em] text-paper/85 no-underline backdrop-blur-sm transition hover:border-lamp hover:text-lamp"
+        onClick={leave}
+        className="typed rounded-sm border border-paper/25 bg-night/50 px-3 py-[0.4rem] text-[0.72rem] uppercase tracking-[0.14em] text-paper/85 no-underline backdrop-blur-sm transition hover:border-lamp hover:text-lamp max-md:px-[0.55rem] max-md:tracking-[0.06em]"
       >
         Sources
       </a>

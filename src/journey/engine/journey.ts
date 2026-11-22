@@ -10,6 +10,7 @@ import { useJourney, type CloseUp } from './store';
  */
 
 const SAVED_PLACE = 'andre-schlegel:place';
+const LEFT_AT = 'andre-schlegel:left';
 
 export const voiceOf = (chapter: Chapter) => `/media/${chapter.id}/voix.m4a`;
 
@@ -74,6 +75,57 @@ export function resumeAt(time: number): void {
   void narration.play().then(syncPlaying);
 }
 
+/**
+ * The visitor leaves for another page of the site (the Sources): the Narration stops, and
+ * where he was is kept for his return, in this tab only.
+ */
+export function leave(): void {
+  const { phase } = useJourney.getState();
+  if (phase !== 'scene' && phase !== 'end') return;
+  const time = getClock().time;
+  if (phase === 'scene') {
+    pause();
+    savePlace(time);
+  }
+  try {
+    sessionStorage.setItem(LEFT_AT, JSON.stringify({ phase, time }));
+  } catch {
+    // private browsing: he will come back to the Introduction, which offers to resume
+  }
+}
+
+/** The page was left for the Sources and is shown again as it was (the browser's « back »): nothing is to be found again. */
+export function forgetLeaving(): void {
+  try {
+    sessionStorage.removeItem(LEFT_AT);
+  } catch {
+    /* see leave */
+  }
+}
+
+/**
+ * Back from the Sources: the Scene (or the closing card) is found as it was left, the
+ * Narration waiting. Nothing sounds until the visitor asks for it, so this needs no gesture.
+ * Says whether there was a place to come back to.
+ */
+export function comeBack(): boolean {
+  let left: { phase?: unknown; time?: unknown } | null = null;
+  try {
+    const raw = sessionStorage.getItem(LEFT_AT);
+    sessionStorage.removeItem(LEFT_AT);
+    left = raw ? (JSON.parse(raw) as { phase?: unknown; time?: unknown }) : null;
+  } catch {
+    return false;
+  }
+  if (!left || (left.phase !== 'scene' && left.phase !== 'end') || typeof left.time !== 'number' || !Number.isFinite(left.time)) return false;
+  const narration = getClock();
+  const time = Math.max(0, Math.min(left.time, reachableEnd() - 0.5));
+  useJourney.setState({ phase: left.phase, chapter: chapterAt(time).id, playing: false, closeUp: null, resumeOnClose: false });
+  if (audio) audio.muted = false;
+  narration.seek(time);
+  return true;
+}
+
 export function play(): void {
   const state = useJourney.getState();
   if (state.phase !== 'scene' || state.closeUp) return;
@@ -103,6 +155,15 @@ export function seek(time: number): void {
   if (audio) audio.muted = false;
   narration.seek(clamped);
   if (state.playing) void narration.play().then(syncPlaying);
+}
+
+/**
+ * Go to a moment of the Narration chosen in a Close-up (a place of the whole Chart): the
+ * Close-up closes and Eric speaks from there. Must be called from a gesture.
+ */
+export function goToMoment(time: number): void {
+  useJourney.setState({ closeUp: null, resumeOnClose: false, playing: true });
+  seek(time);
 }
 
 /** Go to a Chapter from the list: its Chapter opening plays first (the Ouverture has none). */

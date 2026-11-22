@@ -60,9 +60,17 @@ _Avoid_: map (when it could mean a modern web map), carte interactive, plan
 The line André Schlegel's career traces on the Chart, from posting to posting and from base to target, growing as the Narration advances.
 _Avoid_: path, trajectory, itinerary
 
+**Whole Chart** (« Carte d’ensemble »):
+The Chart seen whole in a Close-up: its sheets laid side by side, with every place the Narration tells marked on them. Choosing a place takes the Narration to the moment it is told; where several places stand together, or one is told more than once, the visitor chooses among the moments.
+_Avoid_: overview map, index, mini-map
+
 **Recognition model**:
 A solid, single-colour scale model of one of the aircraft in the story, shaped like the models wartime aircrews used to learn aircraft by silhouette. It carries no paint or markings, and the visitor can turn it in their hands.
 _Avoid_: 3D plane, aircraft model, maquette peinte
+
+**Shelf** (« L’étagère »):
+Where all the Recognition models of the Journey stand side by side, to the same scale, in the order the Narration sets them on the table. The visitor goes from one to the next and takes each in hand, as in a Close-up.
+_Avoid_: gallery, hangar, showroom, carousel
 
 **Close-up**:
 The visitor's deliberate examination of one object — a document, the Carnet de vol, a plane — during which the Narration waits and then resumes where it stopped.

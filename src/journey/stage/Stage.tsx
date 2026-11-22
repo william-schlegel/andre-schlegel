@@ -15,9 +15,10 @@ export function isLightDevice(): boolean {
 
 /**
  * The stage: the table under its light, seen by the gliding camera. Scenes put their prints,
- * the Companion, the Recognition models and the Chart on it as children.
+ * the Companion, the Recognition models and the Chart on it as children. `lit` is given when
+ * the light is not the table's own (the Shelf brings its lamp: the table's goes out).
  */
-export function Stage({ look, children, glide }: { look: LookName; children: ReactNode; glide?: number }) {
+export function Stage({ look, lit, children, glide }: { look: LookName; lit?: LookName; children: ReactNode; glide?: number }) {
   const light = isLightDevice();
   return (
     <Canvas
@@ -29,7 +30,7 @@ export function Stage({ look, children, glide }: { look: LookName; children: Rea
       style={{ position: 'absolute', inset: 0 }}
     >
       <CameraRig glide={glide} />
-      <Light look={look} />
+      <Light look={lit ?? look} />
       <Table look={look} />
       {children}
     </Canvas>

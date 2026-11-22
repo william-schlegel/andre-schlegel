@@ -103,8 +103,8 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   // ----- the camera goes to what Eric shows -----
   const aspect = useThree((state) => state.size.width / state.size.height);
   useEffect(() => {
-    // a Chapter opening, the Carnet's Close-up and a model's Close-up frame themselves
-    if (directed || closeUp?.kind === 'carnet' || closeUp?.kind === 'model') return;
+    // a Chapter opening, the Carnet's Close-up, a model's Close-up and the Shelf frame themselves
+    if (directed || closeUp?.kind === 'carnet' || closeUp?.kind === 'model' || closeUp?.kind === 'shelf') return;
     let shot: Shot | null = null;
     if (!focus) shot = wide;
     else if (focus.frame) shot = shotOn(focus.frame, aspect, 13);

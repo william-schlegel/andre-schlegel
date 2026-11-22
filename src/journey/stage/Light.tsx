@@ -10,6 +10,9 @@ export const lampFlicker = { until: 0 };
 /** A Projection asks for the house lights to go down; `level` is where they are, from 0 (up) to 1 (down). */
 export const houseLights = { down: false, level: 0 };
 
+/** Asks the light to be at once what the Look says, as the camera is asked to cut: going to the Shelf and back is not a morning coming. */
+export const stageLight = { cut: false };
+
 /**
  * The stage's light. Going from one Look to another takes a few seconds, like a lamp warming
  * up or a morning coming: the values are eased every frame. The key light leans towards what
@@ -34,8 +37,9 @@ export function Light({ look, pace = 1.1 }: { look: LookName; pace?: number }) {
     const hemisphere = fill.current;
     if (!spot || !hemisphere) return;
     const dt = Math.min(delta, 0.1);
-    const ease = started.current ? 1 - Math.exp(-pace * dt) : 1;
+    const ease = started.current && !stageLight.cut ? 1 - Math.exp(-pace * dt) : 1;
     started.current = true;
+    stageLight.cut = false;
 
     houseLights.level = MathUtils.damp(houseLights.level, houseLights.down ? 1 : 0, 1.6, dt);
     const lit = 1 - 0.93 * houseLights.level;

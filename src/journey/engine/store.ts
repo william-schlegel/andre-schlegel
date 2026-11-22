@@ -20,7 +20,11 @@ export type CloseUp =
   | { kind: 'text' }
   /** The « Hors film » folder, or the Bonus taken out of it. */
   | { kind: 'bonuses'; id?: string }
-  | { kind: 'chapters' };
+  | { kind: 'chapters' }
+  /** The whole Chart, with the places of the Narration. */
+  | { kind: 'chart' }
+  /** The Shelf, and the Recognition model looked at. */
+  | { kind: 'shelf'; model: ModelId };
 
 export interface JourneyState {
   phase: Phase;
