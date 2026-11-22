@@ -10,9 +10,14 @@ export function TextCloseUp({ content }: { content: ChapterContent }) {
   const { chapter, phrases } = content;
   const now = Math.max(0, lastAtOrBefore(phrases, getClock().time, (phrase) => phrase.start));
   const current = useRef<HTMLSpanElement>(null);
+  const page = useRef<HTMLDivElement>(null);
 
+  // the text opens at the phrase being said (only the page of text scrolls: scrollIntoView would move the Scene too)
   useEffect(() => {
-    current.current?.scrollIntoView({ block: 'center' });
+    const box = page.current;
+    const phrase = current.current?.getBoundingClientRect();
+    if (!box || !phrase) return;
+    box.scrollTop += phrase.top - box.getBoundingClientRect().top - (box.clientHeight - phrase.height) / 2;
   }, []);
 
   const go = (start: number) => {
@@ -31,7 +36,7 @@ export function TextCloseUp({ content }: { content: ChapterContent }) {
             <h2 className="title-face mt-1 text-[2.1rem] leading-tight">{chapter.title}</h2>
             {chapter.dates && <p className="typed mt-1 text-[0.82rem] text-ink-soft">{chapter.dates}</p>}
           </header>
-          <div className="min-h-0 flex-1 overflow-y-auto px-10 py-6 text-[1.28rem] leading-[1.7]">
+          <div ref={page} className="min-h-0 flex-1 overflow-y-auto px-10 py-6 text-[1.28rem] leading-[1.7]">
             <p>
               {/* spans, not buttons: a button cannot wrap across lines, and this must read as prose */}
               {phrases.map((phrase, index) => (

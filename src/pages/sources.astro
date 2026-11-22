@@ -1,5 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
+import { BONUSES } from '../journey/content/bonuses';
+import { CHAPTERS } from '../journey/content/chapters';
+import { MUSIC } from '../journey/content/music';
+
+const music = CHAPTERS.flatMap((chapter) => {
+  const recording = MUSIC[chapter.id];
+  return recording ? [{ chapter, recording }] : [];
+});
+
+const bonuses = CHAPTERS.map((chapter) => ({ chapter, list: BONUSES.filter((bonus) => bonus.chapter === chapter.id) })).filter((group) => group.list.length > 0);
 
 const links = [
   {
@@ -203,6 +213,47 @@ const credits = [
         {credits.map((credit) => (
           <li>
             {credit.what} : <span class="typed text-[0.9rem]">{credit.who}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Hors film</h2>
+      <p>
+        Le dossier contient des documents et des photographies qu’Éric Lemoine n’a pas montrés dans son film. Quelques-uns sont
+        rangés dans la pochette « Hors film » du parcours, chacun marqué « document hors film ». Leurs légendes ne disent que ce
+        que les documents disent eux-mêmes, ou ce que chacun peut y voir.
+      </p>
+      <ul>
+        {bonuses.map(({ chapter, list }) => (
+          <li>
+            {chapter.number ? `Chapitre ${chapter.number}, ${chapter.title}` : 'Avant le premier chapitre'} :
+            <ul>
+              {list.map((bonus) => (
+                <li>
+                  {bonus.legend}.
+                  <br />
+                  <span class="text-ink-soft">{bonus.source}.</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Musique</h2>
+      <p>
+        Quelques secondes de musique ouvrent certains chapitres, avant que le récit reprenne. Ce sont des enregistrements du
+        domaine public, repris de Wikimedia Commons.
+      </p>
+      <ul>
+        {music.map(({ chapter, recording }) => (
+          <li>
+            Chapitre {chapter.number}, {chapter.title} : {recording.title} — {recording.performer}, {recording.year} ; {recording.licence}.{' '}
+            <a href={recording.source} rel="noopener">L’enregistrement</a>
           </li>
         ))}
       </ul>

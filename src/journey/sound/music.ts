@@ -1,24 +1,6 @@
+import { MUSIC } from '../content/music';
 import type { ChapterId } from '../content/types';
 import { useJourney } from '../engine/store';
-
-/**
- * Period music: a few seconds at a Chapter opening, fading as Eric speaks again.
- *
- * No recording is used until its source and licence have been approved (see the Sources
- * page): this list is empty on purpose, and a Chapter without an entry opens without music.
- */
-export interface Recording {
-  src: string;
-  title: string;
-  performer: string;
-  year: string;
-  source: string;
-  licence: string;
-  /** Where to start in the recording, in seconds. */
-  from?: number;
-}
-
-export const MUSIC: Partial<Record<ChapterId, Recording>> = {};
 
 let playing: HTMLAudioElement | null = null;
 

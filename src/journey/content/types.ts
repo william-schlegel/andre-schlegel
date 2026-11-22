@@ -113,8 +113,6 @@ export interface PrintCue extends CueBase {
   source: string;
   /** Paper: a photographic print with its white border, or a bare sheet. */
   paper?: 'photo' | 'sheet' | 'bare';
-  /** A Bonus is not in the Film. */
-  bonus?: boolean;
   /** Someone Eric points out: an oval pencilled on the print, as fractions [x, y, w, h] of the picture. */
   rings?: { at: number; box: [number, number, number, number] }[];
   /**

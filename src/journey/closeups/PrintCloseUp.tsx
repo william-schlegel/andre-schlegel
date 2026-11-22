@@ -4,8 +4,17 @@ import { useRef, useState, type PointerEvent } from 'react';
 import type { PrintCue } from '../content/types';
 import { CloseUpFrame } from './CloseUpFrame';
 
-/** A photograph or a document taken in hand: seen whole, then closer where the visitor points. */
-export function PrintCloseUp({ print }: { print: PrintCue }) {
+/** What is needed of a print to take it in hand, whether it lay on the table or in the « Hors film » folder. */
+export type PrintInHand = Pick<PrintCue, 'src' | 'legend' | 'source' | 'paper'> & {
+  /** A Bonus is not in the Film: it says so under its source. */
+  bonus?: boolean;
+};
+
+/**
+ * A photograph or a document taken in hand: seen whole, then closer where the visitor points.
+ * `back` is where it returns when it did not come from the table.
+ */
+export function PrintCloseUp({ print, back }: { print: PrintInHand; back?: () => void }) {
   const sheet = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   const [origin, setOrigin] = useState('50% 50%');
@@ -22,7 +31,7 @@ export function PrintCloseUp({ print }: { print: PrintCue }) {
   const isPhoto = (print.paper ?? 'photo') === 'photo';
 
   return (
-    <CloseUpFrame label={print.legend}>
+    <CloseUpFrame label={print.legend} back={back}>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 pb-6 pt-14">
         <div ref={sheet} className={`pointer-events-auto min-h-0 overflow-hidden shadow-[0_30px_80px_rgb(0_0_0/0.7)] ${isPhoto ? 'bg-[#f4f0e6] p-[1.1vmin]' : ''}`}>
           <img

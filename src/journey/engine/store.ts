@@ -18,6 +18,8 @@ export type CloseUp =
   | { kind: 'carnet'; carnet: CarnetId; spread: number }
   | { kind: 'model'; model: ModelId }
   | { kind: 'text' }
+  /** The « Hors film » folder, or the Bonus taken out of it. */
+  | { kind: 'bonuses'; id?: string }
   | { kind: 'chapters' };
 
 export interface JourneyState {

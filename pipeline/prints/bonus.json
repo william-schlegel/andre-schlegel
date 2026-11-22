@@ -1,0 +1,13 @@
+[
+  { "id": "portrait-en-chemisette", "from": "scan:Scans photos André Schlegel/1470_001.pdf", "crop": [0.579, 0.507, 0.225, 0.201], "max": 1400, "small": 520 },
+  { "id": "officiers-en-ligne", "from": "scan:Scans photos André Schlegel/1475_001.pdf", "crop": [0.29, 0.40, 0.695, 0.315], "max": 1800, "small": 520 },
+  { "id": "tableau-de-codes", "from": "page:Scans photos André Schlegel/1483_001.pdf", "crop": [0.025, 0.06, 0.975, 0.94], "turn": 1, "max": 2600, "small": 520 },
+  { "id": "tableau-vocabulaire", "from": "page:Scans photos André Schlegel/1484_001.pdf", "crop": [0.15, 0.07, 0.85, 0.85], "turn": 1, "max": 2600, "small": 520 },
+  { "id": "photos-de-reglage", "from": "scan:Scans photos André Schlegel/Photos navigation.pdf", "crop": [0.19, 0.17, 0.81, 0.83], "max": 2200, "small": 520 },
+  { "id": "db-7-cinq-officiers", "from": "scan:Scans photos André Schlegel/1472_001.pdf", "crop": [0.173, 0.046, 0.778, 0.391], "max": 1800, "small": 520 },
+  { "id": "db-7-groupe", "from": "scan:Scans photos André Schlegel/1472_001.pdf", "crop": [0.176, 0.514, 0.798, 0.406], "max": 1800, "small": 520 },
+  { "id": "briefing-salle", "from": "dossier:4_Angleterre 1943-1945/5_Elvington_Squadron 347 Tunisie/Photos source internet ou archives/Source vidéo Mission Type/pp-briefing2.jpg", "small": 520 },
+  { "id": "apres-le-briefing", "from": "dossier:4_Angleterre 1943-1945/5_Elvington_Squadron 347 Tunisie/Photos source internet ou archives/Source vidéo Mission Type/crews_after_briefing_83_Sqn_Scampton_1942.jpg", "small": 520 },
+  { "id": "autour-de-la-table", "from": "dossier:4_Angleterre 1943-1945/5_Elvington_Squadron 347 Tunisie/Photos source internet ou archives/Source vidéo Mission Type/large_000000.jpg", "small": 520 },
+  { "id": "citation-legion-d-honneur", "from": "scan:Scans photos André Schlegel/1485_001.pdf", "crop": [0.03, 0.21, 0.88, 0.79], "turn": 3, "max": 2400, "small": 520 }
+]

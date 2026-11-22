@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { BonusesCloseUp } from './closeups/BonusesCloseUp';
 import { CarnetCloseUp } from './closeups/CarnetCloseUp';
 import { ChaptersCloseUp } from './closeups/ChaptersCloseUp';
 import { ModelCloseUp } from './closeups/ModelCloseUp';
@@ -7,8 +8,9 @@ import { TextCloseUp } from './closeups/TextCloseUp';
 import { MissionsCloseUp } from './closeups/MissionsCloseUp';
 import { TypedCloseUp } from './closeups/TypedCloseUp';
 import { contentOf, missionsSheetOf, printOf, typedOf } from './content';
+import { bonusById } from './content/bonuses';
 import type { ChapterId } from './content/types';
-import { begin, closeCloseUp, getClock, goToChapter, resumeAt, runClock, seek, togglePlay } from './engine/journey';
+import { begin, closeCloseUp, getClock, goToChapter, openCloseUp, resumeAt, runClock, seek, togglePlay } from './engine/journey';
 import { useJourney } from './engine/store';
 import { poseOf } from './models/RecognitionModel';
 import { lookAt } from './stage/shot';
@@ -64,6 +66,8 @@ export default function Journey() {
     goToChapter(id);
   }, []);
 
+  const backToBonuses = useCallback(() => openCloseUp({ kind: 'bonuses' }), []);
+
   // the keyboard: space pauses, the arrows move ten seconds
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
@@ -81,6 +85,7 @@ export default function Journey() {
   }, []);
 
   const print = closeUp?.kind === 'print' ? printOf(chapter, closeUp.id) : null;
+  const bonus = closeUp?.kind === 'bonuses' && closeUp.id ? bonusById(closeUp.id) : null;
   const typedSheet = closeUp?.kind === 'typed' ? typedOf(chapter, closeUp.id) : null;
   const missionsSheet = closeUp?.kind === 'missions' ? missionsSheetOf(chapter, closeUp.id) : null;
 
@@ -118,6 +123,8 @@ export default function Journey() {
       {closeUp?.kind === 'model' && <ModelCloseUp model={closeUp.model} chapter={chapter} />}
       {closeUp?.kind === 'text' && <TextCloseUp content={content} />}
       {closeUp?.kind === 'chapters' && <ChaptersCloseUp onChoose={choose} />}
+      {closeUp?.kind === 'bonuses' && !bonus && <BonusesCloseUp chapter={chapter} />}
+      {bonus && <PrintCloseUp key={bonus.id} print={{ ...bonus, bonus: true }} back={backToBonuses} />}
 
       <RotateNotice />
     </div>
