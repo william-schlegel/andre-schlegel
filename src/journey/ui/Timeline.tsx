@@ -4,7 +4,7 @@ import type { ChapterId, TimelineMark } from '../content/types';
 import { formatTime } from '../engine/cues';
 import { getClock, seek, togglePlay, useNarration } from '../engine/journey';
 import { useJourney } from '../engine/store';
-import { layoutTimeline, positionOf, timeAt } from '../engine/timeline';
+import { layoutTimeline, positionOf, timeAt, type Segment } from '../engine/timeline';
 
 /**
  * The Timeline: the Narration from left to right, divided into Chapters, with the story's
@@ -12,11 +12,17 @@ import { layoutTimeline, positionOf, timeAt } from '../engine/timeline';
  */
 export function Timeline({ chapter, marks }: { chapter: ChapterId; marks: TimelineMark[] }) {
   const playing = useJourney((state) => state.playing);
-  const segments = useMemo(() => layoutTimeline(CHAPTERS, chapter), [chapter]);
+  const laidOut = useMemo(() => layoutTimeline(CHAPTERS, chapter), [chapter]);
   const reachable = reachableEnd();
   const bar = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
-  const [dragging, setDragging] = useState(false);
+  /**
+   * While the Timeline is pressed it keeps the layout it had when it was pressed. The Chapter
+   * being told is drawn wider than the others: moving into another Chapter would otherwise
+   * shift every Chapter under the pointer, and its slightest move would lead somewhere else.
+   */
+  const [held, setHeld] = useState<Segment[] | null>(null);
+  const segments = held ?? laidOut;
 
   // ten steps per second is plenty for a playhead
   const time = useNarration((t) => Math.round(t * 10) / 10);
@@ -33,16 +39,22 @@ export function Timeline({ chapter, marks }: { chapter: ChapterId; marks: Timeli
   };
 
   const down = (event: ReactPointerEvent<HTMLDivElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setDragging(true);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* the drag goes on without the capture */
+    }
+    setHeld(segments);
     seek(Math.min(timeUnder(event), reachable - 0.5));
   };
   const move = (event: ReactPointerEvent<HTMLDivElement>) => {
     const under = timeUnder(event);
     setHover(under);
-    if (dragging) seek(Math.min(under, reachable - 0.5));
+    // no button down any more: the release happened elsewhere and was not seen
+    if (held && !event.buttons) setHeld(null);
+    else if (held) seek(Math.min(under, reachable - 0.5));
   };
-  const up = () => setDragging(false);
+  const up = () => setHeld(null);
 
   const hoverChapter = hover === null ? null : CHAPTERS.find((c) => hover < c.end) ?? null;
   const hoverReachable = hover !== null && hover < reachable;

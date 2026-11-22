@@ -27,6 +27,8 @@ export class NarrationClock {
   private running = false;
   private finished = false;
   private now = 0;
+  /** How many times the voice has been asked to play, or been paused: see `start`. */
+  private requests = 0;
   private frameListeners = new Set<FrameListener>();
   private endListeners = new Set<ChapterEndListener>();
 
@@ -59,7 +61,7 @@ export class NarrationClock {
     this.finished = false;
     this.now = clamped;
     this.player.setTime(clamped - target.start);
-    if (this.running) void this.player.play().catch(() => this.stopped());
+    if (this.running) void this.start();
     this.emit();
   }
 
@@ -67,16 +69,12 @@ export class NarrationClock {
     if (!this.chapter) this.seek(this.now);
     if (this.finished) return;
     this.running = true;
-    try {
-      await this.player.play();
-    } catch {
-      // the browser refused (no gesture yet): stay paused rather than pretend
-      this.stopped();
-    }
+    await this.start();
   }
 
   pause(): void {
     this.running = false;
+    this.requests++;
     this.player.pause();
   }
 
@@ -110,8 +108,19 @@ export class NarrationClock {
     return () => this.endListeners.delete(listener);
   }
 
-  private stopped(): void {
-    this.running = false;
+  /**
+   * Ask the voice to play. Only the answer to the latest request counts: a browser refuses the
+   * requests still waiting each time another voice file is loaded or the voice is paused, and
+   * those refusals say nothing of the Narration (moving twice in a row must not stop it).
+   */
+  private async start(): Promise<void> {
+    const request = ++this.requests;
+    try {
+      await this.player.play();
+    } catch {
+      // the browser refused (no gesture yet): stay paused rather than pretend
+      if (request === this.requests) this.running = false;
+    }
   }
 
   private emit(): void {

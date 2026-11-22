@@ -10,7 +10,10 @@ class FakeVoice implements VoicePlayer {
   playing = false;
   ended = false;
   refuse = false;
+  /** As over a network: the voice only starts once its file has arrived (see `arrive`). */
+  slow = false;
   loads: string[] = [];
+  private waiting: { started: () => void; interrupted: (reason: Error) => void }[] = [];
 
   load(src: string) {
     this.src = src;
@@ -18,13 +21,28 @@ class FakeVoice implements VoicePlayer {
     this.position = 0;
     this.ended = false;
     this.playing = false;
+    this.interrupt();
   }
-  async play() {
-    if (this.refuse) throw new Error('NotAllowedError');
-    this.playing = true;
+  play(): Promise<void> {
+    if (this.refuse) return Promise.reject(new Error('NotAllowedError'));
+    if (!this.slow) {
+      this.playing = true;
+      return Promise.resolve();
+    }
+    return new Promise((started, interrupted) => this.waiting.push({ started, interrupted }));
   }
   pause() {
     this.playing = false;
+    this.interrupt();
+  }
+  /** The file has arrived: every request to play still waiting is answered. */
+  arrive() {
+    this.playing = this.waiting.length > 0 || this.playing;
+    for (const request of this.waiting.splice(0)) request.started();
+  }
+  /** A browser refuses the requests to play still waiting when the voice is paused or another file is loaded. */
+  private interrupt() {
+    for (const request of this.waiting.splice(0)) request.interrupted(new Error('AbortError'));
   }
   getTime() {
     return this.position;
@@ -45,6 +63,7 @@ class FakeVoice implements VoicePlayer {
 const voiceOf = (chapter: Chapter) => `/media/${chapter.id}/voix.m4a`;
 const ouverture = CHAPTERS[0];
 const tours = CHAPTERS[1];
+const algerie = CHAPTERS[2];
 
 function setup() {
   const voice = new FakeVoice();
@@ -80,6 +99,36 @@ describe('NarrationClock', () => {
     expect(voice.loads).toEqual(['/media/ouverture/voix.m4a', '/media/tours/voix.m4a']);
     expect(voice.playing).toBe(true);
     expect(clock.isRunning).toBe(true);
+  });
+
+  it('keeps running when moved twice before the voice of the first Chapter has arrived', async () => {
+    const { voice, clock } = setup();
+    clock.seek(ouverture.start + 5);
+    await clock.play();
+    voice.slow = true;
+    // a drag across the Timeline: one Chapter, then the next, faster than a file loads
+    clock.seek(tours.start + 20);
+    const first = clock.play();
+    clock.seek(algerie.start + 20);
+    const second = clock.play();
+    await first;
+    expect(clock.isRunning).toBe(true);
+    voice.arrive();
+    await second;
+    expect(clock.isRunning).toBe(true);
+    expect(voice.playing).toBe(true);
+    expect(voice.src).toBe('/media/algerie/voix.m4a');
+  });
+
+  it('is not started again by a request to play that a pause interrupted', async () => {
+    const { voice, clock } = setup();
+    voice.slow = true;
+    clock.seek(tours.start + 20);
+    const asked = clock.play();
+    clock.pause();
+    await asked;
+    expect(clock.isRunning).toBe(false);
+    expect(voice.playing).toBe(false);
   });
 
   it('stays paused when moved while paused', () => {
