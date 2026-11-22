@@ -1,0 +1,88 @@
+[
+ {
+  "index": 49,
+  "scan": "reconstitution-1944-10",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "octobre 1944",
+  "missions": [
+   "1944-10-06",
+   "1944-10-09",
+   "1944-10-15",
+   "1944-10-23",
+   "1944-10-25",
+   "1944-10-30"
+  ]
+ },
+ {
+  "index": 50,
+  "scan": "reconstitution-1944-11",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "novembre 1944",
+  "missions": [
+   "1944-11-02",
+   "1944-11-06",
+   "1944-11-21",
+   "1944-11-30"
+  ]
+ },
+ {
+  "index": 51,
+  "scan": "reconstitution-1944-12",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "décembre 1944",
+  "missions": [
+   "1944-12-05",
+   "1944-12-18",
+   "1944-12-24"
+  ]
+ },
+ {
+  "index": 52,
+  "scan": "reconstitution-1945-01",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "janvier 1945",
+  "missions": [
+   "1945-01-28"
+  ]
+ },
+ {
+  "index": 53,
+  "scan": "reconstitution-1945-02",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "février 1945",
+  "missions": [
+   "1945-02-04",
+   "1945-02-07",
+   "1945-02-14",
+   "1945-02-21",
+   "1945-02-23",
+   "1945-02-24"
+  ]
+ },
+ {
+  "index": 54,
+  "scan": "reconstitution-1945-03",
+  "folder": "",
+  "width": 2200,
+  "height": 1650,
+  "reconstructed": "mars 1945",
+  "missions": [
+   "1945-03-08",
+   "1945-03-12",
+   "1945-03-13",
+   "1945-03-15",
+   "1945-03-19",
+   "1945-03-22"
+  ]
+ }
+]

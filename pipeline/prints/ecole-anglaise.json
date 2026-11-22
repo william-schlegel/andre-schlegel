@@ -1,0 +1,20 @@
+[
+  { "id": "paquebot-marnix", "from": "dossier:2_Algérie 1939-1943/Blida/Photos source internet/46689677.jpg" },
+  { "id": "embarquement", "from": "pptx:image72.jpg" },
+  { "id": "troupes-sur-le-pont", "from": "pptx:image73.JPG" },
+  { "id": "docks-de-liverpool", "from": "pptx:image76.jpg" },
+  { "id": "arrivee-liverpool", "from": "pptx:image77.JPG" },
+  { "id": "base-de-dumfries", "from": "pptx:image78.jpg" },
+  { "id": "anson-en-vol", "from": "pptx:image81.png" },
+  { "id": "ansons-au-sol", "from": "pptx:image84.jpeg" },
+  { "id": "anson-musee-moteur", "from": "pptx:image82.jpeg", "max": 1600 },
+  { "id": "anson-musee-cabine", "from": "pptx:image83.jpeg", "max": 1600 },
+  { "id": "base-de-lossiemouth", "from": "pptx:image86.jpg" },
+  { "id": "plan-de-lossiemouth", "from": "pptx:image87.jpeg" },
+  { "id": "wellington-neige", "from": "pptx:image89.jpg", "max": 1600 },
+  { "id": "bombardiers-tableau", "from": "pptx:image90.jpeg", "max": 1600 },
+  { "id": "wellington-en-vol", "from": "pptx:image91.jpeg", "max": 1600 },
+  { "id": "halifax-v", "from": "pptx:image96.jpg" },
+  { "id": "halifax-h-controleur", "from": "pptx:image97.jpg" },
+  { "id": "schlegel-en-angleterre", "from": "film:1279", "box": [0.0691, 0.0, 0.2833, 0.4639] }
+]

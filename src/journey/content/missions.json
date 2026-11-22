@@ -1,0 +1,338 @@
+[
+ {
+  "period": 1,
+  "date": "1944-07-23",
+  "aircraft": "NA572 / C",
+  "target": "Hollande, « Bull’s Eyes » (diversion)",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-07-25",
+  "aircraft": "NA572 / C",
+  "target": "Allemagne, Wanne-Eickel, usine",
+  "note": "",
+  "cited": "brigade aérienne"
+ },
+ {
+  "period": 1,
+  "date": "1944-07-28",
+  "aircraft": "NA572 / C",
+  "target": "France, Nieppe (Hazebrouck), V1",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-01",
+  "aircraft": "LW480 / D",
+  "target": "France, Noyelles (Abbeville)",
+  "note": "abandon — non validée",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-03",
+  "aircraft": "NA577 / H",
+  "target": "France, Bois de Cassan (L’Isle-Adam), V1",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-05",
+  "aircraft": "LW480 / D",
+  "target": "France, Nieppe (Hazebrouck), V1",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-06",
+  "aircraft": "NA512 / F",
+  "target": "France, Nieppe (Hazebrouck), V1",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-08",
+  "aircraft": "NA519 / A",
+  "target": "France, Fromentel",
+  "note": "mécanique — non validée",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-11",
+  "aircraft": "LW541 / B",
+  "target": "France, Somain, gare de triage",
+  "note": "Flak, trois moteurs",
+  "cited": "division aérienne, D.F.C."
+ },
+ {
+  "period": 1,
+  "date": "1944-08-27",
+  "aircraft": "LW480 / D",
+  "target": "Allemagne, Homberg (Duisbourg), Ruhr, usine",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-08-30",
+  "aircraft": "cargo",
+  "target": "Belgique, Bruxelles, transport d’essence",
+  "note": "non validée",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-09-03",
+  "aircraft": "MZ635 / G",
+  "target": "Hollande, Venlo, aérodrome de la Luftwaffe",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-09-10",
+  "aircraft": "LW480 / D",
+  "target": "France, Le Havre (Octeville), fortifications",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-09-14",
+  "aircraft": "NA512 / F",
+  "target": "Allemagne, Wilhelmshaven, base navale",
+  "note": "abandon — non validée",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-09-17",
+  "aircraft": "NA512 / F",
+  "target": "France, Boulogne, positions allemandes",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 1,
+  "date": "1944-09-30",
+  "aircraft": "cargo",
+  "target": "Belgique, Bruxelles, transport d’essence",
+  "note": "non validée",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-10-06",
+  "aircraft": "MZ984 / B",
+  "target": "Allemagne, Scholven, Ruhr, usine d’essence",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-10-09",
+  "aircraft": "LL590 / D",
+  "target": "Allemagne, Bochum, Ruhr, usines",
+  "note": "chasseurs",
+  "cited": "division aérienne"
+ },
+ {
+  "period": 2,
+  "date": "1944-10-15",
+  "aircraft": "LL590 / D",
+  "target": "Allemagne, Wilhelmshaven, base navale",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-10-23",
+  "aircraft": "NA572 / C",
+  "target": "Allemagne, Essen, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-10-25",
+  "aircraft": "LL590 / D",
+  "target": "Allemagne, Essen, ville industrielle",
+  "note": "Flak",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-10-30",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Cologne, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-11-02",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Düsseldorf, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-11-06",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Gelsenkirchen, usine d’essence",
+  "note": "Flak",
+  "cited": "armée aérienne"
+ },
+ {
+  "period": 2,
+  "date": "1944-11-21",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Sterkrade, usine d’essence",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-11-30",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Duisbourg, entrepôts",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-12-05",
+  "aircraft": "NR153 / D",
+  "target": "Allemagne, Soest, gare de triage",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-12-18",
+  "aircraft": "LL573 / D",
+  "target": "Allemagne, Duisbourg, entrepôts",
+  "note": "« short petrol »",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1944-12-24",
+  "aircraft": "LL573 / D",
+  "target": "Allemagne, Mülheim (Essen), aérodrome",
+  "note": "Flak, trois moteurs",
+  "cited": "armée aérienne, D.F.C."
+ },
+ {
+  "period": 2,
+  "date": "1945-01-28",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Stuttgart, gare",
+  "note": "trois moteurs",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-02-04",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Bonn, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-02-07",
+  "aircraft": "LW630 / D",
+  "target": "Allemagne, Goch, positions Wehrmacht",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-02-14",
+  "aircraft": "NR287 / C",
+  "target": "Allemagne, Chemnitz, nœuds logistiques",
+  "note": "Flak",
+  "cited": "armée aérienne"
+ },
+ {
+  "period": 2,
+  "date": "1945-02-21",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Worms, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-02-23",
+  "aircraft": "NA681 / G",
+  "target": "Allemagne, Essen, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-02-24",
+  "aircraft": "PN167 / Z",
+  "target": "Allemagne, Kamen, usine d’essence",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-08",
+  "aircraft": "MZ909 / A",
+  "target": "Allemagne, Hambourg, chantiers navals",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-12",
+  "aircraft": "PN175 / H",
+  "target": "Allemagne, Dortmund, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-13",
+  "aircraft": "PN175 / H",
+  "target": "Allemagne, Wuppertal, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-15",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Hagen, ville industrielle",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-19",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Witten, Ruhr, usine",
+  "note": "",
+  "cited": ""
+ },
+ {
+  "period": 2,
+  "date": "1945-03-22",
+  "aircraft": "NA182 / E",
+  "target": "Allemagne, Dülmen, ville industrielle",
+  "note": "",
+  "cited": ""
+ }
+]

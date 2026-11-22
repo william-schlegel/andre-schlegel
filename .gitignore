@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# pipeline intermediates (derived from the Dossier, not for the repo)
+.work/

@@ -1,0 +1,4 @@
+[
+  { "id": "halifax-de-nuit", "from": "pptx:image145.jpeg", "max": 1600 },
+  { "id": "diorama-elvington", "from": "pptx:image144.jpeg", "max": 1800, "crop": [0, 0, 1, 0.87] }
+]

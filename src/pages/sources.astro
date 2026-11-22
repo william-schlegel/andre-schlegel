@@ -1,0 +1,353 @@
+---
+import Base from '../layouts/Base.astro';
+import { BONUSES } from '../journey/content/bonuses';
+import { CHAPTERS } from '../journey/content/chapters';
+import { MUSIC } from '../journey/content/music';
+
+const music = CHAPTERS.flatMap((chapter) => {
+  const recording = MUSIC[chapter.id];
+  return recording ? [{ chapter, recording }] : [];
+});
+
+const bonuses = CHAPTERS.map((chapter) => ({ chapter, list: BONUSES.filter((bonus) => bonus.chapter === chapter.id) })).filter((group) => group.list.length > 0);
+
+const links = [
+  {
+    name: 'Yorkshire Air Museum, Elvington',
+    href: 'https://yorkshireairmuseum.org/explore/',
+    note: 'Le musée installé sur l’ancienne base des groupes lourds français.',
+  },
+  {
+    name: 'Halifax 346 et 347 — les équipages du groupe Tunisie',
+    href: 'http://halifax346et347.canalblog.com/archives/equipages_du_groupe_tunisie/index.html',
+    note: 'Le site consacré aux « Groupes Lourds » français de la Royal Air Force.',
+  },
+];
+
+const books = [
+  {
+    title: 'Les Français dans le Bomber Command. Grande-Bretagne, septembre 1943 – octobre 1945',
+    author: 'Guy Fruchart',
+    publisher: 'Éditions Lela Presse, collection Histoire de l’aviation, n° 26',
+  },
+  {
+    title: 'Sarabande nocturne. L’épopée des groupes lourds Guyenne et Tunisie (Squadrons 346 et 347 de la Royal Air Force, 1943-1945)',
+    author: 'Louis Bourgain',
+    publisher: 'Éditions Heimdal',
+  },
+];
+
+const readings = [
+  { title: 'Les Briseurs de barrages', author: 'Paul Brickhill' },
+  { title: 'Le Grand Cirque', author: 'Pierre Clostermann' },
+  { title: 'Feux du ciel', author: 'Pierre Clostermann' },
+];
+
+const credits = [
+  { what: 'L’accident du commandant de la base de Tours, printemps 1939', who: '© Didier Lecoq' },
+  { what: 'Bloch 200 en formation', who: 'Collection Nathalie Baudoin — traditions-air.fr' },
+  { what: 'L’aérodrome de Tours vu d’avion', who: 'U.S. Air Service, « 2d Air Instructional Center, Tours Aerodrome » — Wikimedia Commons, domaine public' },
+  { what: 'Bloch 210 au sol', who: 'Collection Henri Guyot — traditions-air.fr' },
+  {
+    what: 'Le film d’actualités de l’exercice de bombardement des Bloch 210 près de Reims, avec son commentaire anglais',
+    who: 'British Movietone News — AP Archive',
+  },
+  {
+    what: 'Le film d’actualités du raid des Boston du groupe Lorraine sur une centrale électrique près de Paris (1943), avec son commentaire anglais',
+    who: 'British Pathé — Reuters',
+  },
+  {
+    what: 'Colonne de chars et artillerie allemandes en mai 1940 ; Douglas DB-7 en vol',
+    who: 'photographies trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  {
+    what: 'La base de Blida vue d’avion ; Mers el-Kébir, le 3 juillet 1940 ; le débarquement allié de novembre 1942 ; un terrain d’Afrique du Nord',
+    who: 'photographies trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  {
+    what: 'Le film sur un équipage français à l’entraînement à Lossiemouth, avec son commentaire',
+    who: 'Institut national de l’audiovisuel — ina.fr',
+  },
+  { what: 'Un transport de troupes à quai', who: 'photographie trouvée en ligne par Éric Lemoine — delcampe.net' },
+  { what: 'Le plan de la base de Lossiemouth', who: 'Royal Navy Research Archive' },
+  { what: 'Le Halifax « H » de la Heavy Conversion Unit 1663 à l’atterrissage', who: 'Imperial War Museums' },
+  {
+    what: 'L’Avro Anson du Yorkshire Air Museum, à Elvington ; un tableau de bombardiers lourds',
+    who: 'photographies d’Éric Lemoine',
+  },
+  {
+    what:
+      'Le Marnix van St. Aldegonde ; le port de Liverpool et ses transports de troupes ; les bases de Dumfries et de Lossiemouth vues du ciel ; Avro Anson, Wellington et Halifax V',
+    who: 'photographies trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  {
+    what: 'La station d’Elvington aujourd’hui (place d’armes, chapelle, bâtiments techniques) et le Halifax reconstitué du Yorkshire Air Museum, poste par poste',
+    who: 'photographies d’Éric Lemoine',
+  },
+  { what: 'La tour de contrôle d’Elvington couverte d’officiers, octobre 1945', who: 'image du documentaire « RAF Bases Declassified : RAF Elvington »' },
+  { what: 'L’intérieur de la tour de contrôle d’Elvington', who: 'Island Images, © Jon Wortham' },
+  { what: 'Un pilote de Halifax aux commandes', who: 'Imperial War Museums' },
+  { what: 'L’insigne des Groupes lourds', who: 'Service historique de la Défense (SHD Air)' },
+  { what: 'D’anciens pilotes de la Royal Air Force en équipement d’époque', who: 'Yorkshire Air Museum' },
+  {
+    what:
+      'Le plan de la station d’Elvington ; le radar H2S et le système OBOE ; les postes du pilote, du navigateur, du mécanicien et des mitrailleurs à l’époque',
+    who: 'reproductions réunies par Éric Lemoine, d’après des ouvrages non identifiés',
+  },
+  {
+    what:
+      'Le lever des couleurs à Elvington ; la tour de contrôle ; un Halifax Mk III en vol ; l’équipage et les équipes au sol d’un Halifax ; les postes du navigateur, du bombardier, du radio et du mécanicien',
+    who: 'photographies trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  {
+    what: '« Mission de nuit sur l’Allemagne à bord d’un bombardier Halifax », le film d’une mission du briefing au debriefing, avec son commentaire',
+    who:
+      'montage d’Éric Lemoine (2023), d’après des films et des photographies d’archives : un film d’instruction du Squadron 347 « Tunisie » (ECPAD), des images en couleur de Halifax Mk II, des vues des Imperial War Museums ; les autres ayants droit ne sont pas identifiés',
+  },
+  { what: 'Deux Halifax du Squadron 347 dans les projecteurs et la Flak (peinture)', who: 'illustration réunie par Éric Lemoine, peinture signée, auteur non identifié' },
+  { what: 'Le diorama d’un Halifax préparé pour la nuit à Elvington', who: 'maquette et photographie réunies par Éric Lemoine' },
+  {
+    what: 'Le trajet tracé sur la carte pendant ce film',
+    who: 'un schéma dressé pour ce récit : le film ne donne ni date ni objectif, et le trajet montré est un trajet type vers la Ruhr, où l’équipage a fait nombre de ses missions',
+  },
+  {
+    what: 'La liste des missions, de juillet 1944 à mars 1945',
+    who: 'dressée d’après les deux tableaux du film d’Éric Lemoine ; les noms de lieux sont écrits comme on les écrit aujourd’hui',
+  },
+  {
+    what: 'Les objectifs marqués sur la carte, en France puis en Allemagne',
+    who: 'reportés pour ce récit d’après la liste des missions, à la place des deux cartes dessinées que montre le film ; là où Éric Lemoine dit « la Bavière », la carte marque Worms et Stuttgart, les villes de la liste les plus au sud',
+  },
+  {
+    what:
+      'Un Halifax au-dessus de la forêt de Nieppe ; l’agrandissement du raid sur Somain ; le trajet et les horaires du raid sur Duisbourg ; Duisbourg et Mülheim-Essen sous les bombes ; les trajets des raids lointains, dont Chemnitz',
+    who: 'reproductions réunies par Éric Lemoine, d’après des ouvrages non identifiés',
+  },
+  {
+    what:
+      'Les V1 et leurs rampes ; la forêt de Nieppe et Somain pendant les raids ; Wanne-Eickel pendant et après le raid ; des bombes en chute au-dessus d’une usine ; Chemnitz, sa gare et la ville en feu',
+    who: 'photographies trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  { what: 'L’intérieur d’un Halifax criblé d’éclats', who: 'Imperial War Museums' },
+  {
+    what: 'Un Halifax attaqué par la chasse de nuit ; un Halifax touché, escorté par des chasseurs (peintures)',
+    who: 'illustrations réunies par Éric Lemoine, peintures signées, auteurs non identifiés',
+  },
+  {
+    what: 'Le monument des groupes lourds à Elvington, la cérémonie et un mariage franco-britannique',
+    who: 'photographies réunies par Éric Lemoine, auteurs non identifiés',
+  },
+  { what: 'La carte d’identité du G.M.M.T.A. ; la lettre de félicitations n° 5801 du 16 septembre 1946', who: 'dossier familial ; la lettre est retapée ici d’après l’original' },
+  { what: 'Les avions du transport aérien militaire (planche) ; un Junkers 52 « Toucan »', who: 'illustrations trouvées en ligne par Éric Lemoine, auteurs non identifiés' },
+  { what: 'L’ambassadeur Wladimir d’Ormesson et l’équipage ; l’arrivée de l’avion à Buenos Aires', who: 'coupures du quotidien argentin La Prensa, 1946 — dossier familial' },
+  {
+    what: 'La carte « Atlantique Sud » et la route Paris – Dakar – Rio de Janeiro – Buenos Aires',
+    who: 'dessinée pour ce récit d’après Natural Earth (domaine public), avec les frontières d’aujourd’hui ; les escales sont celles que dit le film',
+  },
+  {
+    what: 'L’avion du vol de Buenos Aires',
+    who: 'le film parle de l’Avro York du général de Gaulle ; la lettre de félicitations dit « à bord du C.54 », et le carnet de 1947 porte encore un « C54E » : la maquette posée à côté de la lettre est donc un C-54',
+  },
+  { what: 'L’équipage du G.L.A.M. sous l’aile ; le poste de pilotage d’un York', who: 'dossier familial et photographies réunies par Éric Lemoine' },
+  { what: 'Un Avro York en vol', who: 'photographie trouvée en ligne par Éric Lemoine, auteur non identifié' },
+  { what: 'Un Avro York français au sol', who: 'collection Franck Roumy — traditions-air.fr' },
+  { what: 'Le carnet individuel des services aériens ouvert à Villacoublay le 17 avril 1947', who: 'dossier familial, numérisé page à page' },
+  { what: 'Le relevé des emplois civils, de 1948 à 1962', who: 'dossier familial' },
+  {
+    what: 'Le DC-4 d’Air Vietnam, l’Armagnac, le Constellation d’Air France ; le Nord 2501 Noratlas',
+    who: 'photographies et cartes postales trouvées en ligne par Éric Lemoine, auteurs non identifiés',
+  },
+  { what: 'André Schlegel vers 1960 ; des Noratlas au sol et en vol, leur poste de pilotage ; sa tombe', who: 'dossier familial' },
+  {
+    what: 'Le carton « 1914 – 1962 » de la dernière table',
+    who: 'retapé d’après le carton de fin du film ; l’acte de décès que montre le film, papier d’état civil de la famille, n’est pas reproduit',
+  },
+];
+---
+
+<Base
+  title="Sources — Commandant André Schlegel"
+  description="Le film d’Éric Lemoine, le dossier familial, les liens et la bibliographie dont est tiré le parcours du commandant André Schlegel."
+  scroll
+>
+  <main class="mx-auto my-[6vh] w-[min(52rem,92vw)] bg-paper px-[clamp(1.5rem,5vw,4.5rem)] py-[clamp(2rem,5vw,4rem)] text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
+    <p class="typed text-[0.72rem] uppercase tracking-[0.24em] text-red-ink">Commandant André Schlegel · 1935 – 1962</p>
+    <h1 class="title-face mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] leading-none">Sources</h1>
+    <p class="mt-5 text-[1.25rem] leading-relaxed">
+      Ce parcours met en scène le récit qu’Éric Lemoine, petit-fils du commandant André Schlegel, a consacré à la carrière
+      militaire et aéronautique de son grand-père. Tout ce qui est dit, et presque tout ce qui est montré, vient de son film
+      et du dossier qu’il a réuni pour le faire.
+    </p>
+    <p class="mt-6">
+      <a href="/" class="typed border border-ink/50 px-4 py-2 text-[0.8rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">‹ Revenir au récit</a>
+    </p>
+
+    <section>
+      <h2>Le film</h2>
+      <p>
+        <em>Carrière militaire et aéronautique du commandant André Schlegel</em>, écrit et dit par Éric Lemoine (55 minutes).
+        La voix que l’on entend ici est la sienne, telle qu’elle est dans le film ; les photographies, les documents et les
+        pages de carnet apparaissent aux moments où il les montre.
+      </p>
+      <p><a href="https://youtu.be/ic-LO8SigKY">Voir le film d’origine</a></p>
+    </section>
+
+    <section>
+      <h2>Le dossier familial</h2>
+      <ul>
+        <li>Les carnets de vol d’André Schlegel : carnet ouvert à Tours le 2 juin 1938, carnet de 1940, carnet de 1947. Les pages montrées sont les reproductions des originaux.</li>
+        <li>
+          Les pages du carnet de 1940 ne sont numérisées que jusqu’à la fin de septembre 1944. D’octobre 1944 à mars 1945, le récit montre des doubles pages
+          reconstituées, dessinées à la manière du carnet d’après la liste des missions : elles portent le tampon « RECONSTITUTION », ne donnent que la date,
+          l’avion, l’objectif et les incidents que dit la liste, et laissent le reste en blanc.
+        </li>
+        <li>Les photographies personnelles et les albums d’André Schlegel.</li>
+        <li>Ses états de service, citations et décorations ; des documents du Service historique des armées et de la Royal Air Force.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Photographies réunies par Éric Lemoine</h2>
+      <p>Certaines images et certains films d’archives viennent de fonds et de sites consacrés à l’histoire de l’aviation. Ils sont montrés ici comme dans le film.</p>
+      <ul>
+        {credits.map((credit) => (
+          <li>
+            {credit.what} : <span class="typed text-[0.9rem]">{credit.who}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Hors film</h2>
+      <p>
+        Le dossier contient des documents et des photographies qu’Éric Lemoine n’a pas montrés dans son film. Quelques-uns sont
+        rangés dans la pochette « Hors film » du parcours, chacun marqué « document hors film ». Leurs légendes ne disent que ce
+        que les documents disent eux-mêmes, ou ce que chacun peut y voir.
+      </p>
+      <ul>
+        {bonuses.map(({ chapter, list }) => (
+          <li>
+            {chapter.number ? `Chapitre ${chapter.number}, ${chapter.title}` : 'Avant le premier chapitre'} :
+            <ul>
+              {list.map((bonus) => (
+                <li>
+                  {bonus.legend}.
+                  <br />
+                  <span class="text-ink-soft">{bonus.source}.</span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Musique</h2>
+      <p>
+        Quelques secondes de musique ouvrent certains chapitres, avant que le récit reprenne. Ce sont des enregistrements du
+        domaine public, repris de Wikimedia Commons.
+      </p>
+      <ul>
+        {music.map(({ chapter, recording }) => (
+          <li>
+            Chapitre {chapter.number}, {chapter.title} : {recording.title} — {recording.performer}, {recording.year} ; {recording.licence}.{' '}
+            <a href={recording.source} rel="noopener">L’enregistrement</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Liens</h2>
+      <ul>
+        {links.map((link) => (
+          <li>
+            <a href={link.href} rel="noopener">{link.name}</a>
+            <br />
+            <span class="text-ink-soft">{link.note}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Bibliographie</h2>
+      <ul>
+        {books.map((book) => (
+          <li>
+            {book.author}, <em>{book.title}</em>, {book.publisher}.
+          </li>
+        ))}
+      </ul>
+      <h3>Lectures associées</h3>
+      <ul>
+        {readings.map((book) => (
+          <li>
+            {book.author}, <em>{book.title}</em>.
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Ce qui a été fait pour ce site</h2>
+      <ul>
+        <li>
+          <strong>La carte</strong> est dessinée pour ce récit, à la manière des cartes aéronautiques des années 1930. Les côtes et
+          les frontières viennent de <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (domaine public).
+        </li>
+        <li>
+          <strong>Les maquettes</strong> du Bloch 200, du Potez 25, du Bloch 210, du Douglas DB-7, de l’Avro Anson, du Wellington, du Halifax, du Junkers 52, du Douglas C-54 et de l’Avro York sont modelées pour ce site, d’une seule couleur et sans marques,
+          comme les maquettes de reconnaissance qui servaient à apprendre les silhouettes. Les dimensions indiquées sont celles
+          que l’on trouve habituellement publiées pour chaque type.
+        </li>
+        <li><strong>Les sons</strong> de la table (lampe, papier, pages, tampon) sont fabriqués par le site ; ils ne viennent d’aucun enregistrement.</li>
+        <li>
+          <strong>Les caractères</strong> : Old Standard TT, Special Elite et EB Garamond, sous licences libres (SIL Open Font License,
+          Apache License 2.0).
+        </li>
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<style>
+  section {
+    margin-top: 2.6rem;
+    border-top: 1px solid rgb(27 26 23 / 0.2);
+    padding-top: 1.4rem;
+    font-size: 1.14rem;
+    line-height: 1.6;
+  }
+  h2 {
+    font-family: var(--font-title);
+    font-size: 1.7rem;
+    line-height: 1.2;
+    margin: 0 0 0.6rem;
+  }
+  h3 {
+    font-family: var(--font-typed);
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-red-ink);
+    margin: 1.4rem 0 0.4rem;
+  }
+  p {
+    margin: 0.6rem 0;
+  }
+  ul {
+    margin: 0.6rem 0;
+    padding-left: 1.2rem;
+    list-style: '— ';
+  }
+  li {
+    margin: 0.45rem 0;
+  }
+  section a {
+    color: var(--color-red-ink);
+    text-underline-offset: 3px;
+  }
+</style>
