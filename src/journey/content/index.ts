@@ -1,4 +1,5 @@
 import { algerie } from './algerie';
+import { algerieSousVichy } from './algerie-sous-vichy';
 import { campagneDeFrance } from './campagne-de-france';
 import { ouverture } from './ouverture';
 import { tours } from './tours';
@@ -10,6 +11,7 @@ const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   tours,
   algerie,
   'campagne-de-france': campagneDeFrance,
+  'algerie-sous-vichy': algerieSousVichy,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {

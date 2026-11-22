@@ -56,6 +56,14 @@ export const LOOKS = {
     surface: 'oak',
     day: 1,
   },
+  /** Blida, 1940-1943: the end of an afternoon, the sun low and amber through the blinds, the days long. */
+  evening: {
+    backdrop: '#17100a',
+    key: { colour: '#ffd9ac', strength: 17, from: [-1.25, 1.6, 0.1], spread: 0.95, softness: 0.7 },
+    fill: { sky: '#d3c0b0', ground: '#70553a', strength: 1.0 },
+    surface: 'cloth',
+    day: 1,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

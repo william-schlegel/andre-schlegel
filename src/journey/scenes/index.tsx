@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
-import { Chart, chartSpot } from '../chart/Chart';
-import { POSTS, type PostId, type SheetId } from '../chart/places';
+import { Chart, chartBox, chartSpot } from '../chart/Chart';
+import { EVENTS, POSTS, type EventId, type PostId, type SheetId } from '../chart/places';
 import type { ChapterContent, ChapterId, Cue, ModelCue, Place } from '../content/types';
 import { openCloseUp } from '../engine/journey';
 import { useJourney } from '../engine/store';
@@ -40,11 +40,13 @@ const TOURS_CHART: Place = { x: -0.6, z: -0.17, turn: -2 };
 const TOURS_WIDE: Shot = { x: 0.16, z: 0.05, distance: 2.5, tilt: 24 };
 
 const isPost = (view: string): view is PostId => view in POSTS;
+const isEvent = (view: string): view is EventId => view in EVENTS;
 
 /** How the camera goes to a post of the Chart, or to a Recognition model. */
 function shotsFor(sheet: SheetId, place: Place, around = 0.36) {
   return (cue: Cue, aspect: number): Shot | null => {
     if (cue.kind === 'chart' && isPost(cue.view)) return shotOn(chartSpot(sheet, place, cue.view, around), aspect, 14);
+    if (cue.kind === 'chart' && isEvent(cue.view)) return shotOn(chartBox(sheet, place, EVENTS[cue.view].box), aspect, 14);
     if (cue.kind === 'model') {
       // the model on its stand and its label in front, whatever its size
       const span = modelSpan(cue.model);
@@ -118,6 +120,32 @@ function CampagneScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 4, Algérie sous Vichy: the same trestle table, at the end of a long afternoon ----------
+
+const VICHY_CHART: Place = { x: -0.39, z: -0.33, turn: 1.5 };
+const VICHY_WIDE: Shot = { x: 0.3, z: 0.1, distance: 2.75, tilt: 24 };
+const vichyShot = shotsFor('maroc-algerie', VICHY_CHART, 0.42);
+
+function VichyScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={VICHY_WIDE}
+      shotFor={vichyShot}
+      // Blida is inked by the Chapter opening; Meknès is reached by a Route for the week of the raids on Gibraltar
+      chart={(views) => (
+        <Chart
+          sheet="maroc-algerie"
+          place={VICHY_CHART}
+          posts={['blida', ...views.filter(isPost).filter((view) => view !== 'blida')]}
+          events={views.filter(isEvent)}
+        />
+      )}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -127,5 +155,11 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
     Scene: CampagneScene,
     wide: CAMPAGNE_WIDE,
     opening: { sheet: 'nord-de-la-france', place: CAMPAGNE_CHART, post: 'evreux' },
+  },
+  'algerie-sous-vichy': {
+    look: 'evening',
+    Scene: VichyScene,
+    wide: VICHY_WIDE,
+    opening: { sheet: 'maroc-algerie', place: VICHY_CHART, post: 'blida' },
   },
 };

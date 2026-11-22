@@ -67,6 +67,19 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Auxerre', at: [3.57, 47.8], sheet: 'nord-de-la-france' },
   { name: 'Metz', at: [6.18, 49.12], label: 'left', sheet: 'nord-de-la-france' },
   { name: 'Nancy', at: [6.18, 48.69], label: 'left', sheet: 'nord-de-la-france' },
+  // Algeria and Morocco, at the scale of the years 1940-1943
+  { name: 'Málaga', at: [-4.42, 36.72], label: 'above', sheet: 'maroc-algerie' },
+  { name: 'Almería', at: [-2.46, 36.84], label: 'above', sheet: 'maroc-algerie' },
+  { name: 'Grenade', at: [-3.6, 37.18], sheet: 'maroc-algerie' },
+  { name: 'Alicante', at: [-0.48, 38.35], label: 'left', sheet: 'maroc-algerie' },
+  { name: 'Melilla', at: [-2.94, 35.29], label: 'below', sheet: 'maroc-algerie' },
+  { name: 'Oujda', at: [-1.91, 34.68], label: 'left', sheet: 'maroc-algerie' },
+  { name: 'Taza', at: [-4.01, 34.21], label: 'below', sheet: 'maroc-algerie' },
+  { name: 'Sidi-bel-Abbès', at: [-0.63, 35.19], label: 'below', sheet: 'maroc-algerie' },
+  { name: 'Tiaret', at: [1.32, 35.37], sheet: 'maroc-algerie' },
+  { name: 'Orléansville', at: [1.33, 36.17], label: 'above', sheet: 'maroc-algerie' },
+  { name: 'Djelfa', at: [3.25, 34.67], sheet: 'maroc-algerie' },
+  { name: 'Bougie', at: [5.08, 36.75], label: 'above', sheet: 'maroc-algerie' },
 ];
 
 export interface Post {
@@ -86,9 +99,74 @@ export const POSTS = {
   // Damville, south of Évreux: « Danville » in André's hand and on the Film's title
   evreux: { name: 'ÉVREUX', note: 'mai 1940', at: [1.07, 48.87], label: -0.017 },
   pithiviers: { name: 'PITHIVIERS', note: 'juin 1940', at: [2.25, 48.17], label: 0.012 },
+  blida: { name: 'BLIDA', note: 'juin 1940', at: [2.83, 36.47], label: 0.013 },
+  // the same base as in April, for the week of the raids on Gibraltar
+  'meknes-1940': { name: 'MEKNÈS', note: 'septembre 1940', at: [-5.55, 33.89], label: 0.02 },
 } satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
+
+/** Something that happened at a place, inked on the Chart as the Narration tells it: a fleet struck, raids, a landing. */
+export interface ChartEvent {
+  /** Red capitals, when the place's name is not already printed on the sheet. */
+  name?: string;
+  note: string;
+  /** Where the lettering starts: its left edge. */
+  label: [number, number];
+  /** The place struck: a cross is inked on it. */
+  strike?: [number, number];
+  /**
+   * Arrows, inked one after the other. `bow` bends one to the left of its course (positive) or to
+   * the right, as a fraction of its length; `leave` is how far from its start it begins, in metres.
+   */
+  arrows?: { from: [number, number]; to: [number, number]; bow?: number; leave?: number }[];
+  /** What the camera takes in: [west, south] and [east, north]. */
+  box: [[number, number], [number, number]];
+}
+
+export const EVENTS = {
+  // the French fleet at anchor in the roads west of Oran, fired on by the Royal Navy
+  'mers-el-kebir': {
+    name: 'MERS EL-KÉBIR',
+    note: 'près d’Oran · 3 juillet 1940',
+    label: [-3.6, 36.28],
+    strike: [-0.71, 35.74],
+    box: [
+      [-6.2, 34.2],
+      [2.8, 37.5],
+    ],
+  },
+  // the 19e escadre flies both raids from Meknès
+  gibraltar: {
+    note: '24 et 25 septembre 1940',
+    label: [-5.0, 35.72],
+    arrows: [
+      { from: [-5.55, 33.89], to: [-5.35, 36.14], bow: 0.11, leave: 0.019 },
+      { from: [-5.55, 33.89], to: [-5.35, 36.14], bow: -0.11, leave: 0.019 },
+    ],
+    box: [
+      [-7.9, 33.35],
+      [-2.2, 36.7],
+    ],
+  },
+  // the Allied landings at Casablanca, Oran and Algiers
+  torch: {
+    name: 'TORCH',
+    note: '8 novembre 1942',
+    label: [0.75, 37.2],
+    arrows: [
+      { from: [-10.0, 33.3], to: [-7.8, 33.66], bow: -0.08 },
+      { from: [-0.05, 37.45], to: [-0.45, 35.98], bow: -0.07 },
+      { from: [3.74, 37.95], to: [3.6, 36.92], bow: 0.05 },
+    ],
+    box: [
+      [-10.2, 32.9],
+      [5.6, 38.6],
+    ],
+  },
+} satisfies Record<string, ChartEvent>;
+
+export type EventId = keyof typeof EVENTS;
 
 export interface Lettering {
   text: string;
@@ -233,6 +311,31 @@ export const SHEETS = {
     seas: [{ text: 'Manche', at: [-0.95, 49.98], size: 32 }],
     cartouche: [-1.02, 50.66],
     rose: [0.72, 50.36],
+  },
+  /** Morocco and Algeria as far as Bougie, with the Strait: Blida, Mers el-Kébir, Gibraltar, and the landings of 1942. */
+  'maroc-algerie': {
+    box: [
+      [-10.2, 32.7],
+      [5.6, 38.7],
+    ],
+    parallels: [34, 37],
+    meridian: -2.3,
+    title: 'ALGÉRIE ET MAROC',
+    width: 0.92,
+    proportions: 1.909,
+    subject: ['Morocco', 'Algeria'],
+    capital: 'Alger',
+    countries: [
+      { text: 'MAROC', at: [-6.2, 33.02], size: 30 },
+      { text: 'ALGÉRIE', at: [1.6, 34.5], size: 34 },
+      { text: 'ESPAGNE', at: [-3.6, 37.8], size: 28 },
+    ],
+    seas: [
+      { text: 'Mer Méditerranée', at: [1.3, 38.02], size: 30 },
+      { text: 'Océan Atlantique', at: [-8.7, 35.1], size: 24 },
+    ],
+    cartouche: [-8.3, 36.85],
+    rose: [4.5, 37.75],
   },
   /** French North Africa, from the Atlantic to Tunis, with the south of Spain and Gibraltar. */
   'afrique-du-nord': {

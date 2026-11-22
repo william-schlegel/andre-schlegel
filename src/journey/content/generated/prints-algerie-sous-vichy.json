@@ -1,0 +1,34 @@
+{
+ "lt-schlegel-blida": [
+  2000,
+  1500
+ ],
+ "groupe-hangar-blida": [
+  1837,
+  1070
+ ],
+ "base-de-blida": [
+  764,
+  355
+ ],
+ "mers-el-kebir-rade": [
+  1024,
+  722
+ ],
+ "mers-el-kebir-bombardement": [
+  700,
+  438
+ ],
+ "mers-el-kebir-incendie": [
+  1200,
+  800
+ ],
+ "torch-debarquement": [
+  1920,
+  1080
+ ],
+ "officiers-terrain": [
+  800,
+  596
+ ]
+}
