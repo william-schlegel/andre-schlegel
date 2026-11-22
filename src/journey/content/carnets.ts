@@ -1,5 +1,6 @@
 import carnet1938 from './generated/carnet-1938.json';
 import carnet1940 from './generated/carnet-1940.json';
+import reconstructed1940 from './generated/carnet-1940-reconstructed.json';
 import type { CarnetId } from './types';
 
 /**
@@ -14,6 +15,11 @@ interface Scan {
   folder: string;
   width: number;
   height: number;
+  /**
+   * Set on a Reconstructed Spread: the month it stands for. It is not a scan but two pages drawn
+   * for the site from the Missions list, for the months whose original is not scanned.
+   */
+  reconstructed?: string;
 }
 
 export interface Carnet {
@@ -38,7 +44,8 @@ export const CARNETS: Partial<Record<CarnetId, Carnet>> = {
     title: 'Carnet individuel des services aériens',
     holder: 'Lieutenant Schlegel, observateur',
     opened: 'Souk-el-Arba, le 9 juillet 1940',
-    scans: carnet1940,
+    // the scans stop at the end of September 1944: the months to March 1945 are Reconstructed Spreads
+    scans: [...carnet1940, ...reconstructed1940],
   },
 };
 
@@ -60,4 +67,9 @@ export function isSinglePage(id: CarnetId, view: number): boolean {
 
 export function scanUrl(id: CarnetId, view: number, sharp: boolean): string {
   return `/media/carnets/${id}/${String(view).padStart(2, '0')}${sharp ? '' : '_s'}.webp`;
+}
+
+/** The month a Reconstructed Spread stands for; null on a scan of the original. */
+export function reconstructedMonth(id: CarnetId, view: number): string | null {
+  return carnetOf(id).scans[view - 1]?.reconstructed ?? null;
 }

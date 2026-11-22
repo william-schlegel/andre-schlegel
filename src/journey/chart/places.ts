@@ -164,6 +164,9 @@ export interface ChartEvent {
   label: [number, number];
   /** The place struck: a cross is inked on it. */
   strike?: [number, number];
+  /** Several places struck: a cross on each, one after the other; `small` for places close together. */
+  strikes?: [number, number][];
+  small?: boolean;
   /**
    * Arrows, inked one after the other. `bow` bends one to the left of its course (positive) or to
    * the right, as a fraction of its length; `leave` is how far from its start it begins, in metres.
@@ -177,6 +180,17 @@ export interface ChartEvent {
   /** What the camera takes in: [west, south] and [east, north]. */
   box: [[number, number], [number, number]];
 }
+
+type Box = [[number, number], [number, number]];
+/** What the camera takes in while the objectives of each period are inked. */
+const FRANCE_1944: Box = [
+  [-2.4, 48.4],
+  [5.6, 51.7],
+];
+const ALLEMAGNE_1945: Box = [
+  [2.2, 47.7],
+  [14.8, 54.6],
+];
 
 export const EVENTS = {
   // the French fleet at anchor in the roads west of Oran, fired on by the Royal Navy
@@ -274,6 +288,63 @@ export const EVENTS = {
     box: [
       [-3.0, 49.9],
       [10.4, 55.3],
+    ],
+  },
+  // ----- Chapter 8: where the Film shows two hand-drawn maps of the objectives, the Chart is inked -----
+  // July – September 1944: the objectives in France, each crossed as Eric names it
+  'cible-nieppe': { note: 'Nieppe · V1', label: [2.66, 50.93], strike: [2.53, 50.72], box: FRANCE_1944 },
+  'cible-noyelles': { note: 'Noyelles · V1', label: [-0.48, 50.2], strike: [1.71, 50.18], box: FRANCE_1944 },
+  'cible-cassan': { note: 'Cassan · V1', label: [2.38, 49.11], strike: [2.22, 49.11], box: FRANCE_1944 },
+  'cible-somain': { note: 'Somain · gare', label: [3.45, 50.1], strike: [3.28, 50.36], box: FRANCE_1944 },
+  'cible-octeville': { note: 'Octeville', label: [-1.3, 49.82], strike: [0.11, 49.57], box: FRANCE_1944 },
+  'cible-boulogne': { note: 'Boulogne', label: [0.18, 50.74], strike: [1.61, 50.73], box: FRANCE_1944 },
+  // October 1944 – March 1945: Germany, by groups; only towns of the Missions list are crossed
+  'cibles-ruhr': {
+    name: 'LA RUHR',
+    note: 'usines et villes',
+    label: [8.05, 51.22],
+    // Duisbourg, Essen, Gelsenkirchen, Bochum, Dortmund, Düsseldorf, Wuppertal, Hagen
+    strikes: [
+      [6.76, 51.43],
+      [7.01, 51.46],
+      [7.1, 51.55],
+      [7.22, 51.48],
+      [7.47, 51.51],
+      [6.78, 51.22],
+      [7.18, 51.26],
+      [7.47, 51.36],
+    ],
+    small: true,
+    box: ALLEMAGNE_1945,
+  },
+  'cibles-ports': {
+    note: 'Wilhelmshaven',
+    label: [5.7, 53.64],
+    strikes: [
+      [8.11, 53.52],
+      [9.99, 53.55],
+    ],
+    box: ALLEMAGNE_1945,
+  },
+  // Eric says « la Bavière »: the list's southernmost towns are Worms and Stuttgart
+  'cibles-sud': {
+    note: 'Worms',
+    label: [7.15, 49.64],
+    strikes: [
+      [8.36, 49.63],
+      [9.18, 48.78],
+    ],
+    box: ALLEMAGNE_1945,
+  },
+  'cible-chemnitz': { name: 'CHEMNITZ', note: '14 février 1945', label: [10.45, 50.42], strike: [12.92, 50.83], box: ALLEMAGNE_1945 },
+  // « Dresde, le 13, et Chemnitz, le 14 février 1945 »
+  'cible-dresde': {
+    note: '13 février',
+    label: [13.86, 50.76],
+    strike: [13.74, 51.05],
+    box: [
+      [8.4, 49.4],
+      [15.3, 52.9],
     ],
   },
 } satisfies Record<string, ChartEvent>;

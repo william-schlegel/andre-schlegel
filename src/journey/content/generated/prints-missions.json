@@ -1,0 +1,90 @@
+{
+ "v1-sur-sa-rampe": [
+  500,
+  289
+ ],
+ "site-de-v1": [
+  1280,
+  720
+ ],
+ "reconnaissance-nieppe": [
+  450,
+  480
+ ],
+ "foret-de-nieppe": [
+  800,
+  791
+ ],
+ "halifax-sur-nieppe": [
+  1066,
+  1167
+ ],
+ "rampe-detruite": [
+  500,
+  336
+ ],
+ "halifax-wanne-eickel": [
+  555,
+  380
+ ],
+ "wanne-eickel-apres": [
+  579,
+  800
+ ],
+ "somain": [
+  565,
+  587
+ ],
+ "somain-agrandissement": [
+  1073,
+  1559
+ ],
+ "bombes-sur-une-gare": [
+  657,
+  800
+ ],
+ "chasse-de-nuit": [
+  1500,
+  1043
+ ],
+ "halifax-crible": [
+  548,
+  800
+ ],
+ "trajet-duisbourg": [
+  1562,
+  1084
+ ],
+ "raid-duisbourg": [
+  1084,
+  763
+ ],
+ "raid-mulheim": [
+  1535,
+  1130
+ ],
+ "halifax-de-jour": [
+  1447,
+  914
+ ],
+ "trajet-chemnitz": [
+  800,
+  667
+ ],
+ "chemnitz-avant": [
+  951,
+  634
+ ],
+ "chemnitz-gare": [
+  962,
+  710
+ ],
+ "chemnitz-en-feu": [
+  1100,
+  850
+ ],
+ "remise-legion-honneur": [
+  1349,
+  1800
+ ]
+}

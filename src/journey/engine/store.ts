@@ -14,6 +14,7 @@ export type Phase = 'introduction' | 'opening' | 'scene' | 'end';
 export type CloseUp =
   | { kind: 'print'; id: string }
   | { kind: 'typed'; id: string }
+  | { kind: 'missions'; id: string }
   | { kind: 'carnet'; carnet: CarnetId; spread: number }
   | { kind: 'model'; model: ModelId }
   | { kind: 'text' }

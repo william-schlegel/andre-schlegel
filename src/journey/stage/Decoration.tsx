@@ -1,6 +1,6 @@
 import { useFrame, useLoader } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
-import { Color, MathUtils, SRGBColorSpace, TextureLoader, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
+import { Color, MathUtils, SRGBColorSpace, TextureLoader, type Group, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
 import type { Place } from '../content/types';
 import { contactShadowTexture, glowTexture } from './surfaces';
 
@@ -11,11 +11,14 @@ interface DecorationProps {
   place: Place;
   /** Eric has named it: it catches the light. */
   lit: boolean;
+  /** Whether it lies on the table yet: a decoration awarded during a Chapter is set down when Eric comes to it. */
+  present?: boolean;
 }
 
 /**
  * A decoration lying on the table. Until Eric names it, it keeps to the half-light; then it
- * catches the lamp (a glint, and it stays bright).
+ * catches the lamp (a glint, and it stays bright). One that is awarded during a Chapter is not
+ * there at first: it is set down by hand, from the viewer's side, and glints as it lands.
  */
 export function Decoration(props: DecorationProps) {
   return (
@@ -28,7 +31,7 @@ export function Decoration(props: DecorationProps) {
 const DIM = new Color('#5d564c');
 const BRIGHT = new Color('#d8d4cc');
 
-function DecorationOnTable({ src, width, depth, place, lit }: DecorationProps) {
+function DecorationOnTable({ src, width, depth, place, lit, present = true }: DecorationProps) {
   const texture = useLoader(TextureLoader, src);
   useEffect(() => {
     texture.colorSpace = SRGBColorSpace;
@@ -37,8 +40,12 @@ function DecorationOnTable({ src, width, depth, place, lit }: DecorationProps) {
   }, [texture]);
   const shadow = useMemo(() => contactShadowTexture(), []);
   const glow = useMemo(() => glowTexture(), []);
+  const group = useRef<Group>(null);
   const material = useRef<MeshStandardMaterial>(null);
   const halo = useRef<MeshBasicMaterial>(null);
+  const shade = useRef<MeshBasicMaterial>(null);
+  // starts where it should be: no setting down when one arrives in the middle of a Chapter
+  const presence = useRef(present ? 1 : 0);
   // starts where it should be: no glint when one arrives in the middle of the Ouverture
   const light = useRef(lit ? 1 : 0);
   const glint = useRef(0);
@@ -46,6 +53,16 @@ function DecorationOnTable({ src, width, depth, place, lit }: DecorationProps) {
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
+    presence.current = MathUtils.clamp(presence.current + (present ? dt / 0.9 : -dt / 0.4), 0, 1);
+    const node = group.current;
+    if (node) {
+      const eased = 1 - Math.pow(1 - presence.current, 3);
+      const away = 1 - eased;
+      node.visible = presence.current > 0.001;
+      node.position.set(place.x + away * 0.06, 0.004 + away * 0.3, place.z + away * 0.45);
+      node.rotation.set(-away * 0.5, -MathUtils.degToRad(place.turn ?? 0) - away * 0.4, 0);
+      if (shade.current) shade.current.opacity = 0.6 * eased * eased;
+    }
     if (lit && !wasLit.current) glint.current = 1;
     wasLit.current = lit;
     light.current = MathUtils.damp(light.current, lit ? 1 : 0, 4, dt);
@@ -58,10 +75,10 @@ function DecorationOnTable({ src, width, depth, place, lit }: DecorationProps) {
   });
 
   return (
-    <group position={[place.x, 0.004, place.z]} rotation-y={-MathUtils.degToRad(place.turn ?? 0)}>
+    <group ref={group} position={[place.x, 0.004, place.z]} rotation-y={-MathUtils.degToRad(place.turn ?? 0)} visible={present}>
       <mesh rotation-x={-Math.PI / 2} position-y={-0.003}>
         <planeGeometry args={[width * 1.5, depth * 1.25]} />
-        <meshBasicMaterial map={shadow} transparent opacity={0.6} depthWrite={false} color="#000" />
+        <meshBasicMaterial ref={shade} map={shadow} transparent opacity={0.6} depthWrite={false} color="#000" />
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position-y={-0.002}>
         <planeGeometry args={[width * 3.2, depth * 1.9]} />

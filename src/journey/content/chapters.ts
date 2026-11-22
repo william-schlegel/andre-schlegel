@@ -13,7 +13,7 @@ export const CHAPTERS: Chapter[] = [
   { id: 'ecole-anglaise', number: 5, title: 'L’école anglaise', dates: '1943 – 1944', start: 954.4, end: 1308, ready: true },
   { id: 'elvington', number: 6, title: 'Elvington', dates: '1944 – 1945', start: 1308, end: 1782, ready: true },
   { id: 'nuit', number: 7, title: 'Une nuit sur l’Allemagne', dates: '1944 – 1945', start: 1782, end: 2310, ready: true },
-  { id: 'missions', number: 8, title: 'Les missions', dates: 'juillet 1944 – avril 1945', start: 2310, end: 3004, ready: false },
+  { id: 'missions', number: 8, title: 'Les missions', dates: 'juillet 1944 – avril 1945', start: 2310, end: 3004, ready: true },
   { id: 'apres-la-guerre', number: 9, title: 'Après la guerre', dates: '1945 – 1962', start: 3004, end: 3312, ready: false },
 ];
 

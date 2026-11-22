@@ -88,6 +88,14 @@ export const LOOKS = {
     surface: 'oak',
     day: 0,
   },
+  /** The morning after: a grey, faintly rose daybreak in the hut where the sorties are counted and the citations typed. */
+  daybreak: {
+    backdrop: '#0e1015',
+    key: { colour: '#f4e2d4', strength: 14, from: [-1.3, 1.8, -0.5], spread: 0.95, softness: 0.85 },
+    fill: { sky: '#aab8d0', ground: '#57504a', strength: 0.95 },
+    surface: 'oak',
+    day: 1,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

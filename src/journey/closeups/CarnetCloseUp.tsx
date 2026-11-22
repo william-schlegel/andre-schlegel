@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
-import { carnetOf, isSinglePage, lastView } from '../content/carnets';
+import { carnetOf, isSinglePage, lastView, reconstructedMonth } from '../content/carnets';
 import type { CarnetId, Place } from '../content/types';
 import { useJourney } from '../engine/store';
 import { companionFrame } from '../stage/Companion';
@@ -51,6 +51,7 @@ export function CarnetCloseUp({ carnet, spread, place }: { carnet: CarnetId; spr
   };
 
   const label = spread === 1 && isSinglePage(carnet, 1) ? 'Page de titre' : `Double page ${spread - 1} sur ${last - 1}`;
+  const month = reconstructedMonth(carnet, spread);
 
   return (
     <CloseUpFrame label={book.title} veil={false}>
@@ -89,6 +90,14 @@ export function CarnetCloseUp({ carnet, spread, place }: { carnet: CarnetId; spr
           Suivantes ›
         </button>
       </div>
+      {month && (
+        <p className="typed pointer-events-none absolute left-1/2 top-4 max-w-[34rem] -translate-x-1/2 rounded-sm border border-red-ink/80 bg-night/80 px-4 py-2 text-center text-[0.74rem] leading-snug text-paper backdrop-blur-sm">
+          <span className="tracking-[0.2em] text-[#e8776a]">RECONSTITUTION</span> · {month}
+          <br />
+          Le carnet numérisé s’arrête à la fin de septembre 1944. Cette double page est dessinée pour ce récit d’après la liste des missions ; ce que la
+          liste ne dit pas est laissé en blanc.
+        </p>
+      )}
       <p className="typed pointer-events-none absolute bottom-[4.4rem] left-1/2 -translate-x-1/2 text-[0.68rem] tracking-wider text-paper/55 [text-shadow:0_1px_6px_rgb(0_0_0/0.95)]">
         Cliquer sur une page pour s’en approcher · flèches ← → pour tourner les feuillets
       </p>

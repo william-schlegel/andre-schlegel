@@ -4,8 +4,9 @@ import { ChaptersCloseUp } from './closeups/ChaptersCloseUp';
 import { ModelCloseUp } from './closeups/ModelCloseUp';
 import { PrintCloseUp } from './closeups/PrintCloseUp';
 import { TextCloseUp } from './closeups/TextCloseUp';
+import { MissionsCloseUp } from './closeups/MissionsCloseUp';
 import { TypedCloseUp } from './closeups/TypedCloseUp';
-import { contentOf, printOf, typedOf } from './content';
+import { contentOf, missionsSheetOf, printOf, typedOf } from './content';
 import type { ChapterId } from './content/types';
 import { begin, closeCloseUp, getClock, goToChapter, resumeAt, runClock, seek, togglePlay } from './engine/journey';
 import { useJourney } from './engine/store';
@@ -81,6 +82,7 @@ export default function Journey() {
 
   const print = closeUp?.kind === 'print' ? printOf(chapter, closeUp.id) : null;
   const typedSheet = closeUp?.kind === 'typed' ? typedOf(chapter, closeUp.id) : null;
+  const missionsSheet = closeUp?.kind === 'missions' ? missionsSheetOf(chapter, closeUp.id) : null;
 
   return (
     <div className="fixed inset-0 select-none overflow-hidden bg-night">
@@ -111,6 +113,7 @@ export default function Journey() {
 
       {print && <PrintCloseUp print={print} />}
       {typedSheet && <TypedCloseUp sheet={typedSheet} />}
+      {missionsSheet && <MissionsCloseUp sheet={missionsSheet} />}
       {closeUp?.kind === 'carnet' && <CarnetCloseUp carnet={closeUp.carnet} spread={closeUp.spread} place={content.companion.place} />}
       {closeUp?.kind === 'model' && <ModelCloseUp model={closeUp.model} chapter={chapter} />}
       {closeUp?.kind === 'text' && <TextCloseUp content={content} />}

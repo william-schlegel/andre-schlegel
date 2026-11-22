@@ -444,18 +444,19 @@ function EventMark({ sheet, event, fresh }: { sheet: SheetId; event: ChartEvent;
   useEffect(() => () => reach?.dispose(), [reach]);
   const label = useMemo(() => inkedLabel(event), [event]);
   useEffect(() => () => label.dispose(), [label]);
-  const strike = event.strike ? onSheet(sheet, event.strike) : null;
+  const strikes = useMemo(() => [...(event.strike ? [event.strike] : []), ...(event.strikes ?? [])].map((place) => onSheet(sheet, place)), [sheet, event]);
   const lettering = onSheet(sheet, event.label);
   const width = labelPixels(event) * LABEL_SCALE;
 
   // the pen: each arrow is begun before the one before is finished; then the arc, then the cross, then the words
   const arrowsDone = arrows.length ? (arrows.length - 1) * STAGGER + 1 : 0;
   const shaftsDone = arrowsDone + (reach ? SWEEP_TIME : 0);
-  const struckAt = shaftsDone + (strike ? 0.6 : 0);
+  // each cross takes 0.6 of a step, and is begun when the one before is half inked
+  const struckAt = shaftsDone + (strikes.length ? 0.6 + (strikes.length - 1) * 0.3 : 0);
   const steps = struckAt + 0.8;
   const pen = useRef(fresh ? 0 : steps);
   const shafts = useRef<(Mesh | null)[]>([]);
-  const cross = useRef<Mesh>(null);
+  const crosses = useRef<(Mesh | null)[]>([]);
   const sweep = useRef<Mesh>(null);
   const words = useRef<MeshBasicMaterial>(null);
 
@@ -478,12 +479,13 @@ function EventMark({ sheet, event, fresh }: { sheet: SheetId; event: ChartEvent;
       // the head is inked when the shaft is whole
       arrow.setDrawRange(0, spans * 6 + (drawn >= 0.99 ? 3 : 0));
     });
-    const struck = flat ? MathUtils.clamp((pen.current - shaftsDone) / 0.6, 0, 1) : 0;
-    if (cross.current) {
-      cross.current.visible = struck > 0.01;
-      cross.current.scale.setScalar(0.4 + 0.6 * struck);
-      (cross.current.material as MeshBasicMaterial).opacity = 0.9 * struck;
-    }
+    crosses.current.forEach((cross, index) => {
+      if (!cross) return;
+      const struck = flat ? MathUtils.clamp((pen.current - shaftsDone - index * 0.3) / 0.6, 0, 1) : 0;
+      cross.visible = struck > 0.01;
+      cross.scale.setScalar((0.4 + 0.6 * struck) * (event.small ? 0.52 : 1));
+      (cross.material as MeshBasicMaterial).opacity = 0.9 * struck;
+    });
     if (words.current) words.current.opacity = (flat ? MathUtils.clamp((pen.current - struckAt) / 0.8, 0, 1) : 0) * 0.92;
   });
 
@@ -499,11 +501,11 @@ function EventMark({ sheet, event, fresh }: { sheet: SheetId; event: ChartEvent;
           <meshBasicMaterial color="#a8281e" transparent opacity={0.85} side={DoubleSide} />
         </mesh>
       )}
-      {strike && (
-        <mesh ref={cross} geometry={CROSS} position={[strike.x, 0.0001, strike.z]} visible={false}>
+      {strikes.map((strike, index) => (
+        <mesh key={index} ref={(mesh) => void (crosses.current[index] = mesh)} geometry={CROSS} position={[strike.x, 0.0001, strike.z]} visible={false}>
           <meshBasicMaterial color="#a8281e" transparent opacity={0} side={DoubleSide} />
         </mesh>
-      )}
+      ))}
       <mesh rotation-x={-Math.PI / 2} position={[lettering.x + width / 2, 0.0002, lettering.z]}>
         <planeGeometry args={[width, 0.03]} />
         <meshBasicMaterial ref={words} map={label} transparent opacity={0} depthWrite={false} />

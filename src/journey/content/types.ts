@@ -154,10 +154,14 @@ export interface ChartCue extends CueBase {
 
 export type DecorationId = 'legion-honneur' | 'croix-de-guerre' | 'dfc';
 
-/** A decoration catches the light as Eric names it (Ouverture). */
+/**
+ * A decoration catches the light as Eric names it. In the Ouverture the three lie on the table
+ * from the start; with a `place`, the decoration is set down there when it is awarded.
+ */
 export interface DecorationCue extends CueBase {
   kind: 'decoration';
   decoration: DecorationId;
+  place?: Place;
 }
 
 /** Words set on the table: a title, a typed note. */
@@ -201,7 +205,36 @@ export interface TypedCue extends CueBase {
   source: string;
 }
 
-export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue | ProjectionCue | TypedCue;
+/** A sortie of the Missions list. Dates are written year first (1944-07-25). */
+export interface Mission {
+  period: 1 | 2;
+  date: string;
+  /** Serial and letter of the Halifax, or « cargo ». */
+  aircraft: string;
+  target: string;
+  /** What happened: Flak, fighters, an engine lost, a sortie not counted. */
+  note: string;
+  /** The citation the sortie earned. */
+  cited: string;
+}
+
+/** A page of the Missions list: the sorties of a period, typed line by line, then underlined in red as Eric tells them. */
+export interface MissionsCue extends CueBase {
+  kind: 'missions';
+  period: 1 | 2;
+  place: Place;
+  /** Width of the sheet on the table, in metres. */
+  width: number;
+  heading: string[];
+  /** The lines are typed from this moment to that one. */
+  typing: [number, number];
+  /** The sorties Eric tells, by their date: each is underlined when he comes to it; `from` is where its telling begins, when that is earlier. */
+  told: { at: number; date: string; from?: number }[];
+  legend: string;
+  source: string;
+}
+
+export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue | ProjectionCue | TypedCue | MissionsCue;
 
 /** The Carnet André is filling during the Chapter, and where it lies on the table. */
 export interface CompanionPlace {

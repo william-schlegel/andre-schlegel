@@ -24,7 +24,9 @@ export function typedLines(text: string): string[] {
   const lines: string[] = [];
   for (const entry of text.split('\n')) {
     let line = '';
-    for (const word of entry.split(/\s+/)) {
+    // French punctuation keeps to its word: no line begins with a closing guillemet, a colon or a dash
+    const bound = entry.replace(/« /g, '«\u00a0').replace(/ ([»:;!?—])/g, '\u00a0$1');
+    for (const word of bound.split(/[ \t]+/)) {
       if (line && line.length + 1 + word.length > COLUMNS) {
         lines.push(line);
         line = word;
@@ -47,6 +49,35 @@ export function typedDepth(cue: TypedCue): number {
 
 export function typedRect(cue: TypedCue) {
   return { x: cue.place.x, z: cue.place.z, width: cue.width, depth: typedDepth(cue) };
+}
+
+const WINDOW = 11; // lines of a long sheet the camera takes in at once
+
+/** The line being typed at a moment of the Narration (the first before the reading, the last after it). */
+export function typedLineAt(cue: TypedCue, time: number): number {
+  const lines = typedLines(cue.text);
+  let left = typedAt(cue, time, lines.reduce((sum, line) => sum + line.length, 0));
+  for (let index = 0; index < lines.length; index++) {
+    if (left <= lines[index].length) return index;
+    left -= lines[index].length;
+  }
+  return lines.length - 1;
+}
+
+/**
+ * What the camera frames on a typed sheet: the whole of a short one; on a long one, the lines
+ * around the one being typed, so that the words stay large enough to be read as Eric reads them.
+ */
+export function typedWindow(cue: TypedCue, line: number) {
+  const count = typedLines(cue.text).length;
+  const whole = typedRect(cue);
+  if (count <= WINDOW + 3) return whole;
+  const pixels = sheetPixels(cue);
+  const tall = WINDOW * LINE + 150;
+  const bodyTop = TOP + cue.heading.length * HEAD_LINE + 56;
+  // the line being typed sits two thirds of the way down: what has just been read stays in sight
+  const top = Math.min(pixels - tall, Math.max(0, bodyTop + line * LINE - tall * 0.66));
+  return { x: whole.x, z: whole.z + ((top + tall / 2) / pixels - 0.5) * whole.depth, width: whole.width, depth: (cue.width * tall) / PIXELS };
 }
 
 /** How many characters are typed at a moment of the Narration. */

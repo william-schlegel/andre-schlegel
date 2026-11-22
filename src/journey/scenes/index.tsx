@@ -206,6 +206,21 @@ function NuitScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 8, Les missions: the same hut at daybreak, the list of sorties on the table, the citations typed one after the other ----------
+
+function MissionsScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={ELVINGTON_WIDE}
+      shotFor={elvingtonShot}
+      // Elvington is inked by the Chapter opening; the objectives are crossed as Eric names them (a view he comes back to is inked once)
+      chart={(views) => <Chart sheet="europe-du-nord-ouest" place={ELVINGTON_CHART} posts={['elvington']} events={[...new Set(views)].filter(isEvent)} />}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -233,9 +248,16 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
     Scene: ElvingtonScene,
     wide: ELVINGTON_WIDE,
     opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
-  },  nuit: {
+  },
+  nuit: {
     look: 'night',
     Scene: NuitScene,
+    wide: ELVINGTON_WIDE,
+    opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
+  },
+  missions: {
+    look: 'daybreak',
+    Scene: MissionsScene,
     wide: ELVINGTON_WIDE,
     opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
   },

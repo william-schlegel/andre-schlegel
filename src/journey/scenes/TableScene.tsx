@@ -2,17 +2,18 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { MathUtils, type Group } from 'three';
 import { DECORATIONS } from '../content/ouverture';
-import type { CarnetId, ChapterContent, ChartCue, Cue, DecorationCue, ModelCue, PrintCue, ProjectionCue, SpreadCue, TypedCue } from '../content/types';
+import type { CarnetId, ChapterContent, ChartCue, Cue, DecorationCue, MissionsCue, ModelCue, PrintCue, ProjectionCue, SpreadCue, TypedCue } from '../content/types';
 import { cueInFocus } from '../engine/cues';
 import { getClock, openCloseUp, sameList, useNarration } from '../engine/journey';
 import { useJourney } from '../engine/store';
 import { playSound } from '../sound/sounds';
 import { Companion, companionFrame } from '../stage/Companion';
 import { Decoration } from '../stage/Decoration';
+import { MissionsSheet, missionsRect } from '../stage/MissionsSheet';
 import { Print, printRect } from '../stage/Print';
 import { Projection, projectionShot } from '../stage/Projection';
 import { lookAt, shotOn, WIDE_SHOT, type Shot } from '../stage/shot';
-import { TypedSheet, typedRect } from '../stage/TypedSheet';
+import { TypedSheet, typedLineAt, typedWindow } from '../stage/TypedSheet';
 
 /** A sound only when the Narration brought the thing, not when the visitor jumped past it. */
 function arrivedByListening(cue: Cue): boolean {
@@ -53,6 +54,9 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   const decorations = useMemo(() => cues.filter((cue): cue is DecorationCue => cue.kind === 'decoration'), [cues]);
   const projections = useMemo(() => cues.filter((cue): cue is ProjectionCue => cue.kind === 'projection'), [cues]);
   const typed = useMemo(() => cues.filter((cue): cue is TypedCue => cue.kind === 'typed'), [cues]);
+  const lists = useMemo(() => cues.filter((cue): cue is MissionsCue => cue.kind === 'missions'), [cues]);
+  // in the Ouverture the three decorations lie on the table from the start; elsewhere each is set down where its cue says
+  const awarded = useMemo(() => decorations.filter((cue) => cue.place), [decorations]);
 
   // while waiting, time stands before the first word
   const at = (time: number) => (waiting ? -0.5 : time);
@@ -63,6 +67,8 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   );
   const shown = useMemo(() => new Set(shownIds), [shownIds]);
   const focus = useNarration((time) => (waiting ? null : cueInFocus(cues, time)));
+  // on a long typed sheet, the camera follows the line Eric is reading
+  const readingLine = useNarration((time) => (focus?.kind === 'typed' ? typedLineAt(focus, time) : 0));
   // the Carnet André is filling: the Chapter's, until the Narration reaches the pages of the next one
   const next = companion.next;
   const carnet = useNarration((time): CarnetId => (next && at(time) >= next.at ? next.carnet : companion.carnet));
@@ -105,11 +111,13 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
     else if (focus.kind === 'print') shot = shotOn(printRect(focus), aspect, 11, 0.92);
     else if (focus.kind === 'spread') shot = shotOn(companionFrame(companion.place, true), aspect, 7);
     else if (focus.kind === 'projection') shot = projectionShot(focus, aspect);
-    else if (focus.kind === 'typed') shot = shotOn(typedRect(focus), aspect, 10, 0.94);
+    else if (focus.kind === 'typed') shot = shotOn(typedWindow(focus, readingLine), aspect, 10, 0.94);
+    else if (focus.kind === 'missions') shot = shotOn(missionsRect(focus), aspect, 9, 0.96);
+    else if (focus.kind === 'decoration' && focus.place) shot = shotOn({ x: focus.place.x, z: focus.place.z, width: 0.34, depth: 0.26 }, aspect, 16);
     else if (focus.kind === 'view') shot = wide;
     else shot = shotFor?.(focus, aspect) ?? wide;
     lookAt(shot);
-  }, [focus, aspect, closeUp, directed, companion.place, wide, shotFor]);
+  }, [focus, readingLine, aspect, closeUp, directed, companion.place, wide, shotFor]);
 
   const marks = useMemo(
     () => (spreadCue?.marks ?? []).map((mark, index) => ({ spread: spreadCue!.spread, box: mark.box, shown: index < marksShown && browsing === null })),
@@ -155,6 +163,17 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
         />
       ))}
 
+      {lists.map((cue, index) => (
+        <MissionsSheet
+          key={cue.id}
+          cue={cue}
+          order={prints.length + typed.length + index}
+          shown={shown.has(cue.id)}
+          onOpen={() => openCloseUp({ kind: 'missions', id: cue.id })}
+          onLand={() => arrivedByListening(cue) && playSound('print')}
+        />
+      ))}
+
       {next ? (
         <>
           <InHand held={carnet === companion.carnet} towards="left">
@@ -168,7 +187,11 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
         book(companion.carnet, companion.view)
       )}
 
-      {decorations.length > 0 &&
+      {awarded.map((cue) => {
+        const decoration = DECORATIONS.find((candidate) => candidate.id === cue.decoration)!;
+        return <Decoration key={cue.id} src={decoration.src} width={decoration.width} depth={decoration.depth} place={cue.place!} lit={shown.has(cue.id)} present={shown.has(cue.id)} />;
+      })}
+      {decorations.length > awarded.length &&
         DECORATIONS.map((decoration) => (
           <Decoration
             key={decoration.id}

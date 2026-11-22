@@ -3,10 +3,11 @@ import { algerieSousVichy } from './algerie-sous-vichy';
 import { campagneDeFrance } from './campagne-de-france';
 import { ecoleAnglaise } from './ecole-anglaise';
 import { elvington } from './elvington';
+import { missions } from './missions';
 import { nuit } from './nuit';
 import { ouverture } from './ouverture';
 import { tours } from './tours';
-import type { ChapterContent, ChapterId, PrintCue, TypedCue } from './types';
+import type { ChapterContent, ChapterId, MissionsCue, PrintCue, TypedCue } from './types';
 
 /** The Chapters that are built. */
 const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
@@ -18,6 +19,7 @@ const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   'ecole-anglaise': ecoleAnglaise,
   elvington,
   nuit,
+  missions,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {
@@ -34,4 +36,9 @@ export function printOf(chapter: ChapterId, id: string): PrintCue | null {
 export function typedOf(chapter: ChapterId, id: string): TypedCue | null {
   const cue = CONTENT[chapter]?.cues.find((candidate) => candidate.kind === 'typed' && candidate.id === id);
   return (cue as TypedCue | undefined) ?? null;
+}
+
+export function missionsSheetOf(chapter: ChapterId, id: string): MissionsCue | null {
+  const cue = CONTENT[chapter]?.cues.find((candidate) => candidate.kind === 'missions' && candidate.id === id);
+  return (cue as MissionsCue | undefined) ?? null;
 }
