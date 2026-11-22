@@ -106,6 +106,17 @@ function labelTexture(lines: string[]): CanvasTexture {
   return texture;
 }
 
+/** Keeps the model in hand when the pointer leaves it; a pointer that is already gone is not an error. */
+function capture(event: ThreeEvent<PointerEvent>, hold: boolean): void {
+  const target = event.target as Element;
+  try {
+    if (hold) target.setPointerCapture(event.pointerId);
+    else target.releasePointerCapture(event.pointerId);
+  } catch {
+    // the drag goes on without the capture
+  }
+}
+
 interface RecognitionModelProps {
   cue: ModelCue;
   shown: boolean;
@@ -169,7 +180,7 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
   const down = (event: ThreeEvent<PointerEvent>) => {
     if (!shown) return;
     event.stopPropagation();
-    (event.target as Element).setPointerCapture(event.pointerId);
+    capture(event, true);
     drag.current = { x: event.clientX, y: event.clientY, moved: 0 };
     pose.held = true;
   };
@@ -189,7 +200,7 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
     const held = drag.current;
     if (!held) return;
     event.stopPropagation();
-    (event.target as Element).releasePointerCapture(event.pointerId);
+    capture(event, false);
     drag.current = null;
     pose.held = false;
     pose.touched = performance.now() / 1000;

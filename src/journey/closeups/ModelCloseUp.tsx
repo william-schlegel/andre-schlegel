@@ -45,7 +45,11 @@ export function ModelCloseUp({ model, chapter }: { model: ModelId; chapter: Chap
   });
 
   const down = (event: PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // a pointer that is already gone: the drag goes on without the capture
+    }
     held.current = { x: event.clientX, y: event.clientY };
     poseOf(model).held = true;
   };
