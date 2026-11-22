@@ -149,8 +149,10 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
   ctx.save();
   trace(lands);
   ctx.clip();
+  // a sheet of a smaller scale shows the same heights with fewer, shorter strokes
+  const fine = sheet.whole ? 0.55 : 1;
   for (const [lon, lat, rx, ry, strength] of sheet.world ? [] : RELIEF) {
-    const strokes = Math.round(620 * rx * ry * strength + 70);
+    const strokes = Math.round((620 * rx * ry * strength + 70) * fine);
     for (let i = 0; i < strokes; i++) {
       // denser towards the middle of the massif
       const angle = random() * Math.PI * 2;
@@ -158,7 +160,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
       const point = projection([lon + Math.cos(angle) * radius * rx, lat + Math.sin(angle) * radius * ry]);
       if (!point) continue;
       // hachures run down the slope, away from the heights
-      const length = 3 + random() * 6 + 4 * radius;
+      const length = (3 + random() * 6 + 4 * radius) * (sheet.whole ? 0.7 : 1);
       const lean = Math.atan2(Math.sin(angle) * ry, Math.cos(angle) * rx) + (random() - 0.5) * 0.7;
       ctx.strokeStyle = `rgba(122, 92, 56, ${(0.2 + 0.3 * (1 - radius)) * strength})`;
       ctx.lineWidth = 1 + (1 - radius) * 1.2;
@@ -170,8 +172,8 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
   }
   ctx.restore();
 
-  // ----- meridians and parallels: every degree, or every ten on a sheet that holds continents -----
-  const step = sheet.world ? 10 : 1;
+  // ----- meridians and parallels: every degree; every five on the whole Chart, every ten on a sheet that holds continents -----
+  const step = sheet.world ? 10 : sheet.whole ? 5 : 1;
   const firstOnOrAfter = (value: number) => Math.ceil(value / step) * step;
   ctx.strokeStyle = 'rgba(42, 38, 32, 0.2)';
   ctx.lineWidth = 1;
@@ -199,7 +201,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
     const points = river.map((at) => projection(at)!);
     // the stream widens towards its mouth
     for (let i = 1; i < points.length; i++) {
-      ctx.lineWidth = 1.2 + (2.4 * i) / points.length;
+      ctx.lineWidth = (1.2 + (2.4 * i) / points.length) * (sheet.whole ? 0.7 : 1);
       ctx.beginPath();
       const previous = points[i - 1];
       const before = points[Math.max(0, i - 2)];
@@ -244,7 +246,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
 
   // ----- towns -----
   for (const town of TOWNS) {
-    if (sheet.world ? town.sheet !== id : town.sheet && town.sheet !== id) continue;
+    if (sheet.world || sheet.whole ? town.sheet !== id : town.sheet && town.sheet !== id) continue;
     const point = projection(town.at);
     if (!point) continue;
     const [x, y] = point;

@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { useRef } from 'react';
 import { CHAPTERS, nextChapter } from '../content/chapters';
 import type { ChapterId } from '../content/types';
-import { backToIntroduction, openChapters } from '../engine/journey';
+import { backToIntroduction, leave, openChapters } from '../engine/journey';
 
 gsap.registerPlugin(useGSAP);
 
@@ -58,7 +58,7 @@ export function EndCard({ chapter }: { chapter: ChapterId }) {
           <button type="button" onClick={backToIntroduction} className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] transition hover:bg-ink hover:text-paper">
             Refermer le carnet
           </button>
-          <a href="/sources" className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">
+          <a href="/sources" onClick={leave} className="typed shrink-0 whitespace-nowrap border border-ink/50 px-4 py-2 text-[0.78rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">
             Sources
           </a>
         </div>

@@ -170,16 +170,24 @@ const credits = [
   description="Le film d’Éric Lemoine, le dossier familial, les liens et la bibliographie dont est tiré le parcours du commandant André Schlegel."
   scroll
 >
-  <main class="mx-auto my-[6vh] w-[min(52rem,92vw)] bg-paper px-[clamp(1.5rem,5vw,4.5rem)] py-[clamp(2rem,5vw,4rem)] text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
+  <!-- always in reach, however far down the page: the way back to the Journey, which is found as it was left -->
+  <nav class="fixed inset-x-0 top-0 z-10 flex items-center justify-between gap-4 border-b border-paper/10 bg-night/90 px-4 py-2 backdrop-blur-sm" aria-label="Retour">
+    <a
+      href="/"
+      class="typed flex items-center gap-2 rounded-sm border border-paper/35 px-4 py-[0.5rem] text-[0.76rem] uppercase tracking-[0.14em] text-paper no-underline transition hover:border-lamp hover:text-lamp"
+    >
+      <svg width="7" height="11" viewBox="0 0 7 11" aria-hidden="true"><path d="M6 .8 1.2 5.5 6 10.2" stroke="currentColor" stroke-width="1.5" fill="none"></path></svg>
+      Retour au récit
+    </a>
+    <span class="typed truncate text-[0.7rem] uppercase tracking-[0.2em] text-paper/50">Commandant André Schlegel · Sources</span>
+  </nav>
+  <main class="mx-auto mb-[6vh] mt-[calc(6vh+3.2rem)] w-[min(52rem,92vw)] bg-paper px-[clamp(1.5rem,5vw,4.5rem)] py-[clamp(2rem,5vw,4rem)] text-ink shadow-[0_30px_80px_rgb(0_0_0/0.7)]">
     <p class="typed text-[0.72rem] uppercase tracking-[0.24em] text-red-ink">Commandant André Schlegel · 1935 – 1962</p>
     <h1 class="title-face mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] leading-none">Sources</h1>
     <p class="mt-5 text-[1.25rem] leading-relaxed">
       Ce parcours met en scène le récit qu’Éric Lemoine, petit-fils du commandant André Schlegel, a consacré à la carrière
       militaire et aéronautique de son grand-père. Tout ce qui est dit, et presque tout ce qui est montré, vient de son film
       et du dossier qu’il a réuni pour le faire.
-    </p>
-    <p class="mt-6">
-      <a href="/" class="typed border border-ink/50 px-4 py-2 text-[0.8rem] uppercase tracking-[0.14em] text-ink no-underline transition hover:bg-ink hover:text-paper">‹ Revenir au récit</a>
     </p>
 
     <section>
@@ -296,7 +304,9 @@ const credits = [
       <ul>
         <li>
           <strong>La carte</strong> est dessinée pour ce récit, à la manière des cartes aéronautiques des années 1930. Les côtes et
-          les frontières viennent de <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (domaine public).
+          les frontières viennent de <a href="https://www.naturalearthdata.com/" rel="noopener">Natural Earth</a> (domaine public) : ce
+          sont les frontières d’aujourd’hui. La carte d’ensemble réunit les lieux que dit le récit ; chacun y est placé à l’endroit
+          de la ville ou de la base qui porte ce nom.
         </li>
         <li>
           <strong>Les maquettes</strong> du Bloch 200, du Potez 25, du Bloch 210, du Douglas DB-7, de l’Avro Anson, du Wellington, du Halifax, du Junkers 52, du Douglas C-54 et de l’Avro York sont modelées pour ce site, d’une seule couleur et sans marques,

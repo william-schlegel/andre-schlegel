@@ -52,13 +52,31 @@ function casting(id: ModelId): BufferGeometry {
   return geometry;
 }
 
+export interface ModelPose {
+  yaw: number;
+  pitch: number;
+  touched: number;
+  held: boolean;
+}
+
 /** Where the visitor has turned each model: kept apart from React, read every frame. */
-export const poses = new Map<ModelId, { yaw: number; pitch: number; touched: number; held: boolean }>();
-export function poseOf(id: ModelId) {
+export const poses = new Map<ModelId, ModelPose>();
+export function poseOf(id: ModelId): ModelPose {
   let pose = poses.get(id);
   if (!pose) {
     pose = { yaw: 0, pitch: 0, touched: -Infinity, held: false };
     poses.set(id, pose);
+  }
+  return pose;
+}
+
+/** The same model stands on the Shelf too, where it is turned without the one on the table moving. */
+const shelfPoses = new Map<ModelId, ModelPose>();
+export function shelfPoseOf(id: ModelId): ModelPose {
+  let pose = shelfPoses.get(id);
+  if (!pose) {
+    pose = { yaw: 0, pitch: 0, touched: -Infinity, held: false };
+    shelfPoses.set(id, pose);
   }
   return pose;
 }
@@ -123,13 +141,15 @@ interface RecognitionModelProps {
   /** The model is the object of a Close-up: it may be turned every way. */
   inHand: boolean;
   onOpen?: () => void;
+  /** On the Shelf: the model does not turn by itself, comes back to the way it was set down once left, and keeps its label. */
+  shelved?: boolean;
 }
 
 /**
  * A Recognition model on its stand. It turns slowly by itself; the visitor can take it and
  * turn it (dragging), and a simple click opens its Close-up.
  */
-export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionModelProps) {
+export function RecognitionModel({ cue, shown, inHand, onOpen, shelved = false }: RecognitionModelProps) {
   const geometry = useMemo(() => casting(cue.model), [cue.model]);
   const airframe = AIRFRAMES[cue.model]!;
   const label = useMemo(() => labelTexture(cue.label), [cue.label]);
@@ -143,7 +163,7 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
   const card = useRef<MeshStandardMaterial>(null);
   const presence = useRef(shown ? 1 : 0);
   const drag = useRef<{ x: number; y: number; moved: number } | null>(null);
-  const pose = poseOf(cue.model);
+  const pose = shelved ? shelfPoseOf(cue.model) : poseOf(cue.model);
   const base = MathUtils.degToRad(cue.place.turn ?? 0);
 
   useFrame((_, delta) => {
@@ -154,7 +174,7 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
     if (!node) return;
     node.visible = p > 0.01;
     if (card.current) {
-      card.current.opacity = MathUtils.clamp((p - 0.6) / 0.4, 0, 1) * (inHand ? 0 : 1);
+      card.current.opacity = MathUtils.clamp((p - 0.6) / 0.4, 0, 1) * (inHand && !shelved ? 0 : 1);
       // a label not there must not hide the label of the model that has taken its place
       card.current.visible = card.current.opacity > 0.01;
     }
@@ -165,7 +185,9 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
 
     // left alone, it turns slowly on its stand; once touched it stays as the visitor left it
     const alone = performance.now() / 1000 - pose.touched > 5 && !pose.held;
-    if (alone && !inHand) pose.yaw += dt * 0.16;
+    if (alone && !inHand && !shelved) pose.yaw += dt * 0.16;
+    // on the Shelf, a model put back turns round to the way it was set down, by the shorter way
+    if (shelved && !inHand && !pose.held) pose.yaw = MathUtils.damp(Math.atan2(Math.sin(pose.yaw), Math.cos(pose.yaw)), 0, 2.4, dt);
     if (!inHand && !pose.held) pose.pitch = MathUtils.damp(pose.pitch, 0, 2, dt);
     // the visitor's hand tips it towards them or away, whichever way it is turned
     if (tipping.current) tipping.current.rotation.x = pose.pitch;

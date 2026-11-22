@@ -34,6 +34,9 @@
   --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* a low screen: a phone held sideways, where what is said at length must be said short */
+@custom-variant low (@media (max-height: 479px));
+
 html,
 body {
   height: 100%;
@@ -94,6 +97,18 @@ button {
   background: radial-gradient(ellipse 75% 70% at 50% 46%, transparent 55%, rgb(0 0 0 / 0.55) 100%);
 }
 
+/* ---------- the whole Chart ---------- */
+
+/* a mark is set down: when the Chart opens, and when nearing it parts places that stood together */
+.chart-mark {
+  animation: mark-in 0.28s var(--ease-settle) both;
+}
+
+@keyframes mark-in {
+  from { opacity: 0; scale: 0.4; }
+  to { opacity: 1; scale: 1; }
+}
+
 /* ---------- words ---------- */
 
 .typed {
@@ -116,7 +131,8 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grain {
+  .grain,
+  .chart-mark {
     animation: none;
   }
 }

@@ -7,7 +7,8 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
  * wing tip. A model is a list of solids merged into one piece, like a casting.
  *
  * Solids are "lofts": rings of points joined by a skin and closed at both ends. Whether a
- * ring runs clockwise or not does not matter: the models' material is two-sided.
+ * ring runs clockwise or not does not matter: a solid's faces are turned outwards once it is
+ * closed, so that its normals point out of it (the light's shadows are reckoned from them).
  */
 
 export type Ring = Vector3[];
@@ -49,9 +50,29 @@ export function loft(rings: Ring[], caps: 'both' | 'none' = 'both'): BufferGeome
   }
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3));
-  geometry.setIndex(index);
+  geometry.setIndex(caps === 'both' && volume(positions, index) < 0 ? insideOut(index) : index);
   geometry.computeVertexNormals();
   return geometry;
+}
+
+/** The volume a closed skin holds: negative when its faces are wound facing inwards. */
+export function volume(positions: ArrayLike<number>, index: ArrayLike<number>): number {
+  let six = 0;
+  for (let i = 0; i < index.length; i += 3) {
+    const [a, b, c] = [index[i] * 3, index[i + 1] * 3, index[i + 2] * 3];
+    six +=
+      positions[a] * (positions[b + 1] * positions[c + 2] - positions[b + 2] * positions[c + 1]) +
+      positions[a + 1] * (positions[b + 2] * positions[c] - positions[b] * positions[c + 2]) +
+      positions[a + 2] * (positions[b] * positions[c + 1] - positions[b + 1] * positions[c]);
+  }
+  return six / 6;
+}
+
+/** The same faces, each wound the other way. */
+function insideOut(index: ArrayLike<number>): number[] {
+  const turned: number[] = [];
+  for (let i = 0; i < index.length; i += 3) turned.push(index[i], index[i + 2], index[i + 1]);
+  return turned;
 }
 
 /**
@@ -263,7 +284,8 @@ export function dome(at: [number, number, number], radiusX: number, radiusY: num
 /** Mirrors a solid from the right side to the left. */
 export function mirrored(geometry: BufferGeometry): BufferGeometry {
   const mirror = geometry.clone().scale(1, 1, -1);
-  // normals follow the way the faces are wound, which the mirror has reversed
+  // a mirror turns a solid inside out: its faces are wound again to face outwards, and the normals follow
+  mirror.setIndex(insideOut(mirror.getIndex()!.array));
   mirror.computeVertexNormals();
   return mirror;
 }

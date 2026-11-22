@@ -1,18 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { BonusesCloseUp } from './closeups/BonusesCloseUp';
 import { CarnetCloseUp } from './closeups/CarnetCloseUp';
 import { ChaptersCloseUp } from './closeups/ChaptersCloseUp';
+import { ChartCloseUp } from './closeups/ChartCloseUp';
 import { ModelCloseUp } from './closeups/ModelCloseUp';
 import { PrintCloseUp } from './closeups/PrintCloseUp';
+import { ShelfCloseUp } from './closeups/ShelfCloseUp';
 import { TextCloseUp } from './closeups/TextCloseUp';
 import { MissionsCloseUp } from './closeups/MissionsCloseUp';
 import { TypedCloseUp } from './closeups/TypedCloseUp';
 import { contentOf, missionsSheetOf, printOf, typedOf } from './content';
 import { bonusById } from './content/bonuses';
 import type { ChapterId } from './content/types';
-import { begin, closeCloseUp, getClock, goToChapter, openCloseUp, resumeAt, runClock, seek, togglePlay } from './engine/journey';
+import { begin, closeCloseUp, comeBack, forgetLeaving, getClock, goToChapter, openCloseUp, resumeAt, runClock, seek, togglePlay } from './engine/journey';
 import { useJourney } from './engine/store';
 import { poseOf } from './models/RecognitionModel';
+import { Shelf } from './models/Shelf';
 import { lookAt } from './stage/shot';
 import { ChapterOpening } from './openings/ChapterOpening';
 import { SCENES } from './scenes';
@@ -21,6 +24,7 @@ import { unlockSounds } from './sound/sounds';
 import { Stage } from './stage/Stage';
 import { Captions } from './ui/Captions';
 import { Controls } from './ui/Controls';
+import { Curtain } from './ui/Curtain';
 import { EndCard } from './ui/EndCard';
 import { FilmCredit } from './ui/FilmCredit';
 import { Introduction } from './ui/Introduction';
@@ -41,6 +45,24 @@ export default function Journey() {
   const [lamp, setLamp] = useState(false);
 
   useEffect(() => runClock(), []);
+
+  // back from the Sources: the Scene is found as it was left, before anything is painted
+  useLayoutEffect(() => {
+    if (comeBack()) {
+      // nothing of the Journey has been touched yet on this page: its sounds wait for the first gesture
+      const unlock = () => {
+        unlockSounds();
+        window.removeEventListener('pointerdown', unlock, true);
+        window.removeEventListener('keydown', unlock, true);
+      };
+      window.addEventListener('pointerdown', unlock, true);
+      window.addEventListener('keydown', unlock, true);
+    }
+    // shown again by the browser's « back » without being loaded: it is as it was left
+    const shown = (event: PageTransitionEvent) => event.persisted && forgetLeaving();
+    window.addEventListener('pageshow', shown);
+    return () => window.removeEventListener('pageshow', shown);
+  }, []);
 
   // while developing: a handle to drive the Journey from the browser's console
   useEffect(() => {
@@ -88,12 +110,15 @@ export default function Journey() {
   const bonus = closeUp?.kind === 'bonuses' && closeUp.id ? bonusById(closeUp.id) : null;
   const typedSheet = closeUp?.kind === 'typed' ? typedOf(chapter, closeUp.id) : null;
   const missionsSheet = closeUp?.kind === 'missions' ? missionsSheetOf(chapter, closeUp.id) : null;
+  const shelf = closeUp?.kind === 'shelf' ? closeUp.model : null;
 
   return (
     <div className="fixed inset-0 select-none overflow-hidden bg-night">
-      <Stage look={look}>
+      <Stage look={look} lit={shelf ? 'dark' : undefined}>
         <scene.Scene key={chapter} content={content} waiting={waiting} directed={phase === 'opening'} onBegin={phase === 'introduction' ? start : undefined} />
+        {shelf && <Shelf model={shelf} />}
       </Stage>
+      <Curtain place={shelf ? 'shelf' : 'table'} />
       <div className="vignette" />
       <div className="grain" />
 
@@ -123,6 +148,8 @@ export default function Journey() {
       {closeUp?.kind === 'model' && <ModelCloseUp model={closeUp.model} chapter={chapter} />}
       {closeUp?.kind === 'text' && <TextCloseUp content={content} />}
       {closeUp?.kind === 'chapters' && <ChaptersCloseUp onChoose={choose} />}
+      {closeUp?.kind === 'chart' && <ChartCloseUp />}
+      {shelf && <ShelfCloseUp model={shelf} />}
       {closeUp?.kind === 'bonuses' && !bonus && <BonusesCloseUp chapter={chapter} />}
       {bonus && <PrintCloseUp key={bonus.id} print={{ ...bonus, bonus: true }} back={backToBonuses} />}
 
