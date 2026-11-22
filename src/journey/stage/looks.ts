@@ -10,7 +10,7 @@ export interface Look {
   /** The light that fills the shadows. */
   fill: { sky: string; ground: string; strength: number };
   /** The table's surface. */
-  surface: 'desk-pad' | 'oak';
+  surface: 'desk-pad' | 'oak' | 'cloth';
   /** 0: the room is dark around the lamp's pool; 1: full day. */
   day: number;
 }
@@ -38,6 +38,14 @@ export const LOOKS = {
     key: { colour: '#fff1d6', strength: 15, from: [-1.1, 1.9, -0.9], spread: 0.8, softness: 0.6 },
     fill: { sky: '#cfdcea', ground: '#6b5b45', strength: 0.95 },
     surface: 'oak',
+    day: 1,
+  },
+  /** Algeria and Morocco, 1939-1940: a hard white sun, high in the sky, on a trestle table under canvas. */
+  sahel: {
+    backdrop: '#1d1810',
+    key: { colour: '#fff3da', strength: 19, from: [0.9, 2.3, -0.5], spread: 0.85, softness: 0.45 },
+    fill: { sky: '#eadfc6', ground: '#8f7650', strength: 1.05 },
+    surface: 'cloth',
     day: 1,
   },
 } satisfies Record<string, Look>;

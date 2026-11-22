@@ -1,0 +1,21 @@
+[
+  { "id": "base-oran-la-senia", "from": "pptx:image21.jpg" },
+  { "id": "insigne-1re-escadrille", "from": "pptx:image22.gif" },
+  { "id": "oran-vue-aerienne", "from": "pptx:image20.jpg" },
+  { "id": "poste-de-pilotage", "from": "pptx:image23.jpg" },
+  { "id": "bloch-210-cockpit", "from": "pptx:image24.jpg" },
+  { "id": "lt-schlegel-bloch-210", "from": "pptx:image27.jpg" },
+  { "id": "bloch-210-au-sol", "from": "pptx:image25.jpg" },
+  { "id": "bloch-210-alignes", "from": "pptx:image26.jpg" },
+  { "id": "potez-25-oran", "from": "pptx:image29.jpg" },
+  { "id": "lt-schlegel-biskra", "from": "pptx:image34.jpg" },
+  { "id": "biskra-vue-aerienne", "from": "pptx:image33.jpg" },
+  { "id": "meknes-camp", "from": "pptx:image37.jpg" },
+  { "id": "meknes-hangars", "from": "pptx:image38.jpg" },
+  { "id": "groupe-db-7", "from": "pptx:image40.jpg" },
+  { "id": "groupe-db-7-suite", "from": "pptx:image41.jpg" },
+  { "id": "db-7-profils", "from": "pptx:image43.jpg" },
+  { "id": "db-7-alignes", "from": "pptx:image42.jpg" },
+  { "id": "db-7-au-sol", "from": "pptx:image44.jpg" },
+  { "id": "db-7-en-vol", "from": "pptx:image45.jpg" }
+]

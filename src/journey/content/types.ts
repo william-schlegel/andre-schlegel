@@ -107,6 +107,8 @@ export interface PrintCue extends CueBase {
   paper?: 'photo' | 'sheet' | 'bare';
   /** A Bonus is not in the Film. */
   bonus?: boolean;
+  /** Someone Eric points out: an oval pencilled on the print, as fractions [x, y, w, h] of the picture. */
+  rings?: { at: number; box: [number, number, number, number] }[];
 }
 
 /** The Companion opens at a Spread. */
@@ -155,7 +157,24 @@ export interface NoteCue extends CueBase {
   style: 'title' | 'typed';
 }
 
-export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue;
+/** An Archive film, projected on a screen at the back of the table, in step with its own sound in the Narration. */
+export interface ProjectionCue extends CueBase {
+  kind: 'projection';
+  /** The footage, and the moment of the Narration at which its first frame is shown (the screen goes up at `at`, a little before). */
+  src: string;
+  starts: number;
+  /** Pixel size of the footage. */
+  size: [number, number];
+  /** Where the foot of the screen stands, and how wide the picture is, in metres. */
+  place: Place;
+  width: number;
+  /** It always leaves: the house lights come back up. */
+  until: number;
+  legend: string;
+  source: string;
+}
+
+export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue | ProjectionCue;
 
 /** The Carnet André is filling during the Chapter, and where it lies on the table. */
 export interface CompanionPlace {

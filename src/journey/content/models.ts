@@ -43,4 +43,32 @@ export const AIRCRAFT: Partial<Record<ModelId, Aircraft>> = {
       ['Vitesse', '214 km/h'],
     ],
   },
+  'bloch-210': {
+    id: 'bloch-210',
+    name: 'Bloch MB.210',
+    kind: 'Bombardier moyen bimoteur, à aile basse et train rentrant',
+    role: 'Oran puis Biskra, 19e escadre : André Schlegel y est qualifié commandant d’avion.',
+    facts: [
+      ['Premier vol', '1934'],
+      ['Équipage', '5 hommes'],
+      ['Envergure', '22,81 m'],
+      ['Longueur', '18,83 m'],
+      ['Moteurs', '2 Gnome et Rhône 14N, 950 ch'],
+      ['Vitesse', '322 km/h'],
+    ],
+  },
+  'db-7': {
+    id: 'db-7',
+    name: 'Douglas DB-7',
+    kind: 'Bombardier moyen bimoteur américain, à train tricycle',
+    role: 'Meknès, printemps 1940 : dix jours et onze missions pour le prendre en main, avant la campagne de France.',
+    facts: [
+      ['Premier vol', '1939'],
+      ['Équipage', '3 hommes'],
+      ['Envergure', '18,67 m'],
+      ['Longueur', '14,32 m'],
+      ['Moteurs', '2 Pratt & Whitney Twin Wasp, 1 100 ch'],
+      ['Vitesse', 'près de 500 km/h'],
+    ],
+  },
 };

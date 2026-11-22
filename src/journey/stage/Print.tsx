@@ -1,7 +1,8 @@
 import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { MathUtils, SRGBColorSpace, TextureLoader, type Group, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
+import { DoubleSide, MathUtils, RingGeometry, SRGBColorSpace, TextureLoader, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
 import type { PrintCue } from '../content/types';
+import { useNarration } from '../engine/journey';
 import { contactShadowTexture, paperTexture } from './surfaces';
 
 const BORDER = 0.011; // the white margin of a photographic print, in metres
@@ -66,6 +67,7 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
   const lift = useRef(0);
   const landed = useRef(shown);
   const [hovered, setHovered] = useState(false);
+  const ringsShown = useNarration((time) => (cue.rings ?? []).filter((ring) => ring.at <= time).length);
 
   const rest = 0.0015 + order * 0.0011;
   const turn = MathUtils.degToRad(cue.place.turn ?? 0);
@@ -149,6 +151,44 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial ref={picture} map={texture} roughness={paper === 'photo' ? 0.62 : 0.92} transparent />
       </mesh>
+      {(cue.rings ?? []).map((ring, index) => (
+        <PencilRing key={index} box={ring.box} width={width} depth={depth} shown={shown && index < ringsShown} />
+      ))}
     </group>
+  );
+}
+
+/** The oval Eric draws around someone on a photograph: red grease pencil, drawn in one stroke. */
+function PencilRing({ box, width, depth, shown }: { box: [number, number, number, number]; width: number; depth: number; shown: boolean }) {
+  const mesh = useRef<Mesh>(null);
+  const drawn = useRef(shown ? 1 : 0);
+  const last = useRef(-1);
+  const [x, y, w, h] = box;
+
+  useFrame((_, delta) => {
+    const node = mesh.current;
+    if (!node) return;
+    const step = Math.min(delta, 0.1) / 0.55;
+    drawn.current = shown ? Math.min(1, drawn.current + step) : Math.max(0, drawn.current - step * 2);
+    if (drawn.current === last.current) return;
+    last.current = drawn.current;
+    node.visible = drawn.current > 0.01;
+    node.geometry.dispose();
+    // a little more than once round, as a hand closes a loop
+    node.geometry = new RingGeometry(0.93, 1, 72, 1, Math.PI * 0.6, Math.PI * 2.06 * drawn.current);
+  });
+  useEffect(() => () => mesh.current?.geometry.dispose(), []);
+
+  return (
+    <mesh
+      ref={mesh}
+      visible={false}
+      rotation-x={-Math.PI / 2}
+      position={[(x + w / 2 - 0.5) * width, 0.0009, (y + h / 2 - 0.5) * depth]}
+      scale={[(w * width) / 2, (h * depth) / 2, 1]}
+    >
+      <ringGeometry args={[0.93, 1, 72]} />
+      <meshBasicMaterial color="#b3261c" transparent opacity={0.85} side={DoubleSide} depthWrite={false} />
+    </mesh>
   );
 }

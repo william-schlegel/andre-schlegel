@@ -5,6 +5,8 @@ import type { ModelCue, ModelId } from '../content/types';
 import { contactShadowTexture } from '../stage/surfaces';
 import { whenFontsReady } from '../stage/textures';
 import { BLOCH_200, bloch200 } from './bloch200';
+import { BLOCH_210, bloch210 } from './bloch210';
+import { DB_7, db7 } from './db7';
 import { POTEZ_25, potez25 } from './potez25';
 
 /** All the models are to the same scale, as a set of recognition models is. */
@@ -22,6 +24,8 @@ interface Airframe {
 const AIRFRAMES: Partial<Record<ModelId, Airframe>> = {
   'bloch-200': { make: bloch200, ...BLOCH_200 },
   'potez-25': { make: potez25, ...POTEZ_25 },
+  'bloch-210': { make: bloch210, ...BLOCH_210 },
+  'db-7': { make: db7, ...DB_7 },
 };
 
 const castings = new Map<ModelId, BufferGeometry>();

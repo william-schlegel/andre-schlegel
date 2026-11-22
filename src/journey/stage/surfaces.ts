@@ -167,6 +167,41 @@ export function deskPadTexture(): Texture {
   });
 }
 
+/** The canvas thrown over a trestle table in the field: a coarse sand-coloured weave, sun-bleached in places. */
+export function clothTexture(): Texture {
+  return once('cloth', () => {
+    const size = 1024;
+    const [element, ctx] = canvas(size, size);
+    const random = seeded(1939);
+    ctx.fillStyle = '#b3a17c';
+    ctx.fillRect(0, 0, size, size);
+    // warp and weft: fine threads, each a shade lighter or darker than its neighbour
+    const pitch = 4;
+    for (let i = 0; i < size / pitch; i++) {
+      ctx.fillStyle = random() > 0.5 ? `rgba(255, 244, 214, ${0.02 + random() * 0.05})` : `rgba(64, 48, 22, ${0.02 + random() * 0.05})`;
+      ctx.fillRect(0, i * pitch, size, 2);
+      ctx.fillStyle = random() > 0.5 ? `rgba(255, 244, 214, ${0.02 + random() * 0.05})` : `rgba(64, 48, 22, ${0.02 + random() * 0.05})`;
+      ctx.fillRect(i * pitch, 0, 2, size);
+    }
+    // the little shadows where threads cross
+    ctx.fillStyle = 'rgba(52, 38, 16, 0.13)';
+    for (let y = 0; y < size; y += pitch) {
+      for (let x = (y / pitch) % 2 === 0 ? 0 : pitch / 2; x < size; x += pitch) ctx.fillRect(x, y, 1.5, 1.5);
+    }
+    // slubs: thicker threads here and there
+    for (let i = 0; i < 90; i++) {
+      const x = random() * size;
+      const y = random() * size;
+      const length = 30 + random() * 120;
+      ctx.fillStyle = `rgba(250, 238, 205, ${0.05 + random() * 0.07})`;
+      if (random() > 0.5) ctx.fillRect(x, y, length, 2);
+      else ctx.fillRect(x, y, 2, length);
+    }
+    grain(ctx, size, size, 14, random);
+    return finish(element, [9 / 0.5, 6 / 0.5]);
+  });
+}
+
 /** Plain paper of the period: cream, slightly mottled, darker towards the edges. */
 export function paperTexture(tone: 'cream' | 'white' | 'card' = 'cream'): Texture {
   return once(`paper-${tone}`, () => {

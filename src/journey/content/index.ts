@@ -1,3 +1,4 @@
+import { algerie } from './algerie';
 import { ouverture } from './ouverture';
 import { tours } from './tours';
 import type { ChapterContent, ChapterId, PrintCue } from './types';
@@ -6,6 +7,7 @@ import type { ChapterContent, ChapterId, PrintCue } from './types';
 const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   ouverture,
   tours,
+  algerie,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {

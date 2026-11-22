@@ -108,7 +108,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
     ctx.beginPath();
     for (const land of selection) path(shape(land));
   };
-  const subject = lands.filter((land) => land.name === sheet.subject);
+  const subject = lands.filter((land) => sheet.subject.includes(land.name));
 
   // ----- the paper -----
   ctx.fillStyle = '#e8dcbc';
@@ -240,7 +240,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
     if (!point) continue;
     const [x, y] = point;
     if (x < inner.x + 20 || x > inner.x + inner.w - 20 || y < inner.y + 20 || y > inner.y + inner.h - 20) continue;
-    const capital = town.name === 'Paris';
+    const capital = town.name === sheet.capital;
     ctx.beginPath();
     ctx.arc(x, y, capital ? 7 : 4.5, 0, Math.PI * 2);
     ctx.fillStyle = '#f3ead0';
@@ -429,8 +429,10 @@ function drawCartouche(ctx: CanvasRenderingContext2D, x: number, y: number, shee
   ctx.fillStyle = INK;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.font = '700 58px "Old Standard TT", serif';
-  spaced(ctx, sheet.title, w / 2, 76, 14);
+  // a long title is set smaller, to stay inside the block
+  const long = sheet.title.length > 8;
+  ctx.font = `700 ${long ? 31 : 58}px "Old Standard TT", serif`;
+  spaced(ctx, sheet.title, w / 2, long ? 68 : 76, long ? 5 : 14);
   ctx.font = 'italic 400 25px "Old Standard TT", serif';
   ctx.fillText('Carte aéronautique', w / 2, 112);
   ctx.fillRect(w / 2 - 70, 126, 140, 1.5);

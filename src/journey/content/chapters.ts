@@ -7,7 +7,7 @@ import type { Chapter, ChapterId } from './types';
 export const CHAPTERS: Chapter[] = [
   { id: 'ouverture', number: null, title: 'Ouverture', dates: '', start: 0, end: 44.55, ready: true },
   { id: 'tours', number: 1, title: 'Tours', dates: '1936 – 1939', start: 44.55, end: 174.6, ready: true },
-  { id: 'algerie', number: 2, title: 'Algérie', dates: '1939 – 1940', start: 174.6, end: 420, ready: false },
+  { id: 'algerie', number: 2, title: 'Algérie', dates: '1939 – 1940', start: 174.6, end: 420, ready: true },
   { id: 'campagne-de-france', number: 3, title: 'Campagne de France', dates: 'mai – juin 1940', start: 420, end: 753, ready: false },
   { id: 'algerie-sous-vichy', number: 4, title: 'Algérie sous Vichy', dates: '1940 – 1943', start: 753, end: 956, ready: false },
   { id: 'ecole-anglaise', number: 5, title: 'L’école anglaise', dates: '1943 – 1944', start: 956, end: 1308, ready: false },

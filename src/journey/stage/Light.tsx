@@ -7,6 +7,9 @@ import { stageShot } from './shot';
 /** Lets the Introduction make the lamp falter as it is switched on: a time of performance.now(), in ms. */
 export const lampFlicker = { until: 0 };
 
+/** A Projection asks for the house lights to go down; `level` is where they are, from 0 (up) to 1 (down). */
+export const houseLights = { down: false, level: 0 };
+
 /**
  * The stage's light. Going from one Look to another takes a few seconds, like a lamp warming
  * up or a morning coming: the values are eased every frame. The key light leans towards what
@@ -34,9 +37,13 @@ export function Light({ look, pace = 1.1 }: { look: LookName; pace?: number }) {
     const ease = started.current ? 1 - Math.exp(-pace * dt) : 1;
     started.current = true;
 
+    houseLights.level = MathUtils.damp(houseLights.level, houseLights.down ? 1 : 0, 1.6, dt);
+    const lit = 1 - 0.93 * houseLights.level;
+
     spot.color.lerp(colours.key.set(wanted.key.colour), ease);
     let strength = MathUtils.lerp(spot.userData.strength ?? 0, wanted.key.strength, ease);
     spot.userData.strength = strength;
+    strength *= lit;
     const now = performance.now();
     if (now < lampFlicker.until) {
       // a filament that catches: two or three stumbles
@@ -57,10 +64,12 @@ export function Light({ look, pace = 1.1 }: { look: LookName; pace?: number }) {
 
     hemisphere.color.lerp(colours.sky.set(wanted.fill.sky), ease);
     hemisphere.groundColor.lerp(colours.ground.set(wanted.fill.ground), ease);
-    hemisphere.intensity = MathUtils.lerp(hemisphere.intensity, wanted.fill.strength, ease);
+    hemisphere.userData.strength = MathUtils.lerp(hemisphere.userData.strength ?? 0, wanted.fill.strength, ease);
+    hemisphere.intensity = hemisphere.userData.strength * (1 - 0.88 * houseLights.level);
 
-    if (scene.background instanceof Color) scene.background.lerp(colours.backdrop.set(wanted.backdrop), ease);
-    else scene.background = new Color(wanted.backdrop);
+    colours.backdrop.set(wanted.backdrop).multiplyScalar(1 - 0.8 * houseLights.level);
+    if (scene.background instanceof Color) scene.background.lerp(colours.backdrop, ease);
+    else scene.background = colours.backdrop.clone();
   });
 
   return (

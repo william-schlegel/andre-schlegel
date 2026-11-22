@@ -1,7 +1,7 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { DECORATIONS } from '../content/ouverture';
-import type { ChapterContent, ChartCue, Cue, DecorationCue, ModelCue, PrintCue, SpreadCue } from '../content/types';
+import type { ChapterContent, ChartCue, Cue, DecorationCue, ModelCue, PrintCue, ProjectionCue, SpreadCue } from '../content/types';
 import { cueInFocus } from '../engine/cues';
 import { getClock, openCloseUp, sameList, useNarration } from '../engine/journey';
 import { useJourney } from '../engine/store';
@@ -9,6 +9,7 @@ import { playSound } from '../sound/sounds';
 import { Companion, companionFrame } from '../stage/Companion';
 import { Decoration } from '../stage/Decoration';
 import { Print, printRect } from '../stage/Print';
+import { Projection, projectionShot } from '../stage/Projection';
 import { lookAt, shotOn, WIDE_SHOT, type Shot } from '../stage/shot';
 
 /** A sound only when the Narration brought the thing, not when the visitor jumped past it. */
@@ -29,8 +30,8 @@ interface TableSceneProps {
   wide?: Shot;
   /** Draws a Recognition model cue (Chapters provide their own models). */
   model?: (cue: ModelCue, shown: boolean) => ReactNode;
-  /** Draws the Chart for the Chapter. */
-  chart?: (cue: ChartCue | null, shown: boolean) => ReactNode;
+  /** Draws the Chart for the Chapter; it is told which of its views the Narration has reached, in order. */
+  chart?: (views: string[]) => ReactNode;
   /** How to frame a model or the Chart when the camera goes to them. */
   shotFor?: (cue: Cue, aspect: number) => Shot | null;
 }
@@ -48,6 +49,7 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   const models = useMemo(() => cues.filter((cue): cue is ModelCue => cue.kind === 'model'), [cues]);
   const charts = useMemo(() => cues.filter((cue): cue is ChartCue => cue.kind === 'chart'), [cues]);
   const decorations = useMemo(() => cues.filter((cue): cue is DecorationCue => cue.kind === 'decoration'), [cues]);
+  const projections = useMemo(() => cues.filter((cue): cue is ProjectionCue => cue.kind === 'projection'), [cues]);
 
   // while waiting, time stands before the first word
   const at = (time: number) => (waiting ? -0.5 : time);
@@ -91,6 +93,7 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
     else if (focus.frame) shot = shotOn(focus.frame, aspect, 13);
     else if (focus.kind === 'print') shot = shotOn(printRect(focus), aspect, 11, 0.92);
     else if (focus.kind === 'spread') shot = shotOn(companionFrame(companion.place, true), aspect, 7);
+    else if (focus.kind === 'projection') shot = projectionShot(focus, aspect);
     else if (focus.kind === 'view') shot = wide;
     else shot = shotFor?.(focus, aspect) ?? wide;
     lookAt(shot);
@@ -138,7 +141,10 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
         ))}
 
       {models.map((cue) => model?.(cue, shown.has(cue.id)))}
-      {chart?.(charts.find((cue) => shown.has(cue.id)) ?? null, charts.some((cue) => shown.has(cue.id)))}
+      {chart?.(charts.filter((cue) => shown.has(cue.id)).map((cue) => cue.view))}
+      {projections.map((cue) => (
+        <Projection key={cue.id} cue={cue} shown={shown.has(cue.id)} />
+      ))}
     </>
   );
 }

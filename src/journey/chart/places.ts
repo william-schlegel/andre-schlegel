@@ -28,12 +28,40 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Londres', at: [-0.12, 51.5] },
   { name: 'Bruxelles', at: [4.35, 50.85] },
   { name: 'Genève', at: [6.14, 46.2] },
+  // North Africa and the south of Spain
+  { name: 'Alger', at: [3.06, 36.75], label: 'above' },
+  { name: 'Tunis', at: [10.18, 36.8], label: 'left' },
+  { name: 'Rabat', at: [-6.83, 34.02], label: 'left' },
+  { name: 'Casablanca', at: [-7.6, 33.59], label: 'below' },
+  { name: 'Marrakech', at: [-8.0, 31.63] },
+  { name: 'Tanger', at: [-5.8, 35.77], label: 'left' },
+  { name: 'Gibraltar', at: [-5.35, 36.14], label: 'above' },
+  { name: 'Tlemcen', at: [-1.32, 34.88], label: 'below' },
+  { name: 'Constantine', at: [6.61, 36.36], label: 'above' },
+  { name: 'Bône', at: [7.77, 36.9], label: 'above' },
+  { name: 'Sfax', at: [10.76, 34.74], label: 'left' },
+  { name: 'Laghouat', at: [2.88, 33.8] },
+  { name: 'Touggourt', at: [6.07, 33.1] },
+  { name: 'Colomb-Béchar', at: [-2.22, 31.62] },
+  { name: 'Séville', at: [-5.98, 37.39], label: 'above' },
+  { name: 'Carthagène', at: [-0.99, 37.6], label: 'above' },
 ];
+
+export interface Post {
+  name: string;
+  note: string;
+  at: [number, number];
+  /** The name is written to the right of the ring; `label` moves it up (negative) or down, in metres, clear of a Route. */
+  label?: number;
+}
 
 /** The places of André Schlegel's career: inked on the Chart as the Narration reaches them. */
 export const POSTS = {
-  tours: { name: 'TOURS', note: 'Base 131', at: [0.69, 47.39] as [number, number] },
-} as const;
+  tours: { name: 'TOURS', note: 'Base 131', at: [0.69, 47.39] },
+  oran: { name: 'ORAN', note: 'La Sénia, base 121', at: [-0.61, 35.62], label: -0.017 },
+  biskra: { name: 'BISKRA', note: 'septembre 1939', at: [5.73, 34.85] },
+  meknes: { name: 'MEKNÈS', note: 'avril 1940', at: [-5.55, 33.89], label: 0.02 },
+} satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
 
@@ -63,6 +91,16 @@ export const RIVERS: [number, number][][] = [
   [[2.75, 45.55], [2.2, 45.2], [1.6, 44.9], [0.5, 44.85], [-0.25, 44.92], [-0.55, 45.03]],
   // Meuse
   [[5.6, 48.0], [5.4, 48.75], [5.38, 49.16], [4.95, 49.7], [4.75, 50.1], [4.87, 50.47], [5.57, 50.64], [5.7, 51.0]],
+  // Chélif
+  [[2.9, 35.2], [2.3, 35.95], [1.33, 36.16], [0.6, 36.0], [0.13, 36.04]],
+  // Moulouya
+  [[-4.9, 32.7], [-4.0, 33.6], [-3.3, 34.3], [-2.9, 34.6], [-2.35, 35.12]],
+  // Medjerda
+  [[7.9, 36.25], [8.8, 36.5], [9.6, 36.7], [10.1, 37.0]],
+  // Sebou
+  [[-4.6, 33.7], [-5.0, 34.05], [-5.6, 34.3], [-6.3, 34.3], [-6.65, 34.26]],
+  // Guadalquivir
+  [[-3.0, 37.9], [-4.0, 38.0], [-4.8, 37.88], [-5.98, 37.39], [-6.35, 36.8]],
 ];
 
 /** High ground, hinted by hachures: [longitude, latitude, radius along x in degrees, radius along y, strength]. */
@@ -78,6 +116,14 @@ export const RELIEF: [number, number, number, number, number][] = [
   [8.1, 48.1, 0.3, 0.8, 0.45],
   [-5.0, 43.0, 2.4, 0.4, 0.6],
   [9.1, 42.2, 0.3, 0.7, 0.6],
+  // Atlas, Rif, Aurès, Sierra Nevada
+  [-7.2, 31.2, 2.0, 0.5, 1],
+  [-4.9, 33.0, 0.9, 0.55, 0.8],
+  [-4.4, 35.0, 1.2, 0.3, 0.7],
+  [2.2, 36.3, 3.4, 0.25, 0.6],
+  [0.8, 33.6, 3.0, 0.35, 0.6],
+  [6.6, 35.35, 0.8, 0.35, 0.8],
+  [-3.2, 37.05, 1.0, 0.25, 0.8],
 ];
 
 export interface ChartSheet {
@@ -96,8 +142,10 @@ export interface ChartSheet {
   /** Where the title block and the compass rose stand (in open sea). */
   cartouche: [number, number];
   rose: [number, number];
-  /** The country the sheet is about, by its Natural Earth name. */
-  subject: string;
+  /** The countries the sheet is about, by their Natural Earth names. */
+  subject: string[];
+  /** The town written as the chief town. */
+  capital: string;
 }
 
 export const SHEETS = {
@@ -111,7 +159,8 @@ export const SHEETS = {
     title: 'FRANCE',
     width: 0.64,
     proportions: 1.08,
-    subject: 'France',
+    subject: ['France'],
+    capital: 'Paris',
     countries: [
       { text: 'ESPAGNE', at: [-2.6, 42.25], size: 30 },
       { text: 'ITALIE', at: [8.4, 44.75], size: 28 },
@@ -128,6 +177,33 @@ export const SHEETS = {
     ],
     cartouche: [-4.05, 45.5],
     rose: [7.0, 42.35],
+  },
+  /** French North Africa, from the Atlantic to Tunis, with the south of Spain and Gibraltar. */
+  'afrique-du-nord': {
+    box: [
+      [-10.6, 29.6],
+      [11.9, 39.0],
+    ],
+    parallels: [32, 37],
+    meridian: 0.65,
+    title: 'AFRIQUE DU NORD',
+    width: 0.86,
+    proportions: 1.95,
+    subject: ['Morocco', 'Algeria', 'Tunisia'],
+    capital: 'Alger',
+    countries: [
+      { text: 'MAROC', at: [-6.3, 32.35], size: 30 },
+      { text: 'ALGÉRIE', at: [2.4, 34.75], size: 34 },
+      { text: 'TUNISIE', at: [9.45, 35.6], turn: 78, size: 24 },
+      { text: 'ESPAGNE', at: [-3.3, 38.35], size: 28 },
+      { text: 'SAHARA', at: [1.2, 31.0], size: 36 },
+    ],
+    seas: [
+      { text: 'Mer Méditerranée', at: [2.3, 37.85], size: 32 },
+      { text: 'Océan Atlantique', at: [-8.75, 35.6], size: 22 },
+    ],
+    cartouche: [8.7, 31.2],
+    rose: [6.2, 38.1],
   },
 } satisfies Record<string, ChartSheet>;
 

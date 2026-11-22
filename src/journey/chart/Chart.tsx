@@ -18,7 +18,7 @@ import type { Frame, Place } from '../content/types';
 import { contactShadowTexture, paperTexture } from '../stage/surfaces';
 import { whenFontsReady } from '../stage/textures';
 import { drawSheet, onSheet, sheetSize, type Land } from './draw';
-import { POSTS, type PostId, type SheetId } from './places';
+import { POSTS, type Post, type PostId, type SheetId } from './places';
 
 /**
  * How far the Chart is unrolled and how far its marks are inked, from 0 to 1. A Chapter
@@ -68,7 +68,10 @@ export function chartFrame(sheet: SheetId, place: Place): Frame {
 interface ChartProps {
   sheet: SheetId;
   place: Place;
-  /** The posts inked on it, in the order the Narration reaches them. */
+  /**
+   * The posts inked on it, in the order the Narration reaches them. The first is the one a
+   * Chapter opening inks; each of the others is reached by a Route drawn from the one before.
+   */
   posts: PostId[];
 }
 
@@ -83,6 +86,8 @@ export function Chart({ sheet, place, posts }: ChartProps) {
   const shadow = useMemo(() => contactShadowTexture(), []);
   const shade = useRef<Mesh>(null);
   const last = useRef(-1);
+  // posts that were there when the Chart was laid are already inked: only new ones are drawn
+  const there = useRef(new Set(posts));
 
   useEffect(() => {
     let alive = true;
@@ -161,10 +166,44 @@ export function Chart({ sheet, place, posts }: ChartProps) {
         <meshStandardMaterial map={back} roughness={0.95} side={BackSide} />
       </mesh>
       {posts.map((post, index) => (
-        <PostMark key={post} sheet={sheet} post={post} order={index} count={posts.length} />
+        <PostMark key={post} sheet={sheet} post={post} from={index > 0 ? posts[index - 1] : null} lead={index === 0} fresh={!there.current.has(post)} />
       ))}
     </group>
   );
+}
+
+const DASH = 0.0075; // a dash of the Route and the gap after it, in metres
+const CLEAR = 0.019; // the Route stops short of a post's ring
+
+/** The dashes of a Route between two points of the sheet, as one geometry drawn dash by dash. */
+function routeGeometry(from: { x: number; z: number }, to: { x: number; z: number }): { geometry: BufferGeometry; dashes: number } {
+  const dx = to.x - from.x;
+  const dz = to.z - from.z;
+  const length = Math.hypot(dx, dz);
+  const ux = dx / length;
+  const uz = dz / length;
+  const half = 0.0009;
+  const dashes = Math.max(0, Math.floor((length - CLEAR * 2) / DASH));
+  const positions: number[] = [];
+  const index: number[] = [];
+  for (let i = 0; i < dashes; i++) {
+    const start = CLEAR + i * DASH;
+    const end = start + DASH * 0.58;
+    const base = positions.length / 3;
+    for (const [along, side] of [
+      [start, -half],
+      [start, half],
+      [end, -half],
+      [end, half],
+    ]) {
+      positions.push(from.x + ux * along - uz * side, 0, from.z + uz * along + ux * side);
+    }
+    index.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3));
+  geometry.setIndex(index);
+  return { geometry, dashes };
 }
 
 function postLabel(post: PostId): CanvasTexture {
@@ -190,9 +229,30 @@ function postLabel(post: PostId): CanvasTexture {
   return texture;
 }
 
-/** A post inked in red: a ring drawn around the place, then its name. */
-function PostMark({ sheet, post, order, count }: { sheet: SheetId; post: PostId; order: number; count: number }) {
+interface PostMarkProps {
+  sheet: SheetId;
+  post: PostId;
+  /** The post André comes from: a Route is drawn from it. */
+  from: PostId | null;
+  /** The Chapter's first post is inked by the Chapter opening. */
+  lead: boolean;
+  /** Reached while the Chart lay there: it is drawn, rather than found already inked. */
+  fresh: boolean;
+}
+
+/** A post inked in red: the Route that leads to it, a ring drawn around the place, then its name. */
+function PostMark({ sheet, post, from, lead, fresh }: PostMarkProps) {
   const local = onSheet(sheet, POSTS[post].at);
+  const route = useMemo(() => {
+    if (!from) return null;
+    const origin = onSheet(sheet, POSTS[from].at);
+    return routeGeometry({ x: origin.x - local.x, z: origin.z - local.z }, { x: 0, z: 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet, post, from]);
+  const way = useRef<Mesh>(null);
+  // 0 → 1: the Route is drawn; 1 → 2: the post is inked
+  const pen = useRef(fresh ? 0 : 2);
+  useEffect(() => () => route?.geometry.dispose(), [route]);
   const label = useMemo(() => postLabel(post), [post]);
   const ring = useRef<Mesh>(null);
   const dot = useRef<Mesh>(null);
@@ -203,10 +263,15 @@ function PostMark({ sheet, post, order, count }: { sheet: SheetId; post: PostId;
     return () => label.dispose();
   }, [label]);
 
-  useFrame(() => {
-    // each post takes its share of the inking, in order
+  useFrame((_, delta) => {
     const flat = chartState.unrolled >= 0.999 ? 1 : 0;
-    const inked = MathUtils.clamp(chartState.inked * count - order, 0, 1) * flat;
+    if (!lead) pen.current = Math.min(2, pen.current + Math.min(delta, 0.1) / (pen.current < 1 && route ? 1.5 : 1.1));
+    if (way.current && route) {
+      const drawnDashes = Math.round(route.dashes * MathUtils.clamp(pen.current, 0, 1) * flat);
+      way.current.visible = drawnDashes > 0;
+      route.geometry.setDrawRange(0, drawnDashes * 6);
+    }
+    const inked = (lead ? MathUtils.clamp(chartState.inked, 0, 1) : MathUtils.clamp(pen.current - 1, 0, 1)) * flat;
     if (inked === last.current) return;
     last.current = inked;
     const around = MathUtils.clamp(inked / 0.6, 0, 1);
@@ -224,6 +289,11 @@ function PostMark({ sheet, post, order, count }: { sheet: SheetId; post: PostId;
 
   return (
     <group position={[local.x, 0.0022, local.z]}>
+      {route && (
+        <mesh ref={way} geometry={route.geometry} visible={false}>
+          <meshBasicMaterial color="#a8281e" transparent opacity={0.8} side={DoubleSide} />
+        </mesh>
+      )}
       <mesh ref={dot} rotation-x={-Math.PI / 2} visible={false}>
         <circleGeometry args={[0.0042, 24]} />
         <meshBasicMaterial color="#a8281e" transparent opacity={0.9} />
@@ -232,7 +302,7 @@ function PostMark({ sheet, post, order, count }: { sheet: SheetId; post: PostId;
         <ringGeometry args={[0.0125, 0.0147, 56]} />
         <meshBasicMaterial color="#a8281e" transparent opacity={0.88} side={DoubleSide} />
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[0.021 + 0.048, 0.0002, 0.006]}>
+      <mesh rotation-x={-Math.PI / 2} position={[0.021 + 0.048, 0.0002, (POSTS[post] as Post).label ?? 0.006]}>
         <planeGeometry args={[0.096, 0.03]} />
         <meshBasicMaterial ref={name} map={label} transparent opacity={0} depthWrite={false} />
       </mesh>
