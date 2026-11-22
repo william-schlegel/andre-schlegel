@@ -39,7 +39,8 @@ export function cuesOnTable(cues: readonly Cue[], time: number): Cue[] {
 
 /**
  * The cue the eye is on: the latest one shown, for as long as it holds. When its hold is over
- * and nothing else has come, the eye goes back to the whole table (null).
+ * and nothing else has come, the eye goes back to an Archive film if one is still running
+ * (it was only a glance away from the screen), else to the whole table (null).
  */
 export function cueInFocus(cues: readonly Cue[], time: number): Cue | null {
   let latest: Cue | null = null;
@@ -48,9 +49,10 @@ export function cueInFocus(cues: readonly Cue[], time: number): Cue | null {
     if (!latest || cue.at >= latest.at) latest = cue;
   }
   if (!latest) return null;
-  if (latest.until !== undefined && time >= latest.until) return null;
-  if (latest.hold !== undefined && time >= latest.at + latest.hold) return null;
-  return latest;
+  const left = latest.until !== undefined && time >= latest.until;
+  const held = latest.hold === undefined || time < latest.at + latest.hold;
+  if (!left && held) return latest;
+  return cues.find((cue) => cue.kind === 'projection' && cue.at <= time && time < cue.until) ?? null;
 }
 
 export function postingAt(postings: readonly Posting[], time: number): Posting | null {

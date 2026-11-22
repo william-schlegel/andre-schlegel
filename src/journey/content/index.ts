@@ -3,6 +3,7 @@ import { algerieSousVichy } from './algerie-sous-vichy';
 import { campagneDeFrance } from './campagne-de-france';
 import { ecoleAnglaise } from './ecole-anglaise';
 import { elvington } from './elvington';
+import { nuit } from './nuit';
 import { ouverture } from './ouverture';
 import { tours } from './tours';
 import type { ChapterContent, ChapterId, PrintCue, TypedCue } from './types';
@@ -16,6 +17,7 @@ const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   'algerie-sous-vichy': algerieSousVichy,
   'ecole-anglaise': ecoleAnglaise,
   elvington,
+  nuit,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {

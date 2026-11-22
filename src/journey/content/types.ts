@@ -49,6 +49,12 @@ export interface TimelineMark {
   label: string;
 }
 
+/** A step of something told in order (the phases of a mission): listed beside the Scene, the one being told marked. */
+export interface Phase {
+  at: number;
+  label: string;
+}
+
 /** A place on the table, in metres from its centre; `turn` in degrees, clockwise seen from above. */
 export interface Place {
   x: number;
@@ -215,5 +221,7 @@ export interface ChapterContent {
   cues: Cue[];
   postings: Posting[];
   marks: TimelineMark[];
+  /** The steps of what the Chapter tells in order, when it does (Chapter 7: a mission, from briefing to debriefing). */
+  phases?: { title: string; from: number; until: number; steps: Phase[] };
   companion: CompanionPlace;
 }

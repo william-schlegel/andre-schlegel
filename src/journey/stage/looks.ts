@@ -80,6 +80,14 @@ export const LOOKS = {
     surface: 'oak',
     day: 1,
   },
+  /** A night of operations at Elvington: the blackout is drawn, one lamp over the briefing table, the cold of the airfield in the shadows. */
+  night: {
+    backdrop: '#05060b',
+    key: { colour: '#ffd9a8', strength: 18, from: [0.9, 1.8, 0.2], spread: 0.98, softness: 0.7 },
+    fill: { sky: '#46557a', ground: '#18120c', strength: 0.42 },
+    surface: 'oak',
+    day: 0,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

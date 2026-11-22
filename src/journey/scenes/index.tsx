@@ -191,6 +191,21 @@ function ElvingtonScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 7, Une nuit sur l’Allemagne: the same hut after dark, the blackout drawn, a screen pulled up for the film of a mission ----------
+
+function NuitScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={ELVINGTON_WIDE}
+      shotFor={elvingtonShot}
+      // Elvington is inked by the Chapter opening; the way out, the objective and the way back are inked as the film reaches them
+      chart={(views) => <Chart sheet="europe-du-nord-ouest" place={ELVINGTON_CHART} posts={['elvington']} events={views.filter(isEvent)} />}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -216,6 +231,11 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   elvington: {
     look: 'dusk',
     Scene: ElvingtonScene,
+    wide: ELVINGTON_WIDE,
+    opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
+  },  nuit: {
+    look: 'night',
+    Scene: NuitScene,
     wide: ELVINGTON_WIDE,
     opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
   },

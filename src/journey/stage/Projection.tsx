@@ -29,9 +29,10 @@ export function projectionShot(cue: ProjectionCue, aspect: number): Shot {
  * An Archive film: a screen is pulled up at the back of the table, the house lights go
  * down, and the footage runs in step with its own sound, which is part of the Narration.
  * The picture is a slave of the Narration's clock: pausing, or moving in the Timeline,
- * holds or moves the film with it.
+ * holds or moves the film with it. When the eye leaves the screen for something on the table
+ * (`watched` is false), the lights come back up for as long as it does, and the film runs on.
  */
-export function Projection({ cue, shown }: { cue: ProjectionCue; shown: boolean }) {
+export function Projection({ cue, shown, watched = true }: { cue: ProjectionCue; shown: boolean; watched?: boolean }) {
   const height = pictureHeight(cue);
   const cloth = useMemo(() => paperTexture('white'), []);
 
@@ -75,7 +76,7 @@ export function Projection({ cue, shown }: { cue: ProjectionCue; shown: boolean 
 
     // the screen goes up, then the lights go down; they come back as it is lowered
     up.current = shown ? Math.min(1, up.current + dt / RISE) : Math.max(0, up.current - dt / (RISE * 0.6));
-    houseLights.down = shown && clock.time > cue.at + RISE * 0.7 && clock.time < cue.until - 0.4;
+    houseLights.down = shown && watched && clock.time > cue.at + RISE * 0.7 && clock.time < cue.until - 0.4;
     if (whole.current) whole.current.visible = up.current > 0.001;
     if (screen.current) {
       const eased = 1 - Math.pow(1 - up.current, 3);

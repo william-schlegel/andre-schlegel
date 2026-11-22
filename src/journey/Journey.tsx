@@ -21,6 +21,7 @@ import { Controls } from './ui/Controls';
 import { EndCard } from './ui/EndCard';
 import { FilmCredit } from './ui/FilmCredit';
 import { Introduction } from './ui/Introduction';
+import { MissionPhases } from './ui/MissionPhases';
 import { PostingCard } from './ui/PostingCard';
 import { RotateNotice } from './ui/RotateNotice';
 import { Timeline } from './ui/Timeline';
@@ -100,6 +101,7 @@ export default function Journey() {
           <PostingCard chapter={content.chapter} postings={content.postings} />
           <Controls />
           {phase === 'scene' && <FilmCredit cues={content.cues} />}
+          {phase === 'scene' && content.phases && <MissionPhases phases={content.phases} />}
           {captions && phase === 'scene' && <Captions phrases={content.phrases} />}
           <Timeline chapter={chapter} marks={content.marks} />
         </>

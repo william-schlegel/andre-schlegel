@@ -238,6 +238,44 @@ export const EVENTS = {
       [15.2, 55.5],
     ],
   },
+  // A mission as the Film tells it, with no date and no target of its own: the way out over the North Sea,
+  // an objective in the Ruhr (where many of the crew's missions went), the way back. A sketch, and written as one.
+  'nuit-aller': {
+    note: 'aller, par la mer',
+    label: [6.95, 53.62],
+    // the first leg passes under the post's name and over the sea's; the second, east of the country's
+    arrows: [
+      { from: [-0.99, 53.92], to: [6.27, 53.5], bow: -0.2, leave: 0.016 },
+      { from: [6.27, 53.5], to: [6.78, 51.6], bow: 0.03 },
+    ],
+    box: [
+      [-3.0, 49.9],
+      [10.4, 55.3],
+    ],
+  },
+  'nuit-objectif': {
+    name: 'LA RUHR',
+    note: 'objectif type',
+    label: [6.94, 52.56],
+    strike: [6.78, 51.6],
+    box: [
+      [-3.0, 49.9],
+      [10.4, 55.3],
+    ],
+  },
+  'nuit-retour': {
+    note: 'retour',
+    label: [1.75, 51.35],
+    // the second leg goes round Norwich by the sea
+    arrows: [
+      { from: [6.78, 51.6], to: [2.3, 51.62], bow: 0.04, leave: 0.012 },
+      { from: [2.3, 51.62], to: [-0.99, 53.92], bow: -0.33 },
+    ],
+    box: [
+      [-3.0, 49.9],
+      [10.4, 55.3],
+    ],
+  },
 } satisfies Record<string, ChartEvent>;
 
 export type EventId = keyof typeof EVENTS;

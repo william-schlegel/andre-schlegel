@@ -183,7 +183,7 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
       {models.map((cue) => model?.(cue, shown.has(cue.id)))}
       {chart?.(charts.filter((cue) => shown.has(cue.id)).map((cue) => cue.view))}
       {projections.map((cue) => (
-        <Projection key={cue.id} cue={cue} shown={shown.has(cue.id)} />
+        <Projection key={cue.id} cue={cue} shown={shown.has(cue.id)} watched={focus === null || focus.id === cue.id} />
       ))}
     </>
   );

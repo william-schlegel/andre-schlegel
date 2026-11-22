@@ -72,6 +72,12 @@ button {
   animation: grain 0.9s steps(6) infinite;
 }
 
+/* the mark under the step being told is drawn from left to right */
+@keyframes phase-underline {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 @keyframes grain {
   0% { transform: translate(0, 0); }
   20% { transform: translate(-38px, 22px); }
