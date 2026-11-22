@@ -1,9 +1,22 @@
 import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { DoubleSide, MathUtils, RingGeometry, SRGBColorSpace, TextureLoader, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial, type Texture } from 'three';
+import {
+  CanvasTexture,
+  DoubleSide,
+  MathUtils,
+  RingGeometry,
+  SRGBColorSpace,
+  TextureLoader,
+  type Group,
+  type Mesh,
+  type MeshBasicMaterial,
+  type MeshStandardMaterial,
+  type Texture,
+} from 'three';
 import type { Place, PrintCue } from '../content/types';
 import { useNarration } from '../engine/journey';
 import { contactShadowTexture, paperTexture } from './surfaces';
+import { whenFontsReady } from './textures';
 
 const BORDER = 0.011; // the white margin of a photographic print, in metres
 const ARRIVAL = 0.95; // seconds for a print to land
@@ -52,11 +65,15 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
   const width = cue.width;
   const depth = printDepth(cue);
   const ringsShown = useNarration((time) => (cue.rings ?? []).filter((ring) => ring.at <= time).length);
+  const labelsShown = useNarration((time) => (cue.labels ?? []).filter((label) => label.at <= time).length);
 
   return (
     <Leaf texture={texture} width={width} depth={depth} place={cue.place} paper={cue.paper ?? 'photo'} shown={shown} order={order} onOpen={onOpen && (() => onOpen(cue))} onLand={onLand}>
       {(cue.rings ?? []).map((ring, index) => (
         <PencilRing key={index} box={ring.box} width={width} depth={depth} shown={shown && index < ringsShown} />
+      ))}
+      {(cue.labels ?? []).map((label, index) => (
+        <PencilLabel key={label.text} text={label.text} from={label.from} to={label.to} width={width} depth={depth} shown={shown && index < labelsShown} />
       ))}
     </Leaf>
   );
@@ -73,7 +90,7 @@ interface LeafProps {
   order: number;
   onOpen?: () => void;
   onLand?: () => void;
-  /** What is drawn on it (pencil rings). */
+  /** What is drawn on it (pencil rings, pencilled words). */
   children?: ReactNode;
 }
 
@@ -213,5 +230,83 @@ function PencilRing({ box, width, depth, shown }: { box: [number, number, number
       <ringGeometry args={[0.93, 1, 72]} />
       <meshBasicMaterial color="#b3261c" transparent opacity={0.85} side={DoubleSide} depthWrite={false} />
     </mesh>
+  );
+}
+
+const LETTER = 0.6; // a typewriter letter's width, as a fraction of its height
+
+/** A word Eric writes on a photograph, and the line he draws from it to what it names: red grease pencil. */
+function PencilLabel({ text, from, to, width, depth, shown }: { text: string; from: [number, number]; to: [number, number]; width: number; depth: number; shown: boolean }) {
+  // the lettering grows with the print: a word is about as tall as a thirtieth of the picture is wide
+  const tall = width * 0.036;
+  const wide = tall * LETTER * (text.length + 1);
+  const word = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.height = 96;
+    canvas.width = Math.ceil(96 * LETTER * (text.length + 1));
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    texture.anisotropy = 8;
+    const draw = () => {
+      const ctx = canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '400 74px "Special Elite", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // a light edge, so the word reads on a dark picture as on a pale one
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = 'rgba(244, 236, 214, 0.38)';
+      ctx.strokeText(text, canvas.width / 2, 52, canvas.width - 8);
+      ctx.fillStyle = '#c22a1e';
+      ctx.fillText(text, canvas.width / 2, 52, canvas.width - 8);
+      texture.needsUpdate = true;
+    };
+    draw();
+    void whenFontsReady().then(draw);
+    return texture;
+  }, [text]);
+  useEffect(() => () => word.dispose(), [word]);
+
+  // on the print: x to the right, z towards the viewer, from its centre
+  const start = { x: (from[0] - 0.5) * width, z: (from[1] - 0.5) * depth };
+  const end = { x: (to[0] - 0.5) * width, z: (to[1] - 0.5) * depth };
+  const length = Math.hypot(end.x - start.x, end.z - start.z) || 1;
+  const along = { x: (end.x - start.x) / length, z: (end.z - start.z) / length };
+  // the line leaves the word's edge, not its middle
+  const clear = Math.min((wide / 2 + tall * 0.2) / Math.max(Math.abs(along.x), 1e-6), (tall / 2 + tall * 0.15) / Math.max(Math.abs(along.z), 1e-6));
+  const stroke = Math.max(0.001, length - clear);
+
+  const line = useRef<Group>(null);
+  const letters = useRef<MeshBasicMaterial>(null);
+  const drawn = useRef(shown ? 1 : 0);
+
+  useFrame((_, delta) => {
+    const step = Math.min(delta, 0.1) / 0.7;
+    drawn.current = shown ? Math.min(1, drawn.current + step) : Math.max(0, drawn.current - step * 2);
+    // the word first, then the line drawn out from it
+    if (letters.current) letters.current.opacity = MathUtils.clamp(drawn.current / 0.4, 0, 1) * 0.95;
+    const node = line.current;
+    if (!node) return;
+    const out = MathUtils.clamp((drawn.current - 0.3) / 0.7, 0, 1);
+    node.visible = out > 0.01;
+    node.scale.x = Math.max(0.0001, out);
+  });
+
+  return (
+    <group position-y={0.0009}>
+      <mesh rotation-x={-Math.PI / 2} position={[start.x, 0, start.z]}>
+        <planeGeometry args={[wide, tall * 1.3]} />
+        <meshBasicMaterial ref={letters} map={word} transparent opacity={0} depthWrite={false} />
+      </mesh>
+      {/* a thin stroke, pivoting on the end nearest the word */}
+      <group position={[start.x + along.x * clear, 0, start.z + along.z * clear]} rotation-y={-Math.atan2(along.z, along.x)}>
+        <group ref={line} visible={false}>
+          <mesh rotation-x={-Math.PI / 2} position-x={stroke / 2}>
+            <planeGeometry args={[stroke, Math.max(0.0012, tall * 0.07)]} />
+            <meshBasicMaterial color="#c22a1e" transparent opacity={0.9} side={DoubleSide} depthWrite={false} />
+          </mesh>
+        </group>
+      </group>
+    </group>
   );
 }

@@ -19,19 +19,21 @@ const HEAD_LINE = 44;
 const TOP = 118;
 const COLUMNS = 54; // characters to a line: a typewriter's line is counted, not measured
 
-/** The text cut into typewriter lines. */
+/** The text cut into typewriter lines; a list keeps its own lines (the text's line breaks). */
 export function typedLines(text: string): string[] {
   const lines: string[] = [];
-  let line = '';
-  for (const word of text.split(/\s+/)) {
-    if (line && line.length + 1 + word.length > COLUMNS) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = line ? `${line} ${word}` : word;
+  for (const entry of text.split('\n')) {
+    let line = '';
+    for (const word of entry.split(/\s+/)) {
+      if (line && line.length + 1 + word.length > COLUMNS) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = line ? `${line} ${word}` : word;
+      }
     }
+    if (line) lines.push(line);
   }
-  if (line) lines.push(line);
   return lines;
 }
 

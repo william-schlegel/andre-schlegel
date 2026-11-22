@@ -94,6 +94,34 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Southampton', at: [-1.4, 50.9], label: 'above', sheet: 'grande-bretagne' },
   { name: 'Norwich', at: [1.3, 52.63], label: 'left', sheet: 'grande-bretagne' },
   { name: 'Douvres', at: [1.31, 51.13], label: 'left', sheet: 'grande-bretagne' },
+  // from Yorkshire to Saxony, at the scale of the Halifax's reach (York is left out: Elvington's ring stands on it)
+  { name: 'Newcastle', at: [-1.61, 54.97], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Manchester', at: [-2.24, 53.48], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Birmingham', at: [-1.9, 52.48], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Bristol', at: [-2.59, 51.45], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Plymouth', at: [-4.14, 50.37], label: 'above', sheet: 'europe-du-nord-ouest' },
+  { name: 'Southampton', at: [-1.4, 50.9], label: 'above', sheet: 'europe-du-nord-ouest' },
+  { name: 'Norwich', at: [1.3, 52.63], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Cherbourg', at: [-1.62, 49.64], label: 'below', sheet: 'europe-du-nord-ouest' },
+  { name: 'Caen', at: [-0.37, 49.18], label: 'below', sheet: 'europe-du-nord-ouest' },
+  { name: 'Calais', at: [1.86, 50.95], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Reims', at: [4.03, 49.26], sheet: 'europe-du-nord-ouest' },
+  { name: 'Metz', at: [6.18, 49.12], sheet: 'europe-du-nord-ouest' },
+  { name: 'Amsterdam', at: [4.9, 52.37], label: 'above', sheet: 'europe-du-nord-ouest' },
+  { name: 'Rotterdam', at: [4.48, 51.92], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Hambourg', at: [9.99, 53.55], sheet: 'europe-du-nord-ouest' },
+  { name: 'Brême', at: [8.8, 53.08], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Kiel', at: [10.13, 54.32], sheet: 'europe-du-nord-ouest' },
+  { name: 'Hanovre', at: [9.73, 52.37], sheet: 'europe-du-nord-ouest' },
+  { name: 'Berlin', at: [13.4, 52.52], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Essen', at: [7.01, 51.46], sheet: 'europe-du-nord-ouest' },
+  { name: 'Cologne', at: [6.96, 50.94], sheet: 'europe-du-nord-ouest' },
+  { name: 'Francfort', at: [8.68, 50.11], label: 'below', sheet: 'europe-du-nord-ouest' },
+  { name: 'Leipzig', at: [12.37, 51.34], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Dresde', at: [13.74, 51.05], sheet: 'europe-du-nord-ouest' },
+  { name: 'Nuremberg', at: [11.08, 49.45], label: 'left', sheet: 'europe-du-nord-ouest' },
+  { name: 'Stuttgart', at: [9.18, 48.78], label: 'below', sheet: 'europe-du-nord-ouest' },
+  { name: 'Munich', at: [11.58, 48.14], sheet: 'europe-du-nord-ouest' },
 ];
 
 export interface Post {
@@ -121,6 +149,8 @@ export const POSTS = {
   dumfries: { name: 'DUMFRIES', note: '10 AFU · novembre 1943', at: [-3.61, 55.07] },
   lossiemouth: { name: 'LOSSIEMOUTH', note: '20 OTU · février 1944', at: [-3.28, 57.72], label: -0.012 },
   rufforth: { name: 'RUFFORTH', note: 'près d’York · mai 1944', at: [-1.18, 53.95] },
+  // the station of the two French squadrons, south-east of York
+  elvington: { name: 'ELVINGTON', note: 'juillet 1944', at: [-0.99, 53.92] },
 } satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
@@ -139,6 +169,11 @@ export interface ChartEvent {
    * the right, as a fraction of its length; `leave` is how far from its start it begins, in metres.
    */
   arrows?: { from: [number, number]; to: [number, number]; bow?: number; leave?: number }[];
+  /**
+   * How far aircraft can go from a base: an arc of a circle around it, `km` away, swept clockwise
+   * between two bearings (degrees from north).
+   */
+  reach?: { from: [number, number]; km: number; bearings: [number, number] };
   /** What the camera takes in: [west, south] and [east, north]. */
   box: [[number, number], [number, number]];
 }
@@ -191,6 +226,16 @@ export const EVENTS = {
     box: [
       [-7.2, 52.3],
       [0.4, 55.1],
+    ],
+  },
+  // what the Halifax can reach from Elvington: the arc the Film draws over Europe, a little over 1 000 km out
+  portee: {
+    note: 'rayon d’action des Halifax',
+    label: [8.35, 50.62],
+    reach: { from: [-0.99, 53.92], km: 1020, bearings: [75, 139] },
+    box: [
+      [-3.2, 46.7],
+      [15.2, 55.5],
     ],
   },
 } satisfies Record<string, ChartEvent>;
@@ -408,6 +453,34 @@ export const SHEETS = {
     ],
     cartouche: [0.35, 55.95],
     rose: [1.05, 54.75],
+  },
+  /** From Yorkshire to Saxony and the Loire: Elvington, and all that a Halifax can reach from it. */
+  'europe-du-nord-ouest': {
+    box: [
+      [-5.6, 46.4],
+      [15.4, 55.7],
+    ],
+    parallels: [49, 54],
+    meridian: 4.9,
+    title: 'EUROPE DU NORD-OUEST',
+    width: 0.78,
+    proportions: 1.4179,
+    subject: ['United Kingdom'],
+    capital: 'Londres',
+    countries: [
+      { text: 'ANGLETERRE', at: [-1.45, 52.05], size: 26 },
+      { text: 'FRANCE', at: [3.9, 47.9], size: 34 },
+      { text: 'BELGIQUE', at: [4.85, 50.4], size: 17 },
+      { text: 'PAYS-BAS', at: [5.75, 52.2], size: 17 },
+      { text: 'ALLEMAGNE', at: [10.1, 51.75], size: 32 },
+    ],
+    seas: [
+      { text: 'Mer du Nord', at: [3.1, 53.0], size: 30 },
+      { text: 'Manche', at: [-1.5, 50.05], size: 26 },
+      { text: 'Mer Baltique', at: [12.9, 54.88], size: 18 },
+    ],
+    cartouche: [5.3, 54.75],
+    rose: [-4.35, 47.15],
   },
   /** French North Africa, from the Atlantic to Tunis, with the south of Spain and Gibraltar. */
   'afrique-du-nord': {

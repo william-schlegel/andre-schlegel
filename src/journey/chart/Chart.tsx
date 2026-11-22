@@ -398,31 +398,77 @@ function arrowGeometry(from: Point, to: Point, bow: number, leave: number): Buff
   return geometry;
 }
 
-/** What happened at a place, in red ink: its arrows one after the other, a cross on the place struck, then the words. */
+const SWEEP = 96; // spans of a reach's arc
+const SWEEP_TIME = 2; // the arc takes about twice as long to draw as an arrow
+
+/** The arc of a circle around a base, `km` away from it, as a compass would sweep it on the sheet. */
+function reachGeometry(sheet: SheetId, from: [number, number], km: number, bearings: [number, number]): BufferGeometry {
+  const radians = Math.PI / 180;
+  const away = km / 6371;
+  const latitude = from[1] * radians;
+  const at = (bearing: number): Point => {
+    const course = bearing * radians;
+    const reached = Math.asin(Math.sin(latitude) * Math.cos(away) + Math.cos(latitude) * Math.sin(away) * Math.cos(course));
+    const east = Math.atan2(Math.sin(course) * Math.sin(away) * Math.cos(latitude), Math.cos(away) - Math.sin(latitude) * Math.sin(reached));
+    return onSheet(sheet, [from[0] + east / radians, reached / radians]);
+  };
+  const half = 0.0011;
+  const positions: number[] = [];
+  const index: number[] = [];
+  for (let i = 0; i <= SWEEP; i++) {
+    const bearing = bearings[0] + ((bearings[1] - bearings[0]) * i) / SWEEP;
+    const here = at(bearing);
+    const ahead = at(bearing + 0.2);
+    const size = Math.hypot(ahead.x - here.x, ahead.z - here.z) || 1;
+    const tangent = { x: (ahead.x - here.x) / size, z: (ahead.z - here.z) / size };
+    positions.push(here.x - tangent.z * half, 0, here.z + tangent.x * half, here.x + tangent.z * half, 0, here.z - tangent.x * half);
+    if (i < SWEEP) {
+      const a = i * 2;
+      index.push(a, a + 1, a + 2, a + 2, a + 1, a + 3);
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3));
+  geometry.setIndex(index);
+  return geometry;
+}
+
+/** What happened at a place, in red ink: its arrows one after the other, the arc of a reach, a cross on the place struck, then the words. */
 function EventMark({ sheet, event, fresh }: { sheet: SheetId; event: ChartEvent; fresh: boolean }) {
   const arrows = useMemo(
     () => (event.arrows ?? []).map((arrow) => arrowGeometry(onSheet(sheet, arrow.from), onSheet(sheet, arrow.to), arrow.bow ?? 0, arrow.leave ?? 0)),
     [sheet, event],
   );
   useEffect(() => () => arrows.forEach((arrow) => arrow.dispose()), [arrows]);
+  const reach = useMemo(() => (event.reach ? reachGeometry(sheet, event.reach.from, event.reach.km, event.reach.bearings) : null), [sheet, event]);
+  useEffect(() => () => reach?.dispose(), [reach]);
   const label = useMemo(() => inkedLabel(event), [event]);
   useEffect(() => () => label.dispose(), [label]);
   const strike = event.strike ? onSheet(sheet, event.strike) : null;
   const lettering = onSheet(sheet, event.label);
   const width = labelPixels(event) * LABEL_SCALE;
 
-  // the pen: each arrow is begun before the one before is finished; then the cross, then the words
-  const shaftsDone = arrows.length ? (arrows.length - 1) * STAGGER + 1 : 0;
+  // the pen: each arrow is begun before the one before is finished; then the arc, then the cross, then the words
+  const arrowsDone = arrows.length ? (arrows.length - 1) * STAGGER + 1 : 0;
+  const shaftsDone = arrowsDone + (reach ? SWEEP_TIME : 0);
   const struckAt = shaftsDone + (strike ? 0.6 : 0);
   const steps = struckAt + 0.8;
   const pen = useRef(fresh ? 0 : steps);
   const shafts = useRef<(Mesh | null)[]>([]);
   const cross = useRef<Mesh>(null);
+  const sweep = useRef<Mesh>(null);
   const words = useRef<MeshBasicMaterial>(null);
 
   useFrame((_, delta) => {
     const flat = chartState.unrolled >= 0.999;
     if (flat) pen.current = Math.min(steps, pen.current + Math.min(delta, 0.1) / 0.9);
+    if (sweep.current && reach) {
+      const swept = flat ? MathUtils.clamp((pen.current - arrowsDone) / SWEEP_TIME, 0, 1) : 0;
+      // the compass starts slowly and lifts slowly
+      const spans = Math.round(SWEEP * swept * swept * (3 - 2 * swept));
+      sweep.current.visible = spans > 0;
+      reach.setDrawRange(0, spans * 6);
+    }
     arrows.forEach((arrow, index) => {
       const mesh = shafts.current[index];
       if (!mesh) return;
@@ -448,6 +494,11 @@ function EventMark({ sheet, event, fresh }: { sheet: SheetId; event: ChartEvent;
           <meshBasicMaterial color="#a8281e" transparent opacity={0.85} side={DoubleSide} />
         </mesh>
       ))}
+      {reach && (
+        <mesh ref={sweep} geometry={reach} visible={false}>
+          <meshBasicMaterial color="#a8281e" transparent opacity={0.85} side={DoubleSide} />
+        </mesh>
+      )}
       {strike && (
         <mesh ref={cross} geometry={CROSS} position={[strike.x, 0.0001, strike.z]} visible={false}>
           <meshBasicMaterial color="#a8281e" transparent opacity={0} side={DoubleSide} />

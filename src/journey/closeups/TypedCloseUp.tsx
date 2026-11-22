@@ -27,7 +27,7 @@ export function TypedCloseUp({ sheet }: { sheet: TypedCue }) {
             ))}
             <div className="mx-auto mt-4 h-px w-40 bg-ink/70" />
           </div>
-          <p className="mt-7 text-[clamp(1rem,0.85rem+0.5vw,1.25rem)] leading-[1.75]">{sheet.text}</p>
+          <p className="mt-7 whitespace-pre-line text-[clamp(1rem,0.85rem+0.5vw,1.25rem)] leading-[1.75]">{sheet.text}</p>
         </div>
         <div className="pointer-events-auto max-w-[70ch] text-center">
           <p className="text-[clamp(1.05rem,0.8rem+0.6vw,1.4rem)] text-paper-light">{sheet.legend}</p>

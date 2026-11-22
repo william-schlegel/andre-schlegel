@@ -172,6 +172,25 @@ function BritainScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 6, Elvington: the operations hut of a bomber station, at the end of the day ----------
+
+const ELVINGTON_CHART: Place = { x: -0.5, z: -0.22, turn: -1.5 };
+const ELVINGTON_WIDE: Shot = { x: 0.4, z: 0.1, distance: 3.0, tilt: 24 };
+const elvingtonShot = shotsFor('europe-du-nord-ouest', ELVINGTON_CHART, 0.34);
+
+function ElvingtonScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={ELVINGTON_WIDE}
+      shotFor={elvingtonShot}
+      // Elvington is inked by the Chapter opening; the reach of its Halifax is swept over Europe as Eric tells it
+      chart={(views) => <Chart sheet="europe-du-nord-ouest" place={ELVINGTON_CHART} posts={['elvington']} events={views.filter(isEvent)} />}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -193,5 +212,11 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
     Scene: BritainScene,
     wide: BRITAIN_WIDE,
     opening: { sheet: 'grande-bretagne', place: BRITAIN_CHART, post: 'liverpool' },
+  },
+  elvington: {
+    look: 'dusk',
+    Scene: ElvingtonScene,
+    wide: ELVINGTON_WIDE,
+    opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
   },
 };

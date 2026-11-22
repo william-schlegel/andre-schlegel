@@ -109,6 +109,11 @@ export interface PrintCue extends CueBase {
   bonus?: boolean;
   /** Someone Eric points out: an oval pencilled on the print, as fractions [x, y, w, h] of the picture. */
   rings?: { at: number; box: [number, number, number, number] }[];
+  /**
+   * Words Eric writes on the picture, each with a line to what it names: the word is centred on
+   * `from` and the line ends at `to`, both as fractions [x, y] of the picture.
+   */
+  labels?: { at: number; text: string; from: [number, number]; to: [number, number] }[];
 }
 
 /** The Companion opens at a Spread. */

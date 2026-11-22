@@ -72,6 +72,14 @@ export const LOOKS = {
     surface: 'oak',
     day: 1,
   },
+  /** Elvington, 1944-1945: the end of the day in the operations hut, a low gold sun before a night of flying, the shadows already blue. */
+  dusk: {
+    backdrop: '#0d0c10',
+    key: { colour: '#ffdfbb', strength: 18, from: [1.6, 1.9, 0.35], spread: 0.95, softness: 0.75 },
+    fill: { sky: '#a3b2cf', ground: '#5a4d42', strength: 1.0 },
+    surface: 'oak',
+    day: 1,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

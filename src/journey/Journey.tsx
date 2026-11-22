@@ -10,6 +10,7 @@ import type { ChapterId } from './content/types';
 import { begin, closeCloseUp, getClock, goToChapter, resumeAt, runClock, seek, togglePlay } from './engine/journey';
 import { useJourney } from './engine/store';
 import { poseOf } from './models/RecognitionModel';
+import { lookAt } from './stage/shot';
 import { ChapterOpening } from './openings/ChapterOpening';
 import { SCENES } from './scenes';
 import { Ambience } from './sound/Ambience';
@@ -39,7 +40,7 @@ export default function Journey() {
 
   // while developing: a handle to drive the Journey from the browser's console
   useEffect(() => {
-    if (import.meta.env.DEV) Object.assign(window, { journey: { clock: getClock(), store: useJourney, seek, begin, goToChapter, resumeAt, poseOf } });
+    if (import.meta.env.DEV) Object.assign(window, { journey: { clock: getClock(), store: useJourney, seek, begin, goToChapter, resumeAt, poseOf, lookAt } });
   }, []);
 
   const content = contentOf(chapter);
