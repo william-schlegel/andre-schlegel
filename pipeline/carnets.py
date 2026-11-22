@@ -37,6 +37,12 @@ CARNETS: dict[str, list[str]] = {
     "1947": [r"CDV_AS_04_47_04_48_0*(\d+)"],
 }
 
+# Scans made on a bed larger than the open book: only this share of their height, from the top, is the Spread.
+TRIM: dict[str, float] = {
+    "CDV_AS_04_47_04_48_000002": 0.543,
+    "CDV_AS_04_47_04_48_0014": 0.543,
+}
+
 LARGE = 2200  # widest side of a Spread, in pixels
 SMALL = 1024  # the same for the book lying on the table
 
@@ -76,6 +82,8 @@ def main() -> None:
     spreads = []
     for index, (series, number, path) in enumerate(gather(carnet), start=1):
         image = scan_image(path)
+        if path.stem in TRIM:
+            image = image.crop((0, 0, image.width, round(image.height * TRIM[path.stem])))
         name = f"{index:02d}"
         large = image.copy()
         large.thumbnail((LARGE, LARGE), Image.LANCZOS)

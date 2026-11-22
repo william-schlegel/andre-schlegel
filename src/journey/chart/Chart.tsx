@@ -18,7 +18,7 @@ import type { Frame, Place } from '../content/types';
 import { contactShadowTexture, paperTexture } from '../stage/surfaces';
 import { whenFontsReady } from '../stage/textures';
 import { drawSheet, onSheet, sheetSize, type Land } from './draw';
-import { EVENTS, POSTS, type ChartEvent, type EventId, type Post, type PostId, type SheetId } from './places';
+import { EVENTS, POSTS, SHEETS, type ChartEvent, type ChartSheet, type EventId, type Post, type PostId, type SheetId } from './places';
 
 /**
  * How far the Chart is unrolled and how far its marks are inked, from 0 to 1. A Chapter
@@ -35,7 +35,9 @@ const drawn = new Map<SheetId, Promise<Texture>>();
 function sheetTexture(id: SheetId): Promise<Texture> {
   let texture = drawn.get(id);
   if (!texture) {
-    texture = Promise.all([import('../content/generated/chart-land.json'), whenFontsReady()]).then(([land]) => {
+    // a sheet that holds continents is drawn from the small-scale outlines
+    const outlines = (SHEETS[id] as ChartSheet).world ? import('../content/generated/chart-monde.json') : import('../content/generated/chart-land.json');
+    texture = Promise.all([outlines, whenFontsReady()]).then(([land]) => {
       const result = new CanvasTexture(drawSheet(id, land.default as Land[]));
       result.colorSpace = SRGBColorSpace;
       result.anisotropy = 16;
@@ -231,6 +233,8 @@ const LABEL_SCALE = 0.096 / 512;
 interface Inked {
   name?: string;
   note: string;
+  /** Lettered to the left of its mark: the words end against it. */
+  left?: boolean;
 }
 
 /** The width of a mark's lettering, in pixels: the longer of its name and its note. */
@@ -239,7 +243,7 @@ function labelPixels({ name = '', note }: Inked): number {
 }
 
 /** A name in red capitals and a typed note under it; the note alone when the place is already named on the sheet. */
-function inkedLabel({ name, note }: Inked): CanvasTexture {
+function inkedLabel({ name, note, left }: Inked): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = labelPixels({ name, note });
   canvas.height = 160;
@@ -251,12 +255,13 @@ function inkedLabel({ name, note }: Inked): CanvasTexture {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#a8281e';
     ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = left ? 'right' : 'left';
     if (name) {
       ctx.font = '700 84px "Old Standard TT", serif';
-      ctx.fillText(name, 6, 84);
+      ctx.fillText(name, left ? canvas.width - 6 : 6, 84);
     }
     ctx.font = '400 44px "Special Elite", monospace';
-    ctx.fillText(note, 8, name ? 140 : 96);
+    ctx.fillText(note, left ? canvas.width - 8 : 8, name ? 140 : 96);
     texture.needsUpdate = true;
   };
   draw();
@@ -337,7 +342,10 @@ function PostMark({ sheet, post, from, lead, fresh }: PostMarkProps) {
         <ringGeometry args={[0.0125, 0.0147, 56]} />
         <meshBasicMaterial color="#a8281e" transparent opacity={0.88} side={DoubleSide} />
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[0.021 + (labelPixels(POSTS[post]) * LABEL_SCALE) / 2, 0.0002, (POSTS[post] as Post).label ?? 0.006]}>
+      <mesh
+        rotation-x={-Math.PI / 2}
+        position={[((POSTS[post] as Post).left ? -1 : 1) * (0.021 + (labelPixels(POSTS[post]) * LABEL_SCALE) / 2), 0.0002, (POSTS[post] as Post).label ?? 0.006]}
+      >
         <planeGeometry args={[labelPixels(POSTS[post]) * LABEL_SCALE, 0.03]} />
         <meshBasicMaterial ref={name} map={label} transparent opacity={0} depthWrite={false} />
       </mesh>

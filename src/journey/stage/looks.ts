@@ -96,6 +96,14 @@ export const LOOKS = {
     surface: 'oak',
     day: 1,
   },
+  /** After the war: the desk of the Introduction again, the Dossier spread wider under a lamp raised higher, the evening not yet dark. */
+  study: {
+    backdrop: '#090706',
+    key: { colour: '#ffe4c2', strength: 19, from: [0.6, 1.8, 0.45], spread: 1.0, softness: 0.7 },
+    fill: { sky: '#939cb0', ground: '#3a2e22', strength: 0.9 },
+    surface: 'desk-pad',
+    day: 0,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

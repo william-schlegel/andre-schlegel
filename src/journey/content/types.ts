@@ -94,6 +94,8 @@ interface CueBase {
   hold?: number;
   /** What the camera frames, when it is not the thing itself (a group of things, say). */
   frame?: Frame;
+  /** Set down beside what Eric is showing: the camera stays where it is. */
+  aside?: boolean;
 }
 
 /** A photograph or a document laid on the table. */

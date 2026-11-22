@@ -7,10 +7,13 @@ import { whenFontsReady } from '../stage/textures';
 import { ANSON, anson } from './anson';
 import { BLOCH_200, bloch200 } from './bloch200';
 import { BLOCH_210, bloch210 } from './bloch210';
+import { C_54, c54 } from './c54';
 import { DB_7, db7 } from './db7';
 import { HALIFAX, halifax } from './halifax';
+import { JU_52, ju52 } from './ju52';
 import { POTEZ_25, potez25 } from './potez25';
 import { WELLINGTON, wellington } from './wellington';
+import { YORK, york } from './york';
 
 /** All the models are to the same scale, as a set of recognition models is. */
 export const MODEL_SCALE = 1 / 60;
@@ -32,6 +35,9 @@ const AIRFRAMES: Partial<Record<ModelId, Airframe>> = {
   anson: { make: anson, ...ANSON },
   wellington: { make: wellington, ...WELLINGTON },
   halifax: { make: halifax, ...HALIFAX },
+  'ju-52': { make: ju52, ...JU_52 },
+  'c-54': { make: c54, ...C_54 },
+  york: { make: york, ...YORK },
 };
 
 const castings = new Map<ModelId, BufferGeometry>();
@@ -83,7 +89,10 @@ function labelTexture(lines: string[]): CanvasTexture {
     ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
     ctx.fillStyle = '#1b1a17';
     ctx.textAlign = 'center';
-    ctx.font = '700 70px "Old Standard TT", serif';
+    // a long name is lettered smaller, to stay on the card
+    let size = 70;
+    do ctx.font = `700 ${size}px "Old Standard TT", serif`;
+    while (ctx.measureText(lines[0] ?? '').width > canvas.width - 64 && (size -= 2) > 36);
     ctx.fillText(lines[0] ?? '', canvas.width / 2, 92);
     ctx.font = '400 30px "Special Elite", monospace';
     lines.slice(1).forEach((line, index) => {

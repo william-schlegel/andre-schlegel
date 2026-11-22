@@ -221,6 +221,25 @@ function MissionsScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 9, Après la guerre: the desk of the Introduction again, under the lamp; the last sheet of the Chart, the last Carnet ----------
+
+const ATLANTIC_CHART: Place = { x: -0.78, z: -0.17, turn: -1.5 };
+const STUDY_WIDE: Shot = { x: 0.1, z: 0.1, distance: 2.8, tilt: 24 };
+const studyShot = shotsFor('atlantique-sud', ATLANTIC_CHART, 0.4);
+
+function ApresLaGuerreScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={STUDY_WIDE}
+      shotFor={studyShot}
+      // Paris is inked by the Chapter opening; Dakar, Rio and Buenos Aires are each reached by a Route, as the flight of 1946 was
+      chart={(views) => <Chart sheet="atlantique-sud" place={ATLANTIC_CHART} posts={['paris', ...views.filter(isPost).filter((view) => view !== 'paris')]} />}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -260,5 +279,11 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
     Scene: MissionsScene,
     wide: ELVINGTON_WIDE,
     opening: { sheet: 'europe-du-nord-ouest', place: ELVINGTON_CHART, post: 'elvington' },
+  },
+  'apres-la-guerre': {
+    look: 'study',
+    Scene: ApresLaGuerreScene,
+    wide: STUDY_WIDE,
+    opening: { sheet: 'atlantique-sud', place: ATLANTIC_CHART, post: 'paris' },
   },
 };

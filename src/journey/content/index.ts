@@ -1,5 +1,6 @@
 import { algerie } from './algerie';
 import { algerieSousVichy } from './algerie-sous-vichy';
+import { apresLaGuerre } from './apres-la-guerre';
 import { campagneDeFrance } from './campagne-de-france';
 import { ecoleAnglaise } from './ecole-anglaise';
 import { elvington } from './elvington';
@@ -20,6 +21,7 @@ const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   elvington,
   nuit,
   missions,
+  'apres-la-guerre': apresLaGuerre,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {

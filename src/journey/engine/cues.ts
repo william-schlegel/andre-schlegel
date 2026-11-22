@@ -38,14 +38,14 @@ export function cuesOnTable(cues: readonly Cue[], time: number): Cue[] {
 }
 
 /**
- * The cue the eye is on: the latest one shown, for as long as it holds. When its hold is over
+ * The cue the eye is on: the latest one shown (leaving out what is set down aside), for as long as it holds. When its hold is over
  * and nothing else has come, the eye goes back to an Archive film if one is still running
  * (it was only a glance away from the screen), else to the whole table (null).
  */
 export function cueInFocus(cues: readonly Cue[], time: number): Cue | null {
   let latest: Cue | null = null;
   for (const cue of cues) {
-    if (cue.at > time) continue;
+    if (cue.at > time || cue.aside) continue;
     if (!latest || cue.at >= latest.at) latest = cue;
   }
   if (!latest) return null;

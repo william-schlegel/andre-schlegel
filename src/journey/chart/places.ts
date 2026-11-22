@@ -122,6 +122,14 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Nuremberg', at: [11.08, 49.45], label: 'left', sheet: 'europe-du-nord-ouest' },
   { name: 'Stuttgart', at: [9.18, 48.78], label: 'below', sheet: 'europe-du-nord-ouest' },
   { name: 'Munich', at: [11.58, 48.14], sheet: 'europe-du-nord-ouest' },
+  // both shores of the Atlantic, for the flight of 1946: a sheet of a far smaller scale, with towns of its own
+  { name: 'Londres', at: [-0.12, 51.5], label: 'left', sheet: 'atlantique-sud' },
+  { name: 'Lisbonne', at: [-9.14, 38.72], label: 'left', sheet: 'atlantique-sud' },
+  { name: 'Alger', at: [3.06, 36.75], label: 'above', sheet: 'atlantique-sud' },
+  { name: 'Conakry', at: [-13.7, 9.5], label: 'left', sheet: 'atlantique-sud' },
+  { name: 'Bamako', at: [-8.0, 12.65], sheet: 'atlantique-sud' },
+  { name: 'Niamey', at: [2.11, 13.51], sheet: 'atlantique-sud' },
+  { name: 'Natal', at: [-35.2, -5.8], label: 'left', sheet: 'atlantique-sud' },
 ];
 
 export interface Post {
@@ -130,6 +138,8 @@ export interface Post {
   at: [number, number];
   /** The name is written to the right of the ring; `label` moves it up (negative) or down, in metres, clear of a Route. */
   label?: number;
+  /** The name is written to the left of the ring instead, where the right is taken. */
+  left?: boolean;
 }
 
 /** The places of André Schlegel's career: inked on the Chart as the Narration reaches them. */
@@ -151,6 +161,11 @@ export const POSTS = {
   rufforth: { name: 'RUFFORTH', note: 'près d’York · mai 1944', at: [-1.18, 53.95] },
   // the station of the two French squadrons, south-east of York
   elvington: { name: 'ELVINGTON', note: 'juillet 1944', at: [-0.99, 53.92] },
+  // after the war: the staff in Paris, then the flight of 1946 to Buenos Aires, « le chemin de l’Aéropostale »
+  paris: { name: 'PARIS', note: 'G.M.M.T.A. · juin 1945', at: [2.35, 48.86], left: true },
+  dakar: { name: 'DAKAR', note: 'escale', at: [-17.45, 14.69], left: true },
+  rio: { name: 'RIO DE JANEIRO', note: 'escale', at: [-43.2, -22.9] },
+  'buenos-aires': { name: 'BUENOS AIRES', note: '30 août – 7 septembre 1946', at: [-58.4, -34.6] },
 } satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
@@ -456,6 +471,12 @@ export interface ChartSheet {
   subject: string[];
   /** The town written as the chief town. */
   capital: string;
+  /**
+   * A sheet of a far smaller scale, with whole continents on it: its coasts come from the
+   * small-scale outlines, its lines are drawn every ten degrees, it shows only the towns set
+   * down for it, and neither rivers nor relief.
+   */
+  world?: boolean;
 }
 
 export const SHEETS = {
@@ -617,6 +638,35 @@ export const SHEETS = {
     ],
     cartouche: [8.7, 31.2],
     rose: [6.2, 38.1],
+  },
+  /** Both shores of the Atlantic, from Paris to the Río de la Plata: the flight of 1946 to Buenos Aires by Dakar and Rio. */
+  'atlantique-sud': {
+    box: [
+      [-70, -40],
+      [20, 53],
+    ],
+    parallels: [-20, 35],
+    meridian: -25,
+    title: 'ATLANTIQUE SUD',
+    width: 0.5,
+    proportions: 0.9426,
+    subject: [],
+    capital: '',
+    world: true,
+    countries: [
+      { text: 'FRANCE', at: [3.6, 44.9], size: 15 },
+      { text: 'SAHARA', at: [1.5, 24.5], size: 30 },
+      { text: 'AFRIQUE OCCIDENTALE FRANÇAISE', at: [-1.2, 19.2], size: 16 },
+      { text: 'BRÉSIL', at: [-52, -9.5], size: 40 },
+      { text: 'ARGENTINE', at: [-64.6, -30.2], size: 18 },
+    ],
+    seas: [
+      { text: 'Océan Atlantique Nord', at: [-42, 30], size: 32 },
+      { text: 'Océan Atlantique Sud', at: [-17, -14.5], size: 32 },
+      { text: 'Équateur', at: [-25, 1.1], size: 17 },
+    ],
+    cartouche: [-5.5, -31.5],
+    rose: [-47, 42.5],
   },
 } satisfies Record<string, ChartSheet>;
 

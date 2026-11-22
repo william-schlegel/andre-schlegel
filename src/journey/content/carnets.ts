@@ -1,5 +1,6 @@
 import carnet1938 from './generated/carnet-1938.json';
 import carnet1940 from './generated/carnet-1940.json';
+import carnet1947 from './generated/carnet-1947.json';
 import reconstructed1940 from './generated/carnet-1940-reconstructed.json';
 import type { CarnetId } from './types';
 
@@ -46,6 +47,13 @@ export const CARNETS: Partial<Record<CarnetId, Carnet>> = {
     opened: 'Souk-el-Arba, le 9 juillet 1940',
     // the scans stop at the end of September 1944: the months to March 1945 are Reconstructed Spreads
     scans: [...carnet1940, ...reconstructed1940],
+  },
+  '1947': {
+    id: '1947',
+    title: 'Carnet individuel des services aériens',
+    holder: 'Capitaine Schlegel, navigateur',
+    opened: 'Villacoublay, le 17 avril 1947',
+    scans: carnet1947,
   },
 };
 

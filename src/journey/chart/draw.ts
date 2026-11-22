@@ -149,7 +149,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
   ctx.save();
   trace(lands);
   ctx.clip();
-  for (const [lon, lat, rx, ry, strength] of RELIEF) {
+  for (const [lon, lat, rx, ry, strength] of sheet.world ? [] : RELIEF) {
     const strokes = Math.round(620 * rx * ry * strength + 70);
     for (let i = 0; i < strokes; i++) {
       // denser towards the middle of the massif
@@ -170,24 +170,32 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
   }
   ctx.restore();
 
-  // ----- meridians and parallels -----
+  // ----- meridians and parallels: every degree, or every ten on a sheet that holds continents -----
+  const step = sheet.world ? 10 : 1;
+  const firstOnOrAfter = (value: number) => Math.ceil(value / step) * step;
   ctx.strokeStyle = 'rgba(42, 38, 32, 0.2)';
   ctx.lineWidth = 1;
-  for (let lon = Math.ceil(west) - 2; lon <= east + 2; lon++) {
+  for (let lon = firstOnOrAfter(west) - 2 * step; lon <= east + 2 * step; lon += step) {
     ctx.beginPath();
     path({ type: 'LineString', coordinates: Array.from({ length: 30 }, (_, i) => [lon, south - 2 + ((north - south + 4) * i) / 29]) });
     ctx.stroke();
   }
-  for (let lat = Math.ceil(south) - 1; lat <= north + 1; lat++) {
+  for (let lat = firstOnOrAfter(south) - step; lat <= north + step; lat += step) {
+    // the equator is drawn firmer, in dashes
+    const equator = sheet.world && lat === 0;
+    ctx.strokeStyle = equator ? 'rgba(63, 100, 124, 0.7)' : 'rgba(42, 38, 32, 0.2)';
+    ctx.lineWidth = equator ? 1.6 : 1;
+    ctx.setLineDash(equator ? [14, 9] : []);
     ctx.beginPath();
     path({ type: 'LineString', coordinates: Array.from({ length: 40 }, (_, i) => [west - 3 + ((east - west + 6) * i) / 39, lat]) });
     ctx.stroke();
   }
+  ctx.setLineDash([]);
 
   // ----- rivers -----
   ctx.strokeStyle = 'rgba(63, 100, 124, 0.85)';
   ctx.lineCap = 'round';
-  for (const river of RIVERS) {
+  for (const river of sheet.world ? [] : RIVERS) {
     const points = river.map((at) => projection(at)!);
     // the stream widens towards its mouth
     for (let i = 1; i < points.length; i++) {
@@ -236,7 +244,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
 
   // ----- towns -----
   for (const town of TOWNS) {
-    if (town.sheet && town.sheet !== id) continue;
+    if (sheet.world ? town.sheet !== id : town.sheet && town.sheet !== id) continue;
     const point = projection(town.at);
     if (!point) continue;
     const [x, y] = point;
@@ -290,7 +298,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
   ctx.fillStyle = INK;
   ctx.font = '400 20px "Special Elite", monospace';
   ctx.textBaseline = 'middle';
-  for (let lon = Math.ceil(west); lon <= Math.floor(east); lon++) {
+  for (let lon = firstOnOrAfter(west); lon <= Math.floor(east); lon += step) {
     for (const [lat, y] of [
       [north, inner.y - 40],
       [south, inner.y + inner.h + 42],
@@ -301,7 +309,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
       ctx.fillText(`${Math.abs(lon)}°${lon === 0 ? '' : lon < 0 ? ' O' : ' E'}`, edge, y);
     }
   }
-  for (let lat = Math.ceil(south); lat <= Math.floor(north); lat++) {
+  for (let lat = firstOnOrAfter(south); lat <= Math.floor(north); lat += step) {
     for (const [lon, x, align] of [
       [west, inner.x - 26, 'right'],
       [east, inner.x + inner.w + 26, 'left'],
@@ -309,7 +317,8 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
       const edge = crossing(projection, [lon - 3, lat], [lon + 3, lat], 'x', lon === west ? inner.x : inner.x + inner.w);
       if (edge === null || edge < inner.y + 10 || edge > inner.y + inner.h - 10) continue;
       ctx.textAlign = align;
-      ctx.fillText(`${lat}°`, x, edge);
+      // a sheet that crosses the equator says which side of it a parallel is on
+      ctx.fillText(sheet.world ? `${Math.abs(lat)}°${lat === 0 ? '' : lat < 0 ? ' S' : ' N'}` : `${lat}°`, x, edge);
     }
   }
   ctx.textAlign = 'center';
@@ -444,13 +453,14 @@ function drawCartouche(ctx: CanvasRenderingContext2D, x: number, y: number, shee
   ctx.fillText('Carte aéronautique', w / 2, 112);
   ctx.fillRect(w / 2 - 70, 126, 140, 1.5);
 
-  // the scale: a hundred kilometres measured along the sheet's middle parallel
+  // the scale: a hundred kilometres (a thousand on a sheet that holds continents) measured along the sheet's middle parallel
   const [[west], [east]] = sheet.box;
   const latitude = (sheet.parallels[0] + sheet.parallels[1]) / 2;
   const middle = (west + east) / 2;
-  const degreesFor100km = 100 / (111.32 * Math.cos((latitude * Math.PI) / 180));
+  const kilometres = sheet.world ? 1000 : 100;
+  const degreesForUnit = kilometres / (111.32 * Math.cos((latitude * Math.PI) / 180));
   const a = projection([middle, latitude])!;
-  const b = projection([middle + degreesFor100km, latitude])!;
+  const b = projection([middle + degreesForUnit, latitude])!;
   const unit = Math.hypot(b[0] - a[0], b[1] - a[1]);
   const start = w / 2 - unit;
   for (let i = 0; i < 2; i++) {
@@ -460,7 +470,7 @@ function drawCartouche(ctx: CanvasRenderingContext2D, x: number, y: number, shee
   }
   ctx.fillStyle = INK;
   ctx.font = '400 17px "Special Elite", monospace';
-  for (let i = 0; i <= 2; i++) ctx.fillText(String(i * 100), start + unit * i, 194);
+  for (let i = 0; i <= 2; i++) ctx.fillText(String(i * kilometres), start + unit * i, 194);
   ctx.fillText('kilomètres', w / 2, 216);
   ctx.restore();
 }

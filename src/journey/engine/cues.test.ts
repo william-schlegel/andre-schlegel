@@ -65,6 +65,11 @@ describe('cueInFocus', () => {
   it('returns to the whole table when the hold is over', () => expect(cueInFocus(cues, 26)).toBeNull());
   it('does not go back to an older cue after a hold', () => expect(cueInFocus(cues, 39)).toBeNull());
   it('lets go of a cue that has left the table', () => expect(cueInFocus(cues, 55)).toBeNull());
+  it('does not look at what is set down aside', () => {
+    const beside = [print('a', 10), print('b', 12, { aside: true })];
+    expect(cueInFocus(beside, 13)?.id).toBe('a');
+    expect(cuesOnTable(beside, 13).map((cue) => cue.id)).toEqual(['a', 'b']);
+  });
 
   const film = { kind: 'projection', id: 'film', at: 100, starts: 102, until: 200, src: 'f.mp4', size: [4, 3], place: { x: 0, z: 0 }, width: 0.6, legend: 'f', source: 'test' } as Cue;
   const during = [print('a', 10), film, print('glance', 150, { hold: 5 })];
