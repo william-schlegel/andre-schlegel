@@ -146,6 +146,32 @@ function VichyScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 5, L’école anglaise: a hut on a Scottish airfield, in the pale light of a northern winter ----------
+
+const BRITAIN_CHART: Place = { x: -0.62, z: -0.15, turn: -1.5 };
+const BRITAIN_WIDE: Shot = { x: 0.3, z: 0.1, distance: 2.75, tilt: 24 };
+const britainShot = shotsFor('grande-bretagne', BRITAIN_CHART, 0.3);
+
+function BritainScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={BRITAIN_WIDE}
+      shotFor={britainShot}
+      // Liverpool is inked by the Chapter opening; each school is reached by a Route from the one before
+      chart={(views) => (
+        <Chart
+          sheet="grande-bretagne"
+          place={BRITAIN_CHART}
+          posts={['liverpool', ...views.filter(isPost).filter((view) => view !== 'liverpool')]}
+          events={views.filter(isEvent)}
+        />
+      )}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
@@ -161,5 +187,11 @@ export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
     Scene: VichyScene,
     wide: VICHY_WIDE,
     opening: { sheet: 'maroc-algerie', place: VICHY_CHART, post: 'blida' },
+  },
+  'ecole-anglaise': {
+    look: 'north',
+    Scene: BritainScene,
+    wide: BRITAIN_WIDE,
+    opening: { sheet: 'grande-bretagne', place: BRITAIN_CHART, post: 'liverpool' },
   },
 };

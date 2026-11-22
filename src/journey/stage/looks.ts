@@ -64,6 +64,14 @@ export const LOOKS = {
     surface: 'cloth',
     day: 1,
   },
+  /** Scotland and Yorkshire, the winter of 1943-1944: a pale northern day through a hut's window, cold and blue. */
+  north: {
+    backdrop: '#0c1014',
+    key: { colour: '#dbe6f2', strength: 14, from: [1.1, 1.9, -0.7], spread: 0.95, softness: 0.85 },
+    fill: { sky: '#aebfd3', ground: '#4b5058', strength: 1.0 },
+    surface: 'oak',
+    day: 1,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

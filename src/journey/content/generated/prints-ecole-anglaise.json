@@ -1,0 +1,74 @@
+{
+ "paquebot-marnix": [
+  800,
+  511
+ ],
+ "embarquement": [
+  800,
+  520
+ ],
+ "troupes-sur-le-pont": [
+  322,
+  482
+ ],
+ "docks-de-liverpool": [
+  735,
+  556
+ ],
+ "arrivee-liverpool": [
+  720,
+  576
+ ],
+ "base-de-dumfries": [
+  626,
+  1000
+ ],
+ "anson-en-vol": [
+  675,
+  380
+ ],
+ "ansons-au-sol": [
+  751,
+  458
+ ],
+ "anson-musee-moteur": [
+  1600,
+  1067
+ ],
+ "anson-musee-cabine": [
+  1600,
+  1067
+ ],
+ "base-de-lossiemouth": [
+  619,
+  712
+ ],
+ "plan-de-lossiemouth": [
+  1146,
+  1177
+ ],
+ "wellington-neige": [
+  1564,
+  1073
+ ],
+ "bombardiers-tableau": [
+  1600,
+  1067
+ ],
+ "wellington-en-vol": [
+  1600,
+  800
+ ],
+ "halifax-v": [
+  600,
+  361
+ ],
+ "halifax-h-controleur": [
+  800,
+  619
+ ],
+ "schlegel-en-angleterre": [
+  459,
+  501
+ ]
+}

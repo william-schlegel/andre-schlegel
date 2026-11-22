@@ -80,6 +80,20 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Orléansville', at: [1.33, 36.17], label: 'above', sheet: 'maroc-algerie' },
   { name: 'Djelfa', at: [3.25, 34.67], sheet: 'maroc-algerie' },
   { name: 'Bougie', at: [5.08, 36.75], label: 'above', sheet: 'maroc-algerie' },
+  // Great Britain, at the scale of the schools of 1943-1944 (the towns the posts' names would run over are left out)
+  { name: 'Édimbourg', at: [-3.19, 55.95], sheet: 'grande-bretagne' },
+  { name: 'Glasgow', at: [-4.25, 55.86], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Aberdeen', at: [-2.1, 57.15], sheet: 'grande-bretagne' },
+  { name: 'Inverness', at: [-4.22, 57.48], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Belfast', at: [-5.93, 54.6], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Dublin', at: [-6.26, 53.35], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Birmingham', at: [-1.9, 52.48], sheet: 'grande-bretagne' },
+  { name: 'Bristol', at: [-2.59, 51.45], sheet: 'grande-bretagne' },
+  { name: 'Cardiff', at: [-3.18, 51.48], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Plymouth', at: [-4.14, 50.37], label: 'above', sheet: 'grande-bretagne' },
+  { name: 'Southampton', at: [-1.4, 50.9], label: 'above', sheet: 'grande-bretagne' },
+  { name: 'Norwich', at: [1.3, 52.63], label: 'left', sheet: 'grande-bretagne' },
+  { name: 'Douvres', at: [1.31, 51.13], label: 'left', sheet: 'grande-bretagne' },
 ];
 
 export interface Post {
@@ -102,6 +116,11 @@ export const POSTS = {
   blida: { name: 'BLIDA', note: 'juin 1940', at: [2.83, 36.47], label: 0.013 },
   // the same base as in April, for the week of the raids on Gibraltar
   'meknes-1940': { name: 'MEKNÈS', note: 'septembre 1940', at: [-5.55, 33.89], label: 0.02 },
+  // the schools of the Royal Air Force, one after the other
+  liverpool: { name: 'LIVERPOOL', note: 'arrivée le 8 octobre 1943', at: [-2.99, 53.41] },
+  dumfries: { name: 'DUMFRIES', note: '10 AFU · novembre 1943', at: [-3.61, 55.07] },
+  lossiemouth: { name: 'LOSSIEMOUTH', note: '20 OTU · février 1944', at: [-3.28, 57.72], label: -0.012 },
+  rufforth: { name: 'RUFFORTH', note: 'près d’York · mai 1944', at: [-1.18, 53.95] },
 } satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
@@ -164,6 +183,16 @@ export const EVENTS = {
       [5.6, 38.6],
     ],
   },
+  // the troopship comes in from the Irish Sea: only the landfall is drawn, the convoy's course is not known
+  traversee: {
+    note: 'd’Alger, par mer',
+    label: [-5.97, 53.64],
+    arrows: [{ from: [-5.25, 54.0], to: [-3.22, 53.5], bow: -0.06 }],
+    box: [
+      [-7.2, 52.3],
+      [0.4, 55.1],
+    ],
+  },
 } satisfies Record<string, ChartEvent>;
 
 export type EventId = keyof typeof EVENTS;
@@ -210,6 +239,14 @@ export const RIVERS: [number, number][][] = [
   [[-4.6, 33.7], [-5.0, 34.05], [-5.6, 34.3], [-6.3, 34.3], [-6.65, 34.26]],
   // Guadalquivir
   [[-3.0, 37.9], [-4.0, 38.0], [-4.8, 37.88], [-5.98, 37.39], [-6.35, 36.8]],
+  // Tamise
+  [[-1.95, 51.67], [-1.26, 51.75], [-0.98, 51.46], [-0.3, 51.42], [0.1, 51.5], [0.65, 51.48]],
+  // Severn
+  [[-3.4, 52.47], [-2.75, 52.71], [-2.22, 52.19], [-2.27, 51.86], [-2.62, 51.62]],
+  // Trent
+  [[-2.15, 53.05], [-1.55, 52.79], [-0.94, 52.95], [-0.76, 53.4], [-0.7, 53.68]],
+  // Shannon
+  [[-8.0, 54.1], [-7.95, 53.45], [-8.3, 52.9], [-8.62, 52.66]],
 ];
 
 /** High ground, hinted by hachures: [longitude, latitude, radius along x in degrees, radius along y, strength]. */
@@ -236,6 +273,13 @@ export const RELIEF: [number, number, number, number, number][] = [
   [0.8, 33.6, 3.0, 0.35, 0.6],
   [6.6, 35.35, 0.8, 0.35, 0.8],
   [-3.2, 37.05, 1.0, 0.25, 0.8],
+  // Highlands, Grampians, Southern Uplands, Pennines, Lake District, Wales
+  [-5.0, 57.2, 0.75, 0.75, 0.8],
+  [-3.9, 56.9, 0.75, 0.28, 0.7],
+  [-3.6, 55.45, 1.0, 0.18, 0.4],
+  [-2.25, 54.45, 0.28, 0.75, 0.5],
+  [-3.1, 54.5, 0.22, 0.17, 0.5],
+  [-3.75, 52.6, 0.4, 0.6, 0.6],
 ];
 
 export interface ChartSheet {
@@ -336,6 +380,34 @@ export const SHEETS = {
     ],
     cartouche: [-8.3, 36.85],
     rose: [4.5, 37.75],
+  },
+  /** Great Britain, from the Channel to the Moray Firth: Liverpool, then the schools of Dumfries, Lossiemouth and Rufforth. */
+  'grande-bretagne': {
+    box: [
+      [-8.6, 49.8],
+      [2.2, 59.0],
+    ],
+    parallels: [52, 57],
+    meridian: -3.2,
+    title: 'GRANDE-BRETAGNE',
+    width: 0.52,
+    proportions: 0.7695,
+    subject: ['United Kingdom'],
+    capital: 'Londres',
+    countries: [
+      { text: 'ÉCOSSE', at: [-4.35, 56.6], size: 26 },
+      { text: 'ANGLETERRE', at: [-1.15, 52.15], size: 28 },
+      { text: 'GALLES', at: [-3.75, 52.25], size: 18 },
+      { text: 'IRLANDE', at: [-7.55, 53.3], size: 24 },
+      { text: 'FRANCE', at: [1.72, 50.22], size: 17 },
+    ],
+    seas: [
+      { text: 'Mer du Nord', at: [0.45, 57.15], size: 30 },
+      { text: 'Océan Atlantique', at: [-7.45, 56.0], size: 22 },
+      { text: 'Manche', at: [-1.6, 50.2], size: 26 },
+    ],
+    cartouche: [0.35, 55.95],
+    rose: [1.05, 54.75],
   },
   /** French North Africa, from the Atlantic to Tunis, with the south of Spain and Gibraltar. */
   'afrique-du-nord': {

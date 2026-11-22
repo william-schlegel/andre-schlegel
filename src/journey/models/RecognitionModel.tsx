@@ -4,10 +4,13 @@ import { CanvasTexture, DoubleSide, MathUtils, SRGBColorSpace, type BufferGeomet
 import type { ModelCue, ModelId } from '../content/types';
 import { contactShadowTexture } from '../stage/surfaces';
 import { whenFontsReady } from '../stage/textures';
+import { ANSON, anson } from './anson';
 import { BLOCH_200, bloch200 } from './bloch200';
 import { BLOCH_210, bloch210 } from './bloch210';
 import { DB_7, db7 } from './db7';
+import { HALIFAX, halifax } from './halifax';
 import { POTEZ_25, potez25 } from './potez25';
+import { WELLINGTON, wellington } from './wellington';
 
 /** All the models are to the same scale, as a set of recognition models is. */
 export const MODEL_SCALE = 1 / 60;
@@ -26,6 +29,9 @@ const AIRFRAMES: Partial<Record<ModelId, Airframe>> = {
   'potez-25': { make: potez25, ...POTEZ_25 },
   'bloch-210': { make: bloch210, ...BLOCH_210 },
   'db-7': { make: db7, ...DB_7 },
+  anson: { make: anson, ...ANSON },
+  wellington: { make: wellington, ...WELLINGTON },
+  halifax: { make: halifax, ...HALIFAX },
 };
 
 const castings = new Map<ModelId, BufferGeometry>();
@@ -127,6 +133,11 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
     const node = root.current;
     if (!node) return;
     node.visible = p > 0.01;
+    if (card.current) {
+      card.current.opacity = MathUtils.clamp((p - 0.6) / 0.4, 0, 1) * (inHand ? 0 : 1);
+      // a label not there must not hide the label of the model that has taken its place
+      card.current.visible = card.current.opacity > 0.01;
+    }
     if (!node.visible) return;
     // set down from above, as by a hand
     node.position.y = (1 - p) * 0.3;
@@ -144,7 +155,6 @@ export function RecognitionModel({ cue, shown, inHand, onOpen }: RecognitionMode
       attitude.current.rotation.z = MathUtils.degToRad(5);
       attitude.current.rotation.x = MathUtils.degToRad(-9);
     }
-    if (card.current) card.current.opacity = MathUtils.clamp((p - 0.6) / 0.4, 0, 1) * (inHand ? 0 : 1);
   });
 
   const down = (event: ThreeEvent<PointerEvent>) => {
