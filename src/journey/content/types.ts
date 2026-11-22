@@ -174,7 +174,23 @@ export interface ProjectionCue extends CueBase {
   source: string;
 }
 
-export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue | ProjectionCue;
+/** A citation or an order, typed on a sheet of paper while Eric reads it out. */
+export interface TypedCue extends CueBase {
+  kind: 'typed';
+  place: Place;
+  /** Width of the sheet on the table, in metres. */
+  width: number;
+  /** The letterhead: who signs the order, its number and its date. */
+  heading: string[];
+  /** What Eric reads. */
+  text: string;
+  /** The words are typed as he reads them: from this moment to that one. */
+  reading: [number, number];
+  legend: string;
+  source: string;
+}
+
+export type Cue = PrintCue | SpreadCue | ModelCue | ChartCue | DecorationCue | NoteCue | ViewCue | ProjectionCue | TypedCue;
 
 /** The Carnet André is filling during the Chapter, and where it lies on the table. */
 export interface CompanionPlace {
@@ -183,6 +199,8 @@ export interface CompanionPlace {
   place: Place;
   /** The view the book shows as the Chapter starts: 0 is closed, 1 the title page, n the nth scan. */
   view: number;
+  /** The Carnet that replaces it during the Chapter, when the Narration reaches the pages of a new book. */
+  next?: { at: number; carnet: CarnetId };
 }
 
 export interface ChapterContent {

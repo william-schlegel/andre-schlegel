@@ -21,11 +21,12 @@ export function PostingSheet({ chapter, posting, typed }: { chapter: Chapter; po
 
   return (
     <div className="relative w-[19.5rem] bg-paper px-5 pb-4 pt-3 text-ink shadow-[0_10px_30px_rgb(0_0_0/0.55)] [background-image:repeating-linear-gradient(to_bottom,transparent_0,transparent_1.45rem,rgb(60_90_140/0.16)_1.45rem,rgb(60_90_140/0.16)_calc(1.45rem+1px))]">
-      <div className="flex items-baseline justify-between border-b border-red-ink/60 pb-1">
-        <span className="title-face text-[1.02rem] tracking-wide">
-          {chapter.number ? `Chapitre ${chapter.number}` : ''} · {chapter.title}
-        </span>
-        <span className="typed text-[0.62rem] uppercase tracking-[0.2em] text-red-ink">Affectation</span>
+      <div className="border-b border-red-ink/60 pb-1">
+        <p className="typed flex justify-between text-[0.6rem] uppercase leading-[1.1rem] tracking-[0.2em] text-red-ink">
+          <span>{chapter.number ? `Chapitre ${chapter.number}` : ''}</span>
+          <span>Affectation</span>
+        </p>
+        <p className="title-face text-[1.08rem] leading-tight tracking-wide">{chapter.title}</p>
       </div>
       <dl className="typed mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-[0.8rem] leading-[1.45rem]">
         <dt className="text-ink-soft">Grade</dt>

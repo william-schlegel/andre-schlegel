@@ -48,6 +48,14 @@ export const LOOKS = {
     surface: 'cloth',
     day: 1,
   },
+  /** The campaign of May and June 1940: a low grey sky over a field table, the light cold and without shadows. */
+  overcast: {
+    backdrop: '#101214',
+    key: { colour: '#e6ebf1', strength: 12, from: [-0.7, 2.2, -0.8], spread: 0.95, softness: 0.95 },
+    fill: { sky: '#c0cad6', ground: '#5e5a53', strength: 1.15 },
+    surface: 'oak',
+    day: 1,
+  },
 } satisfies Record<string, Look>;
 
 export type LookName = keyof typeof LOOKS;

@@ -13,6 +13,7 @@ export type Phase = 'introduction' | 'opening' | 'scene' | 'end';
 /** A Close-up pauses the Narration, and resumes it when closed. */
 export type CloseUp =
   | { kind: 'print'; id: string }
+  | { kind: 'typed'; id: string }
   | { kind: 'carnet'; carnet: CarnetId; spread: number }
   | { kind: 'model'; model: ModelId }
   | { kind: 'text' }

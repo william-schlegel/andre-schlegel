@@ -61,7 +61,7 @@ export const AIRCRAFT: Partial<Record<ModelId, Aircraft>> = {
     id: 'db-7',
     name: 'Douglas DB-7',
     kind: 'Bombardier moyen bimoteur américain, à train tricycle',
-    role: 'Meknès, printemps 1940 : dix jours et onze missions pour le prendre en main, avant la campagne de France.',
+    role: 'Meknès, printemps 1940 : dix jours et onze missions pour le prendre en main ; puis les missions de guerre de la campagne de France.',
     facts: [
       ['Premier vol', '1939'],
       ['Équipage', '3 hommes'],

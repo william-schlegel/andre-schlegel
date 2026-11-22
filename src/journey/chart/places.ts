@@ -8,6 +8,8 @@ export interface ChartPlace {
   at: [number, number];
   /** Where the name is written, relative to the dot. */
   label?: 'right' | 'left' | 'above' | 'below';
+  /** A small town, drawn only on the sheet whose scale has room for it. */
+  sheet?: string;
 }
 
 /** Towns drawn on the Chart for orientation. */
@@ -45,6 +47,26 @@ export const TOWNS: ChartPlace[] = [
   { name: 'Colomb-Béchar', at: [-2.22, 31.62] },
   { name: 'Séville', at: [-5.98, 37.39], label: 'above' },
   { name: 'Carthagène', at: [-0.99, 37.6], label: 'above' },
+  // the north of France, at the scale of the campaign of 1940
+  { name: 'Rouen', at: [1.1, 49.44], label: 'above', sheet: 'nord-de-la-france' },
+  { name: 'Amiens', at: [2.3, 49.9], label: 'below', sheet: 'nord-de-la-france' },
+  { name: 'Abbeville', at: [1.83, 50.11], label: 'left', sheet: 'nord-de-la-france' },
+  { name: 'Saint-Quentin', at: [3.29, 49.85], sheet: 'nord-de-la-france' },
+  { name: 'Arras', at: [2.78, 50.29], label: 'left', sheet: 'nord-de-la-france' },
+  { name: 'Cambrai', at: [3.23, 50.18], sheet: 'nord-de-la-france' },
+  { name: 'Calais', at: [1.86, 50.95], label: 'below', sheet: 'nord-de-la-france' },
+  { name: 'Reims', at: [4.03, 49.26], sheet: 'nord-de-la-france' },
+  { name: 'Troyes', at: [4.07, 48.3], sheet: 'nord-de-la-france' },
+  { name: 'Chartres', at: [1.49, 48.45], label: 'left', sheet: 'nord-de-la-france' },
+  { name: 'Le Mans', at: [0.2, 48.0], label: 'left', sheet: 'nord-de-la-france' },
+  { name: 'Tours', at: [0.69, 47.39], label: 'below', sheet: 'nord-de-la-france' },
+  { name: 'Caen', at: [-0.37, 49.18], label: 'below', sheet: 'nord-de-la-france' },
+  { name: 'Cherbourg', at: [-1.62, 49.64], label: 'below', sheet: 'nord-de-la-france' },
+  { name: 'Rennes', at: [-1.68, 48.11], sheet: 'nord-de-la-france' },
+  { name: 'Bourges', at: [2.4, 47.08], sheet: 'nord-de-la-france' },
+  { name: 'Auxerre', at: [3.57, 47.8], sheet: 'nord-de-la-france' },
+  { name: 'Metz', at: [6.18, 49.12], label: 'left', sheet: 'nord-de-la-france' },
+  { name: 'Nancy', at: [6.18, 48.69], label: 'left', sheet: 'nord-de-la-france' },
 ];
 
 export interface Post {
@@ -61,6 +83,9 @@ export const POSTS = {
   oran: { name: 'ORAN', note: 'La Sénia, base 121', at: [-0.61, 35.62], label: -0.017 },
   biskra: { name: 'BISKRA', note: 'septembre 1939', at: [5.73, 34.85] },
   meknes: { name: 'MEKNÈS', note: 'avril 1940', at: [-5.55, 33.89], label: 0.02 },
+  // Damville, south of Évreux: « Danville » in André's hand and on the Film's title
+  evreux: { name: 'ÉVREUX', note: 'mai 1940', at: [1.07, 48.87], label: -0.017 },
+  pithiviers: { name: 'PITHIVIERS', note: 'juin 1940', at: [2.25, 48.17], label: 0.012 },
 } satisfies Record<string, Post>;
 
 export type PostId = keyof typeof POSTS;
@@ -91,6 +116,12 @@ export const RIVERS: [number, number][][] = [
   [[2.75, 45.55], [2.2, 45.2], [1.6, 44.9], [0.5, 44.85], [-0.25, 44.92], [-0.55, 45.03]],
   // Meuse
   [[5.6, 48.0], [5.4, 48.75], [5.38, 49.16], [4.95, 49.7], [4.75, 50.1], [4.87, 50.47], [5.57, 50.64], [5.7, 51.0]],
+  // Somme
+  [[3.3, 49.85], [2.9, 49.93], [2.3, 49.9], [1.83, 50.1], [1.6, 50.2]],
+  // Marne
+  [[5.1, 48.1], [4.9, 48.6], [4.36, 48.96], [3.95, 49.05], [3.4, 49.04], [2.9, 48.95], [2.45, 48.82]],
+  // Oise
+  [[4.1, 49.95], [3.6, 49.75], [3.0, 49.42], [2.6, 49.25], [2.2, 49.07], [2.06, 48.94]],
   // Chélif
   [[2.9, 35.2], [2.3, 35.95], [1.33, 36.16], [0.6, 36.0], [0.13, 36.04]],
   // Moulouya
@@ -116,6 +147,9 @@ export const RELIEF: [number, number, number, number, number][] = [
   [8.1, 48.1, 0.3, 0.8, 0.45],
   [-5.0, 43.0, 2.4, 0.4, 0.6],
   [9.1, 42.2, 0.3, 0.7, 0.6],
+  // Ardennes, Morvan
+  [4.9, 49.95, 0.9, 0.28, 0.4],
+  [4.0, 47.15, 0.35, 0.4, 0.4],
   // Atlas, Rif, Aurès, Sierra Nevada
   [-7.2, 31.2, 2.0, 0.5, 1],
   [-4.9, 33.0, 0.9, 0.55, 0.8],
@@ -177,6 +211,28 @@ export const SHEETS = {
     ],
     cartouche: [-4.05, 45.5],
     rose: [7.0, 42.35],
+  },
+  /** From the Loire to the Belgian border: the campaign of May and June 1940. */
+  'nord-de-la-france': {
+    box: [
+      [-2.3, 46.85],
+      [6.5, 51.35],
+    ],
+    parallels: [48, 50],
+    meridian: 2.1,
+    title: 'NORD DE LA FRANCE',
+    width: 0.74,
+    proportions: 1.28,
+    subject: ['France'],
+    capital: 'Paris',
+    countries: [
+      { text: 'BELGIQUE', at: [4.75, 50.55], turn: -8, size: 26 },
+      { text: 'ANGLETERRE', at: [0.1, 51.14], size: 22 },
+      { text: 'ALLEMAGNE', at: [6.32, 50.25], turn: -78, size: 20 },
+    ],
+    seas: [{ text: 'Manche', at: [-0.95, 49.98], size: 32 }],
+    cartouche: [-1.02, 50.66],
+    rose: [0.72, 50.36],
   },
   /** French North Africa, from the Atlantic to Tunis, with the south of Spain and Gibraltar. */
   'afrique-du-nord': {

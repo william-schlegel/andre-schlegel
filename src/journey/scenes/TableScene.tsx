@@ -1,7 +1,8 @@
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { MathUtils, type Group } from 'three';
 import { DECORATIONS } from '../content/ouverture';
-import type { ChapterContent, ChartCue, Cue, DecorationCue, ModelCue, PrintCue, ProjectionCue, SpreadCue } from '../content/types';
+import type { CarnetId, ChapterContent, ChartCue, Cue, DecorationCue, ModelCue, PrintCue, ProjectionCue, SpreadCue, TypedCue } from '../content/types';
 import { cueInFocus } from '../engine/cues';
 import { getClock, openCloseUp, sameList, useNarration } from '../engine/journey';
 import { useJourney } from '../engine/store';
@@ -11,6 +12,7 @@ import { Decoration } from '../stage/Decoration';
 import { Print, printRect } from '../stage/Print';
 import { Projection, projectionShot } from '../stage/Projection';
 import { lookAt, shotOn, WIDE_SHOT, type Shot } from '../stage/shot';
+import { TypedSheet, typedRect } from '../stage/TypedSheet';
 
 /** A sound only when the Narration brought the thing, not when the visitor jumped past it. */
 function arrivedByListening(cue: Cue): boolean {
@@ -50,6 +52,7 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   const charts = useMemo(() => cues.filter((cue): cue is ChartCue => cue.kind === 'chart'), [cues]);
   const decorations = useMemo(() => cues.filter((cue): cue is DecorationCue => cue.kind === 'decoration'), [cues]);
   const projections = useMemo(() => cues.filter((cue): cue is ProjectionCue => cue.kind === 'projection'), [cues]);
+  const typed = useMemo(() => cues.filter((cue): cue is TypedCue => cue.kind === 'typed'), [cues]);
 
   // while waiting, time stands before the first word
   const at = (time: number) => (waiting ? -0.5 : time);
@@ -60,6 +63,9 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
   );
   const shown = useMemo(() => new Set(shownIds), [shownIds]);
   const focus = useNarration((time) => (waiting ? null : cueInFocus(cues, time)));
+  // the Carnet André is filling: the Chapter's, until the Narration reaches the pages of the next one
+  const next = companion.next;
+  const carnet = useNarration((time): CarnetId => (next && at(time) >= next.at ? next.carnet : companion.carnet));
   const spreadCue = useNarration((time) => {
     let latest: SpreadCue | null = null;
     for (const cue of spreads) if (cue.at <= at(time)) latest = cue;
@@ -81,7 +87,12 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
 
   const closeUp = useJourney((state) => state.closeUp);
   const browsing = closeUp?.kind === 'carnet' ? closeUp.spread : null;
-  const view = browsing ?? spreadCue?.spread ?? companion.view;
+  /** What a book shows: the visitor's page while he browses it, else the Spread Eric cites; put away, it is closed. */
+  const viewOf = (book: CarnetId, start: number): number => {
+    if (closeUp?.kind === 'carnet' && closeUp.carnet === book) return closeUp.spread;
+    if (book !== carnet) return 0;
+    return spreadCue?.carnet === book ? spreadCue.spread : start;
+  };
 
   // ----- the camera goes to what Eric shows -----
   const aspect = useThree((state) => state.size.width / state.size.height);
@@ -94,6 +105,7 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
     else if (focus.kind === 'print') shot = shotOn(printRect(focus), aspect, 11, 0.92);
     else if (focus.kind === 'spread') shot = shotOn(companionFrame(companion.place, true), aspect, 7);
     else if (focus.kind === 'projection') shot = projectionShot(focus, aspect);
+    else if (focus.kind === 'typed') shot = shotOn(typedRect(focus), aspect, 10, 0.94);
     else if (focus.kind === 'view') shot = wide;
     else shot = shotFor?.(focus, aspect) ?? wide;
     lookAt(shot);
@@ -103,6 +115,21 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
     () => (spreadCue?.marks ?? []).map((mark, index) => ({ spread: spreadCue!.spread, box: mark.box, shown: index < marksShown && browsing === null })),
     [spreadCue, marksShown, browsing],
   );
+  const book = (id: CarnetId, start: number) => {
+    const view = viewOf(id, start);
+    return (
+      <Companion
+        carnet={id}
+        place={companion.place}
+        view={view}
+        startView={view}
+        sharp={(focus?.kind === 'spread' && focus.carnet === id) || (browsing !== null && closeUp?.kind === 'carnet' && closeUp.carnet === id)}
+        marks={spreadCue?.carnet === id ? marks : undefined}
+        onOpen={waiting ? onBegin : () => openCloseUp({ kind: 'carnet', carnet: id, spread: Math.max(1, view) })}
+        onTurn={(what) => playSound(what)}
+      />
+    );
+  };
 
   return (
     <>
@@ -117,16 +144,29 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
         />
       ))}
 
-      <Companion
-        carnet={companion.carnet}
-        place={companion.place}
-        view={view}
-        startView={view}
-        sharp={focus?.kind === 'spread' || browsing !== null}
-        marks={marks}
-        onOpen={waiting ? onBegin : () => openCloseUp({ kind: 'carnet', carnet: companion.carnet, spread: Math.max(1, view) })}
-        onTurn={(what) => playSound(what)}
-      />
+      {typed.map((cue, index) => (
+        <TypedSheet
+          key={cue.id}
+          cue={cue}
+          order={prints.length + index}
+          shown={shown.has(cue.id)}
+          onOpen={() => openCloseUp({ kind: 'typed', id: cue.id })}
+          onLand={() => arrivedByListening(cue) && playSound('print')}
+        />
+      ))}
+
+      {next ? (
+        <>
+          <InHand held={carnet === companion.carnet} towards="left">
+            {book(companion.carnet, companion.view)}
+          </InHand>
+          <InHand held={carnet === next.carnet} towards="viewer">
+            {book(next.carnet, 0)}
+          </InHand>
+        </>
+      ) : (
+        book(companion.carnet, companion.view)
+      )}
 
       {decorations.length > 0 &&
         DECORATIONS.map((decoration) => (
@@ -146,5 +186,42 @@ export function TableScene({ content, waiting = false, onBegin, directed = false
         <Projection key={cue.id} cue={cue} shown={shown.has(cue.id)} />
       ))}
     </>
+  );
+}
+
+/**
+ * A Carnet put away, or taken out: when André starts a new book, the old one is closed and
+ * slid off the table, and the new one is laid in its place.
+ */
+function InHand({ held, towards, children }: { held: boolean; towards: 'left' | 'viewer'; children: ReactNode }) {
+  const group = useRef<Group>(null);
+  // 1: on the table; 0: away. The book is given time to close before it leaves, and room before it comes.
+  const here = useRef(held ? 1 : 0);
+  const since = useRef(10);
+  const was = useRef(held);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.1);
+    if (was.current !== held) {
+      was.current = held;
+      since.current = 0;
+    }
+    since.current += dt;
+    const wait = held ? 2.2 : 1.6;
+    if (since.current > wait) here.current = MathUtils.clamp(here.current + (held ? 1 : -1) * (dt / 1.25), 0, 1);
+    const node = group.current;
+    if (!node) return;
+    const eased = here.current * here.current * (3 - 2 * here.current);
+    const away = 1 - eased;
+    node.visible = away < 0.999;
+    if (towards === 'left') node.position.set(-away * 1.7, 0, away * 0.25);
+    else node.position.set(-away * 0.2, away * 0.05, away * 1.5);
+    node.rotation.y = away * (towards === 'left' ? 0.5 : -0.35);
+  });
+
+  return (
+    <group ref={group} visible={held}>
+      {children}
+    </group>
   );
 }

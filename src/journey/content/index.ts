@@ -1,13 +1,15 @@
 import { algerie } from './algerie';
+import { campagneDeFrance } from './campagne-de-france';
 import { ouverture } from './ouverture';
 import { tours } from './tours';
-import type { ChapterContent, ChapterId, PrintCue } from './types';
+import type { ChapterContent, ChapterId, PrintCue, TypedCue } from './types';
 
 /** The Chapters that are built. */
 const CONTENT: Partial<Record<ChapterId, ChapterContent>> = {
   ouverture,
   tours,
   algerie,
+  'campagne-de-france': campagneDeFrance,
 };
 
 export function contentOf(id: ChapterId): ChapterContent {
@@ -19,4 +21,9 @@ export function contentOf(id: ChapterId): ChapterContent {
 export function printOf(chapter: ChapterId, id: string): PrintCue | null {
   const cue = CONTENT[chapter]?.cues.find((candidate) => candidate.kind === 'print' && candidate.id === id);
   return (cue as PrintCue | undefined) ?? null;
+}
+
+export function typedOf(chapter: ChapterId, id: string): TypedCue | null {
+  const cue = CONTENT[chapter]?.cues.find((candidate) => candidate.kind === 'typed' && candidate.id === id);
+  return (cue as TypedCue | undefined) ?? null;
 }

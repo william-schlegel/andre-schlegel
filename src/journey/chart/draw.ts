@@ -236,6 +236,7 @@ export function drawSheet(id: SheetId, lands: Land[]): HTMLCanvasElement {
 
   // ----- towns -----
   for (const town of TOWNS) {
+    if (town.sheet && town.sheet !== id) continue;
     const point = projection(town.at);
     if (!point) continue;
     const [x, y] = point;
@@ -431,8 +432,14 @@ function drawCartouche(ctx: CanvasRenderingContext2D, x: number, y: number, shee
   ctx.textBaseline = 'alphabetic';
   // a long title is set smaller, to stay inside the block
   const long = sheet.title.length > 8;
-  ctx.font = `700 ${long ? 31 : 58}px "Old Standard TT", serif`;
-  spaced(ctx, sheet.title, w / 2, long ? 68 : 76, long ? 5 : 14);
+  let size = long ? 32 : 58;
+  const spacing = long ? 5 : 14;
+  const fits = () => {
+    ctx.font = `700 ${size}px "Old Standard TT", serif`;
+    return ctx.measureText(sheet.title).width + spacing * (sheet.title.length - 1) <= w - 56;
+  };
+  while (!fits() && size > 18) size -= 1;
+  spaced(ctx, sheet.title, w / 2, long ? 68 : 76, spacing);
   ctx.font = 'italic 400 25px "Old Standard TT", serif';
   ctx.fillText('Carte aéronautique', w / 2, 112);
   ctx.fillRect(w / 2 - 70, 126, 140, 1.5);

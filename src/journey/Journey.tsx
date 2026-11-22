@@ -4,7 +4,8 @@ import { ChaptersCloseUp } from './closeups/ChaptersCloseUp';
 import { ModelCloseUp } from './closeups/ModelCloseUp';
 import { PrintCloseUp } from './closeups/PrintCloseUp';
 import { TextCloseUp } from './closeups/TextCloseUp';
-import { contentOf, printOf } from './content';
+import { TypedCloseUp } from './closeups/TypedCloseUp';
+import { contentOf, printOf, typedOf } from './content';
 import type { ChapterId } from './content/types';
 import { begin, closeCloseUp, getClock, goToChapter, resumeAt, runClock, seek, togglePlay } from './engine/journey';
 import { useJourney } from './engine/store';
@@ -16,6 +17,7 @@ import { Stage } from './stage/Stage';
 import { Captions } from './ui/Captions';
 import { Controls } from './ui/Controls';
 import { EndCard } from './ui/EndCard';
+import { FilmCredit } from './ui/FilmCredit';
 import { Introduction } from './ui/Introduction';
 import { PostingCard } from './ui/PostingCard';
 import { RotateNotice } from './ui/RotateNotice';
@@ -75,6 +77,7 @@ export default function Journey() {
   }, []);
 
   const print = closeUp?.kind === 'print' ? printOf(chapter, closeUp.id) : null;
+  const typedSheet = closeUp?.kind === 'typed' ? typedOf(chapter, closeUp.id) : null;
 
   return (
     <div className="fixed inset-0 select-none overflow-hidden bg-night">
@@ -94,6 +97,7 @@ export default function Journey() {
         <>
           <PostingCard chapter={content.chapter} postings={content.postings} />
           <Controls />
+          {phase === 'scene' && <FilmCredit cues={content.cues} />}
           {captions && phase === 'scene' && <Captions phrases={content.phrases} />}
           <Timeline chapter={chapter} marks={content.marks} />
         </>
@@ -102,6 +106,7 @@ export default function Journey() {
       {phase === 'end' && !closeUp && <EndCard chapter={chapter} />}
 
       {print && <PrintCloseUp print={print} />}
+      {typedSheet && <TypedCloseUp sheet={typedSheet} />}
       {closeUp?.kind === 'carnet' && <CarnetCloseUp carnet={closeUp.carnet} spread={closeUp.spread} place={content.companion.place} />}
       {closeUp?.kind === 'model' && <ModelCloseUp model={closeUp.model} chapter={chapter} />}
       {closeUp?.kind === 'text' && <TextCloseUp content={content} />}

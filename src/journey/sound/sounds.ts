@@ -6,7 +6,7 @@ import { useJourney } from '../engine/store';
  * turning, a rubber stamp, a typewriter key. One switch (store.sounds) silences them all.
  */
 
-export type SoundName = 'lamp' | 'print' | 'leaf' | 'cover' | 'stamp' | 'key' | 'unroll' | 'medal';
+export type SoundName = 'lamp' | 'print' | 'leaf' | 'cover' | 'stamp' | 'key' | 'tick' | 'unroll' | 'medal';
 
 let context: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -112,6 +112,11 @@ export function playSound(name: SoundName, when = 0): void {
       knock({ at, length: 0.03, gain: 0.3, from: 1900 + Math.random() * 500, to: 700, type: 'square' });
       burst({ at, length: 0.045, gain: 0.28, type: 'bandpass', from: 3200, q: 1.2 });
       knock({ at: at + 0.008, length: 0.05, gain: 0.22, from: 240, to: 110 });
+      break;
+    case 'tick':
+      // the same typewriter, heard from across the room while Eric reads
+      knock({ at, length: 0.025, gain: 0.07, from: 1900 + Math.random() * 500, to: 700, type: 'square' });
+      burst({ at, length: 0.04, gain: 0.06, type: 'bandpass', from: 3200, q: 1.2 });
       break;
     case 'unroll':
       burst({ at, length: 1.3, gain: 0.16, type: 'bandpass', from: 700, to: 2600, q: 0.5, attack: 0.3 });

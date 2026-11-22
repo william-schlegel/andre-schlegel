@@ -1,7 +1,7 @@
 import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { DoubleSide, MathUtils, RingGeometry, SRGBColorSpace, TextureLoader, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
-import type { PrintCue } from '../content/types';
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { DoubleSide, MathUtils, RingGeometry, SRGBColorSpace, TextureLoader, type Group, type Mesh, type MeshBasicMaterial, type MeshStandardMaterial, type Texture } from 'three';
+import type { Place, PrintCue } from '../content/types';
 import { useNarration } from '../engine/journey';
 import { contactShadowTexture, paperTexture } from './surfaces';
 
@@ -49,11 +49,37 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
     texture.anisotropy = 8;
     texture.needsUpdate = true;
   }, [texture]);
-
-  const paper = cue.paper ?? 'photo';
-  const border = paper === 'photo' ? BORDER : 0;
   const width = cue.width;
   const depth = printDepth(cue);
+  const ringsShown = useNarration((time) => (cue.rings ?? []).filter((ring) => ring.at <= time).length);
+
+  return (
+    <Leaf texture={texture} width={width} depth={depth} place={cue.place} paper={cue.paper ?? 'photo'} shown={shown} order={order} onOpen={onOpen && (() => onOpen(cue))} onLand={onLand}>
+      {(cue.rings ?? []).map((ring, index) => (
+        <PencilRing key={index} box={ring.box} width={width} depth={depth} shown={shown && index < ringsShown} />
+      ))}
+    </Leaf>
+  );
+}
+
+interface LeafProps {
+  texture: Texture;
+  /** Size of the picture on the table, in metres (a photographic print has a white margin around it). */
+  width: number;
+  depth: number;
+  place: Place;
+  paper: 'photo' | 'sheet' | 'bare';
+  shown: boolean;
+  order: number;
+  onOpen?: () => void;
+  onLand?: () => void;
+  /** What is drawn on it (pencil rings). */
+  children?: ReactNode;
+}
+
+/** A leaf of paper dealt onto the table: how every print and typed sheet arrives, lies, lifts and leaves. */
+export function Leaf({ texture, width, depth, place, paper, shown, order, onOpen, onLand, children }: LeafProps) {
+  const border = paper === 'photo' ? BORDER : 0;
   const shadow = useMemo(() => contactShadowTexture(), []);
   const stock = useMemo(() => paperTexture('white'), []);
 
@@ -67,10 +93,9 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
   const lift = useRef(0);
   const landed = useRef(shown);
   const [hovered, setHovered] = useState(false);
-  const ringsShown = useNarration((time) => (cue.rings ?? []).filter((ring) => ring.at <= time).length);
 
   const rest = 0.0015 + order * 0.0011;
-  const turn = MathUtils.degToRad(cue.place.turn ?? 0);
+  const turn = MathUtils.degToRad(place.turn ?? 0);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
@@ -95,7 +120,7 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
     // ease out: fast at first, then it settles
     const e = 1 - Math.pow(1 - p, 3);
     const away = 1 - e;
-    node.position.set(cue.place.x + away * 0.1, rest + away * 0.34 + lift.current * 0.012, cue.place.z + away * 0.5);
+    node.position.set(place.x + away * 0.1, rest + away * 0.34 + lift.current * 0.012, place.z + away * 0.5);
     node.rotation.set(-away * 0.55, -turn - away * 0.5, away * 0.12);
     const scale = 1 + lift.current * 0.025;
     node.scale.setScalar(scale);
@@ -124,7 +149,7 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
 
   return (
     <group ref={group} visible={false}>
-      {/* the shadow stays on the table while the print lifts */}
+      {/* the shadow stays on the table while the leaf lifts */}
       <mesh rotation-x={-Math.PI / 2} position-y={-rest + 0.0006} renderOrder={order}>
         <planeGeometry args={[(width + border * 2) * 1.32, (depth + border * 2) * 1.32]} />
         <meshBasicMaterial ref={shade} map={shadow} transparent opacity={0} depthWrite={false} color="#000" />
@@ -145,15 +170,13 @@ function PrintOnTable({ cue, shown, order, onOpen, onLand }: PrintProps) {
           if (!shown || !onOpen) return;
           event.stopPropagation();
           out();
-          onOpen(cue);
+          onOpen();
         }}
       >
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial ref={picture} map={texture} roughness={paper === 'photo' ? 0.62 : 0.92} transparent />
       </mesh>
-      {(cue.rings ?? []).map((ring, index) => (
-        <PencilRing key={index} box={ring.box} width={width} depth={depth} shown={shown && index < ringsShown} />
-      ))}
+      {children}
     </group>
   );
 }

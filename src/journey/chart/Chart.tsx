@@ -206,9 +206,18 @@ function routeGeometry(from: { x: number; z: number }, to: { x: number; z: numbe
   return { geometry, dashes };
 }
 
+/** A post's name is lettered at this scale: a canvas 512 pixels wide covers 96 mm of the sheet. */
+const LABEL_SCALE = 0.096 / 512;
+
+/** The width of a post's lettering, in pixels: the longer of its name and its note. */
+function labelPixels(post: PostId): number {
+  const { name, note } = POSTS[post];
+  return Math.max(512, Math.ceil(Math.max(name.length * 62, note.length * 27) + 24));
+}
+
 function postLabel(post: PostId): CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
+  canvas.width = labelPixels(post);
   canvas.height = 160;
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
@@ -302,8 +311,8 @@ function PostMark({ sheet, post, from, lead, fresh }: PostMarkProps) {
         <ringGeometry args={[0.0125, 0.0147, 56]} />
         <meshBasicMaterial color="#a8281e" transparent opacity={0.88} side={DoubleSide} />
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[0.021 + 0.048, 0.0002, (POSTS[post] as Post).label ?? 0.006]}>
-        <planeGeometry args={[0.096, 0.03]} />
+      <mesh rotation-x={-Math.PI / 2} position={[0.021 + (labelPixels(post) * LABEL_SCALE) / 2, 0.0002, (POSTS[post] as Post).label ?? 0.006]}>
+        <planeGeometry args={[labelPixels(post) * LABEL_SCALE, 0.03]} />
         <meshBasicMaterial ref={name} map={label} transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>

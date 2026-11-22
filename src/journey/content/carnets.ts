@@ -1,4 +1,5 @@
 import carnet1938 from './generated/carnet-1938.json';
+import carnet1940 from './generated/carnet-1940.json';
 import type { CarnetId } from './types';
 
 /**
@@ -31,6 +32,13 @@ export const CARNETS: Partial<Record<CarnetId, Carnet>> = {
     holder: 'Sous-lieutenant Schlegel, observateur',
     opened: 'Tours, le 2 juin 1938',
     scans: carnet1938,
+  },
+  '1940': {
+    id: '1940',
+    title: 'Carnet individuel des services aériens',
+    holder: 'Lieutenant Schlegel, observateur',
+    opened: 'Souk-el-Arba, le 9 juillet 1940',
+    scans: carnet1940,
   },
 };
 

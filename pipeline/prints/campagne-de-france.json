@@ -1,0 +1,9 @@
+[
+  { "id": "chars-allemands", "from": "pptx:image50.jpg" },
+  { "id": "artillerie-allemande", "from": "pptx:image51.jpg" },
+  { "id": "db-7-illustration", "from": "pptx:image47.jpg" },
+  { "id": "db-7-en-vol", "from": "pptx:image48.jpg" },
+  { "id": "ceremonie-croix-de-guerre", "from": "film:660.2", "box": [0.3594, 0.002, 0.3104, 0.996] },
+  { "id": "remise-croix-de-guerre", "from": "pptx:image53.jpg" },
+  { "id": "lt-schlegel-croix-de-guerre", "from": "pptx:image54.jpeg" }
+]

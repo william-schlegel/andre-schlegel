@@ -99,8 +99,33 @@ function AlgerieScene(props: SceneProps) {
   );
 }
 
+// ---------- Chapter 3, Campagne de France: a field table under a low grey sky ----------
+
+const CAMPAGNE_CHART: Place = { x: -0.5, z: -0.22, turn: -1.5 };
+const CAMPAGNE_WIDE: Shot = { x: 0.3, z: 0.1, distance: 2.75, tilt: 24 };
+const campagneShot = shotsFor('nord-de-la-france', CAMPAGNE_CHART, 0.4);
+
+function CampagneScene(props: SceneProps) {
+  return (
+    <TableScene
+      {...props}
+      wide={CAMPAGNE_WIDE}
+      shotFor={campagneShot}
+      // Évreux is inked by the Chapter opening; Pithiviers is reached by a Route when the escadrille falls back
+      chart={(views) => <Chart sheet="nord-de-la-france" place={CAMPAGNE_CHART} posts={['evreux', ...views.filter(isPost).filter((view) => view !== 'evreux')]} />}
+      model={(cue, shown) => <Models key={cue.id} cue={cue} shown={shown} />}
+    />
+  );
+}
+
 export const SCENES: Partial<Record<ChapterId, SceneEntry>> = {
   ouverture: { look: 'lamp', Scene: OuvertureScene, wide: WIDE_SHOT },
   tours: { look: 'summer', Scene: ToursScene, wide: TOURS_WIDE, opening: { sheet: 'france', place: TOURS_CHART, post: 'tours' } },
   algerie: { look: 'sahel', Scene: AlgerieScene, wide: ALGERIE_WIDE, opening: { sheet: 'afrique-du-nord', place: ALGERIE_CHART, post: 'oran' } },
+  'campagne-de-france': {
+    look: 'overcast',
+    Scene: CampagneScene,
+    wide: CAMPAGNE_WIDE,
+    opening: { sheet: 'nord-de-la-france', place: CAMPAGNE_CHART, post: 'evreux' },
+  },
 };
